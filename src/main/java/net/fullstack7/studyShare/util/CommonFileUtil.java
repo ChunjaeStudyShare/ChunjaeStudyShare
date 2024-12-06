@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 public class CommonFileUtil {
 
 
-    private static final String UPLOAD_DIR = "C:/Users/Jerry/Desktop/java7/project/inflearn_clone_file";
-    private static final String DELETE_DIR = "C:/Users/Jerry/Desktop/java7/project";
+    private static final String UPLOAD_DIR = "D:\\chunjae\\file";
+    private static final String DELETE_DIR = "D:\\chunjae";
     @Value("${file.upload.path}")
     private String uploadPath;
 
@@ -37,7 +37,7 @@ public class CommonFileUtil {
             File destinationFile = new File(fullPath);
             file.transferTo(destinationFile);
             // 업로드된 파일의 경로 반환
-            return "/inflearn_clone_file/" + uniqueFileName;
+            return "/file/" + uniqueFileName;
         } else {
             throw new IllegalArgumentException("업로드할 파일이 없습니다.");
         }

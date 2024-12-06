@@ -17,7 +17,7 @@
     </style>
     <div class="container mt-5">
         <h4 class="mb-4">학습 정보 등록</h4>
-        <form th:action="@{/templates/post/regist}" method="POST" enctype="multipart/form-data">
+        <form th:action="@{/post/regist}" method="POST" enctype="multipart/form-data">
             <table class="table regist-table">
                 <tbody>
                 <tr>
@@ -41,10 +41,10 @@
                 <!-- 이미지 -->
                 <tr>
                     <th class="text-end align-middle">
-                        <label for="image">이미지</label>
+                        <label for="file">이미지</label>
                     </th>
                     <td>
-                        <input type="file" class="form-control" id="image" name="image" accept=".jpg, .png">
+                        <input type="file" class="form-control" id="file" name="file" accept=".jpg, .png">
                         <div class="form-text">이미지는 가로/세로 400x600, 비율 2:3 권장</div>
                     </td>
                 </tr>
@@ -54,11 +54,11 @@
                     <th class="text-end align-middle">오늘의 학습 노출 여부</th>
                     <td>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="display" id="displayYes" value="yes" required>
+                            <input class="form-check-input" type="radio" name="privacy" id="displayYes" value="1" required>
                             <label class="form-check-label" for="displayYes">노출</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="display" id="displayNo" value="no">
+                            <input class="form-check-input" type="radio" name="privacy" id="displayNo" value="0">
                             <label class="form-check-label" for="displayNo">노출 안 함</label>
                         </div>
                     </td>
@@ -67,16 +67,16 @@
                 <!-- 오늘의 학습 노출 기간 -->
                 <tr>
                     <th class="text-end align-middle">
-                        <label for="startDate">오늘의 학습 노출 기간</label>
+                        <label for="displayAt">오늘의 학습 노출 기간</label>
                     </th>
                     <td>
                         <div class="row g-2">
                             <div class="col">
-                                <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                <input type="datetime-local" class="form-control" id="displayAt" name="displayAt" required>
                             </div>
                             <span class="col-auto align-self-center">~</span>
                             <div class="col">
-                                <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd" required>
                             </div>
                         </div>
                     </td>
@@ -85,10 +85,10 @@
                 <!-- 분야 -->
                 <tr>
                     <th class="text-end align-middle">
-                        <label for="categories">분야</label>
+                        <label for="domain">분야</label>
                     </th>
                     <td>
-                        <input type="text" class="form-control" id="categories" name="categories" placeholder="분야를 입력하세요 (최대 4개)" required>
+                        <input type="text" class="form-control" id="domain" name="domain" placeholder="분야를 입력하세요 (최대 4개)" required>
                         <div class="form-text">분야는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
                     </td>
                 </tr>
@@ -96,10 +96,10 @@
                 <!-- 해시태그 -->
                 <tr>
                     <th class="text-end align-middle">
-                        <label for="hashtags">해시태그</label>
+                        <label for="hashtag">해시태그</label>
                     </th>
                     <td>
-                        <input type="text" class="form-control" id="hashtags" name="hashtags" placeholder="해시태그를 입력하세요 (최대 4개)" required>
+                        <input type="text" class="form-control" id="hashtag" name="hashtag" placeholder="해시태그를 입력하세요 (최대 4개)" required>
                         <div class="form-text">해시태그는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
                     </td>
                 </tr>

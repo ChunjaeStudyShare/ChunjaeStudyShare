@@ -1,5 +1,6 @@
 package net.fullstack7.studyShare.domain;
 
+import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -7,10 +8,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import jakarta.persistence.Column;
+import lombok.NoArgsConstructor;
+
 @Getter
 @Entity
+@NoArgsConstructor // JPA 기본 생성자 필요
+@AllArgsConstructor // @Builder와 함께 필요
+@Builder
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,4 +55,5 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "userId")
     private Member member;
+
 }
