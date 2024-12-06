@@ -1,6 +1,6 @@
 const crypto = require('crypto'); // Node.js 내장 모듈
-const jwt = require('jsonwebtoken');
 const UserModel = require('../models/user.model');
+const TokenBuilderUtil = require('../util/token.builder.util');
 
 class AuthService {
     async login(id, password, rememberMe) {
@@ -26,32 +26,15 @@ class AuthService {
 
         // 비밀번호 검증
         if (hashedPassword !== user.password) {
+            // 로그인 시도 횟수 증가
             await UserModel.updateLoginTry(user.id);
             throw new Error(`아이디 또는 비밀번호가 잘못되었습니다. 로그인 시도 횟수: ${user.loginTry}`);
         }
-
+        await UserModel.resetLoginTry(user.id);
+        // 마지막 로그인 시간 업데이트
         await UserModel.updateLastLogin(user.id);
-
-        const token = jwt.sign(
-            {
-                userId: user.id,
-                email: user.email,
-                name: user.name,
-                status: user.status
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: rememberMe ? '7d' : '1h' }
-        );
-
-        return {
-            token,
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                status: user.status
-            }
-        };
+        // jwt 토큰 발급
+        return TokenBuilderUtil.generateToken(user);
     }
 }
 

@@ -17,9 +17,17 @@ exports.verifyToken = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
+        let message = '유효하지 않은 토큰입니다.';
+        let errorCode = 'INVALID_TOKEN';
+        
+        if (error.name === 'TokenExpiredError') {
+            message = '만료된 토큰입니다.';
+            errorCode = 'EXPIRED_TOKEN';
+        }
         return res.status(401).json({
             success: false,
-            message: '유효하지 않은 토큰입니다.'
+            message: message,
+            errorCode: errorCode
         });
     }
 };
