@@ -108,7 +108,7 @@
     </table>
 <!--    <div th:replace="~{common/paging :: paging}"></div>-->
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button class="btn btn-primary" type="button" >학습 등록</button>
+        <button class="btn btn-primary" th:onclick="|location.href= '@{/post/regist}'|">학습 등록</button>
     </div>
 </div>
 </div>
