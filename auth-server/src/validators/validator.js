@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const errorMessage = require('../errormessage/error.message');
+
 module.exports = {
     register: Joi.object({
         userId: Joi.string()

@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/user.model');
 const TokenModel = require('../models/token.model');
-
+const errorMessage = require('../errormessage/error.message');
 class AuthService {
     // 비밀번호 해시 생성 (SHA-256)
     async hashPassword(password, salt) {
@@ -13,16 +13,16 @@ class AuthService {
     }
 
     // 로그인
-    async login(userId, password) {
+    async login(userId, password, rememberMe) {
         const user = await UserModel.findById(userId);
         if (!user) {
-            throw new Error('존재하지 않는 아이디입니다.');
+            throw new Error(errorMessage.INVALID_USER);
         }
 
         // 계정 상태 확인
-        if (user.status === 2) throw new Error('탈퇴한 계정입니다.');
-        if (user.status === 3) throw new Error('이메일 인증이 필요합니다.');
-        if (user.status === 4) throw new Error('잠긴 계정입니다. 관리자에게 문의하세요.');
+        if (user.status === 2) throw new Error(errorMessage.ACCOUNT_RESTRICTED);
+        if (user.status === 3) throw new Error(errorMessage.EMAIL_VERIFICATION_REQUIRED);
+        if (user.status === 4) throw new Error(errorMessage.ACCOUNT_LOCKED);
 
         // 비밀번호 검증
         const hashedPassword = await this.hashPassword(password, user.salt);
@@ -30,9 +30,9 @@ class AuthService {
             await UserModel.incrementLoginTry(userId);
             if (user.loginTry >= 4) {
                 await UserModel.updateStatus(userId, 4);
-                throw new Error('로그인 시도 횟수 초과로 계정이 잠겼습니다.');
+                throw new Error(errorMessage.ACCOUNT_LOCK);
             }
-            throw new Error('비밀번호가 일치하지 않습니다.');
+            throw new Error(errorMessage.INVALID_PASSWORD);
         }
 
         // 로그인 성공 처리
@@ -49,14 +49,15 @@ class AuthService {
             },
             process.env.JWT_SECRET,
             { 
-                expiresIn: '24h',
+                expiresIn: rememberMe ? '7d' : '1h',
                 algorithm: 'HS256'  // SHA-256 명시
             }
         );
 
         // 토큰 저장
         const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 24);
+        // 7일 또는 1일 후 만료 (rememberMe가 true일 경우 7일, false일 경우 1일)
+        expiresAt.setHours(expiresAt.getHours() + (rememberMe ? 24*7 : 24));
         await TokenModel.saveToken(userId, jti, expiresAt);
 
         return {

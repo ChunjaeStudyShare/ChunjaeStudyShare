@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const EmailCodeModel = require('../models/emailcode.model');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
-
+const errorMessage = require('../errormessage/error.message');
 class EmailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
@@ -112,7 +112,7 @@ class EmailService {
             return true;
         } catch (error) {
             console.error('Email sending failed:', error);
-            throw new Error('이메일 전송에 실패했습니다.');
+            throw new Error(errorMessage.EMAIL_ERROR);
         }
     }
 }

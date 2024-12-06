@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const TokenModel = require('../models/token.model');
+const errorMessage = require('../errormessage/error.message');
 
 exports.verifyToken = async (req, res, next) => {
     try {
@@ -7,7 +8,7 @@ exports.verifyToken = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: '인증 토큰이 필요합니다.'
+                message: errorMessage.INVALID_TOKEN
             });
         }
 
@@ -19,7 +20,7 @@ exports.verifyToken = async (req, res, next) => {
         if (!isValidToken) {
             return res.status(401).json({
                 success: false,
-                message: '유효하지 않은 토큰입니다.'
+                message: errorMessage.INVALID_TOKEN
             });
         }
 
@@ -29,7 +30,7 @@ exports.verifyToken = async (req, res, next) => {
     } catch (error) {
         res.status(401).json({
             success: false,
-            message: '인증에 실패했습니다.'
+            message: errorMessage.INVALID_TOKEN
         });
     }
 };

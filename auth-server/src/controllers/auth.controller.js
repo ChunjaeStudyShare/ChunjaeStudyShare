@@ -6,6 +6,8 @@ class AuthController {
     async login(req, res) {
         try {
             const { error } = validator.login.validate(req.body);
+            console.log(req.body.userId);
+            console.log(req.body.password);
             if (error) {
                 return res.status(400).json({
                     success: false,
@@ -13,8 +15,8 @@ class AuthController {
                 });
             }
 
-            const { id, password } = req.body;
-            const result = await AuthService.login(id, password);
+            const { userId, password, rememberMe } = req.body;
+            const result = await AuthService.login(userId, password, rememberMe);
 
             res.json({
                 success: true,
