@@ -71,7 +71,6 @@ public class FriendController {
         friendDTO.setRequesterId(userId);
         friendDTO.setStatus(0);
         boolean success = friendService.sendFriendRequest(friendDTO);
-
         if(success) {
             return ResponseEntity.ok().build();
         } else {
