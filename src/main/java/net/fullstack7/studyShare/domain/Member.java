@@ -35,4 +35,7 @@ public class Member {
 
     @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '마지막 로그인 시간'")
     private LocalDateTime lastLogin;
+
+    @Column(columnDefinition = "INT DEFAULT 0 COMMENT '로그인 시도 횟수 최대 5회까지 가능'")
+    private Integer loginTry;
 }
