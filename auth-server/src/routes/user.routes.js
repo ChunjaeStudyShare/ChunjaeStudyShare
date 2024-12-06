@@ -1,33 +1,22 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const UserController = require('../controllers/user.controller');
 const { verifyToken } = require('../middleware/auth.middleware');
-const { validateRequest } = require('../middleware/user.middleware');
-const validators = require('../validators/validators');
 
-// Public routes
-router.post('/register', 
-    validateRequest(validators.register),
-    (req, res, next) => UserController.register(req, res, next)
-);
+const userController = new UserController();
 
-// Protected routes (토큰 검증 필요)
-router.put('/update-password',
-    verifyToken,  // 토큰 검증
-    validateRequest(validators.updatePassword),
-    (req, res, next) => UserController.updatePassword(req, res, next)
-);
+// POST /api/user/register - 회원가입
+router.post('/register', userController.register);
 
-router.put('/update-user',
-    verifyToken,  // 토큰 검증
-    validateRequest(validators.updateUser),
-    (req, res, next) => UserController.updateUser(req, res, next)
-);
+// PUT /api/user/update-user - 회원정보 수정 (인증 필요)
+router.put('/update-user', verifyToken, userController.updateUser);
 
-// router.delete('/delete-user',
-//     verifyToken,  // 토큰 검증
-//     (req, res, next) => UserController.deleteUser(req, res, next)
-// );
-// 탈퇴는 스프링서버에서 처리
+// PUT /api/user/update-password - 비밀번호 변경 (인증 필요)
+router.put('/update-password', verifyToken, userController.updatePassword);
+
+// GET /api/user/verify-email - 이메일 인증
+router.get('/verify-email', userController.verifyEmail);
+
+// POST /api/user/reset-password-email - 비밀번호 재설정 메일 발송
+router.post('/reset-password-email', userController.sendPasswordResetEmail);
 
 module.exports = router;
