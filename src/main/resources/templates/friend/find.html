@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{index.html}"
+>
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <!-- 입력 필드 -->
+        <div class="mb-3">
+            <label for="searchId" class="form-label">아이디 검색</label>
+            <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요" onkeyup="searchUserById()">
+        </div>
+
+        <!-- 친구 검색 결과 테이블 -->
+        <div id="suggestions"></div>
+    </div>
+
+    <script th:inline="javascript">
+        let debounceTimer;
+
+        function searchUserById() {
+            const userId = document.getElementById('searchId').value;
+
+            // 입력이 없으면 아무것도 하지 않음
+            if (userId.length === 0) {
+                document.getElementById('suggestions').innerHTML = '';
+                return;
+            }
+
+            // 입력 중일 때마다 debounce 처리하여 요청을 지연시킴
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                // AJAX 요청을 보냄
+                fetch(`/friend/searchUserById?userId=${userId}`)
+                    .then(response => response.json())  // JSON 형태로 응답 받기
+                    .then(data => {
+                        let suggestionsHtml = `
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>아이디</th>
+                      <th>신청</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+              `;  // 테이블 헤더 추가
+
+                        if (data.length === 0) {
+                            suggestionsHtml += '<tr><td colspan="2">검색된 유저가 없습니다.</td></tr>';
+                        } else {
+                            data.forEach(userId => {
+                                suggestionsHtml += `
+                    <tr>
+                      <td>${userId}</td>
+                      <td>
+                      <button class="btn btn-primary" onclick="sendRequest('${userId}')">신청</button>
+
+                      </td>
+                    </tr>
+                  `;
+                            });
+                        }
+                        suggestionsHtml += '</tbody></table>';
+                        document.getElementById('suggestions').innerHTML = suggestionsHtml;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }, 300);  // 300ms 지연 후 요청
+        }
+
+        // 요청 보내기 (아직 구현되지 않은 부분)
+        function sendRequest(userId) {
+            alert(userId + '에게 친구 신청을 보냅니다!');
+        }
+    </script>
+</div>

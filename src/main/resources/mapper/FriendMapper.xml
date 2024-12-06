@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.fullstack7.studyShare.mapper.FriendMapper">
+    <select id="list1" resultType="java.lang.String">
+        SELECT requesterId FROM friend
+        WHERE status = 1
+          AND friendId = #{userId}
+    </select>
+    <select id="list2" resultType="java.lang.String">
+        SELECT friendId FROM friend
+        WHERE status = 1
+        AND requesterId = #{userId}
+    </select>
+    <select id="searchById" resultType="java.lang.String">
+        SELECT userId FROM member
+        WHERE userId LIKE CONCAT('%', #{searchId}, '%')
+        AND userId != #{userId}
+        LIMIT 5
+    </select>
+    <select id="amIReceiver" resultType="java.lang.Integer">
+        SELECT count(*) FROM friend
+        WHERE friendId = #{userId}
+        AND requesterId = #{searchId}
+        AND status = 0
+    </select>
+    <select id="amISender" resultType="java.lang.Integer">
+        SELECT count(*) FROM friend
+        WHERE friendId = #{searchId}
+          AND requesterId = #{userId}
+          AND status = 0
+    </select>
+    <insert id="sendFriendRequest">
+        INSERT INTO friend (status, friendId, requesterId)
+        VALUES (#{status}, #{friendId}, #{requesterId})
+    </insert>
+</mapper>
