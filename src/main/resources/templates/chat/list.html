@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="https://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/basic.html}">
+      layout:decorate="~{common/layout.html}">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -52,29 +52,30 @@
 </head>
 <body>
 <div layout:fragment="content">
-<div class="chat-list">
-    <div class="chat-item">
-        <div class="chat-details">
-            <div class="chat-title">Chat Room 1</div>
-            <div class="chat-last-message">This is the last message...</div>
+    <div><button type="button" class="btn btn-dark" onclick="location.href='/chat/create'">Dark</button></div>
+    <div class="chat-list">
+        <div class="chat-item">
+            <div class="chat-details">
+                <div class="chat-title">Chat Room 1</div>
+                <div class="chat-last-message">This is the last message...</div>
+            </div>
+            <div class="chat-time">10:30 AM</div>
         </div>
-        <div class="chat-time">10:30 AM</div>
-    </div>
-    <div class="chat-item">
-        <div class="chat-details">
-            <div class="chat-title">Chat Room 2</div>
-            <div class="chat-last-message">Another recent message...</div>
+        <div class="chat-item">
+            <div class="chat-details">
+                <div class="chat-title">Chat Room 2</div>
+                <div class="chat-last-message">Another recent message...</div>
+            </div>
+            <div class="chat-time">Yesterday</div>
         </div>
-        <div class="chat-time">Yesterday</div>
-    </div>
-    <div class="chat-item">
-        <div class="chat-details">
-            <div class="chat-title">Chat Room 3</div>
-            <div class="chat-last-message">Hello, how are you?</div>
+        <div class="chat-item">
+            <div class="chat-details">
+                <div class="chat-title">Chat Room 3</div>
+                <div class="chat-last-message">Hello, how are you?</div>
+            </div>
+            <div class="chat-time">2 days ago</div>
         </div>
-        <div class="chat-time">2 days ago</div>
     </div>
-</div>
 </div>
 </body>
 </html>
