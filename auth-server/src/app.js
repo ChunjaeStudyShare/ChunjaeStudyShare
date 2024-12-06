@@ -7,8 +7,18 @@ const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
-// 미들웨어
-app.use(cors());
+// cors 설정
+const corsOptions = {
+    origin: 'https://gyeongminiya.asia',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Authorization'],
+    credentials: true
+};
+
+app.use(cors(corsOptions));
+
+// json 파싱
 app.use(express.json());
 
 // 라우트
@@ -25,7 +35,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+// 서버 실행
+const PORT = process.env.PORT || 3443;
 app.listen(PORT, () => {
     console.log(`서버가 ${PORT}번 포트에서 실행 중입니다.`);
 });

@@ -1,40 +1,65 @@
-const crypto = require('crypto'); // Node.js 내장 모듈
 const UserModel = require('../models/user.model');
-const TokenBuilderUtil = require('../util/token.builder.util');
+const TokenUtil = require('../util/token.util');
+const errorMessage = require('../errormessage/error.message');
+const crypto = require('crypto');
 
 class AuthService {
-    async login(id, password, rememberMe) {
-        const user = await UserModel.findById(id);
+    async login(userId, password, rememberMe) {
+        // 1. 사용자 찾기
+        const user = await UserModel.findById(userId);
         if (!user) {
-            throw new Error('아이디 또는 비밀번호가 잘못되었습니다.');
+            throw new Error(errorMessage.INVALID_CREDENTIALS);
         }
 
-        // 휴면 계정 체크
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-        
-        if (user.lastLogin && new Date(user.lastLogin) < sixMonthsAgo) {
-            await UserModel.updateStatus(user.id, 1);
-            throw new Error('휴면 계정입니다. 계정을 활성화해주세요.');
+        // 2. 계정 상태 확인
+        switch (user.status) {
+            case 1:
+                // 계정 휴면 상태 확인
+                throw new Error(errorMessage.ACCOUNT_DORMANT);
+            case 2:
+                // 계정 제한 상태 확인 (정지)
+                throw new Error(errorMessage.ACCOUNT_RESTRICTED);
+            case 3:
+                // 계정 인증 대기 상태 확인 (이메일 인증 대기)
+                throw new Error(errorMessage.EMAIL_NOT_VERIFIED);
+            case 4:
+                // 계정 잠금 상태 확인 (로그인 시도 횟수 5회 초과)
+                throw new Error(errorMessage.ACCOUNT_LOCKED);
         }
 
-        // SHA256 해시 생성
+        // 3. 비밀번호 검증
         const hashedPassword = crypto
             .createHash('sha256')
-            .update(password + user.salt) // salt 추가
+            .update(password + user.salt)
             .digest('hex');
 
-        // 비밀번호 검증
         if (hashedPassword !== user.password) {
-            // 로그인 시도 횟수 증가
-            await UserModel.updateLoginTry(user.id);
-            throw new Error(`아이디 또는 비밀번호가 잘못되었습니다. 로그인 시도 횟수: ${user.loginTry}`);
+            await UserModel.updateLoginTry(user.userId);
+
+            // 로그인 시도 횟수 체크 및 계정 잠금 처리
+            if (user.loginTry >= 4) {
+                await UserModel.updateStatus(user.userId, 4);
+                throw new Error(errorMessage.ACCOUNT_LOCK);
+            }
+            throw new Error(errorMessage.INVALID_CREDENTIALS);
         }
-        await UserModel.resetLoginTry(user.id);
-        // 마지막 로그인 시간 업데이트
-        await UserModel.updateLastLogin(user.id);
-        // jwt 토큰 발급
-        return TokenBuilderUtil.generateToken(user);
+
+        // 4. 로그인 성공 처리
+        await UserModel.resetLoginTry(user.userId);
+        await UserModel.updateLastLogin(user.userId);
+
+        // 5. 토큰 생성
+        const token = TokenUtil.generateToken(user, rememberMe);
+
+        return {
+            success: true,
+            token,
+            user: {
+                id: user.userId,
+                name: user.name,
+                email: user.email
+            }
+        };
     }
 }
 

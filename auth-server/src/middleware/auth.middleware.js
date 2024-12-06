@@ -1,4 +1,5 @@
-const jwt = require('jsonwebtoken');
+const TokenUtil = require('../util/token.util');
+const errorMessage = require('../errormessage/error.message');
 
 exports.verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -6,28 +7,32 @@ exports.verifyToken = (req, res, next) => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({
             success: false,
-            message: '인증 토큰이 필요합니다.'
+            message: errorMessage.INVALID_TOKEN,
+            error: 'INVALID_TOKEN'
         });
     }
 
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // 기존 token.util의 checkAll 메서드 사용
+        TokenUtil.checkAll(token, req.params.userId);
+        const decoded = TokenUtil.checkExpired(token);
         req.user = decoded;
         next();
     } catch (error) {
-        let message = '유효하지 않은 토큰입니다.';
+        let message = errorMessage.INVALID_TOKEN;
         let errorCode = 'INVALID_TOKEN';
         
         if (error.name === 'TokenExpiredError') {
-            message = '만료된 토큰입니다.';
+            message = errorMessage.EXPIRED_TOKEN;
             errorCode = 'EXPIRED_TOKEN';
         }
+        
         return res.status(401).json({
             success: false,
-            message: message,
-            errorCode: errorCode
+            message,
+            error: errorCode
         });
     }
 };

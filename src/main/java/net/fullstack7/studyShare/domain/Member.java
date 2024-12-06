@@ -30,7 +30,7 @@ public class Member {
     @Column(unique = true, columnDefinition = "VARCHAR(15) COMMENT '휴대폰 번호'")
     private String phone;
 
-    @Column(columnDefinition = "TINYINT(2) DEFAULT 0 COMMENT '0: 활동 중, 1: 휴면, 2: 탈퇴(강퇴)'")
+    @Column(columnDefinition = "TINYINT(2) DEFAULT 3 COMMENT '0: 활동 중, 1: 휴면, 2: 탈퇴(강퇴), 3: 미인증, 4: 잠금'")
     private Integer status;
 
     @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '마지막 로그인 시간'")
