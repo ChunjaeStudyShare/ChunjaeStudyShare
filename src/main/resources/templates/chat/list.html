@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="https://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .chat-list {
+            max-width: 500px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-item:hover {
+            background: #f9f9f9;
+        }
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+        .chat-details {
+            flex: 1;
+        }
+        .chat-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 0 5px;
+        }
+        .chat-last-message {
+            font-size: 14px;
+            color: #555;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div><button type="button" class="btn btn-dark" onclick="location.href='/chat/create'">Dark</button></div>
+    <div class="chat-list">
+        <div class="chat-item">
+            <div class="chat-details">
+                <div class="chat-title">Chat Room 1</div>
+                <div class="chat-last-message">This is the last message...</div>
+            </div>
+            <div class="chat-time">10:30 AM</div>
+        </div>
+        <div class="chat-item">
+            <div class="chat-details">
+                <div class="chat-title">Chat Room 2</div>
+                <div class="chat-last-message">Another recent message...</div>
+            </div>
+            <div class="chat-time">Yesterday</div>
+        </div>
+        <div class="chat-item">
+            <div class="chat-details">
+                <div class="chat-title">Chat Room 3</div>
+                <div class="chat-last-message">Hello, how are you?</div>
+            </div>
+            <div class="chat-time">2 days ago</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
