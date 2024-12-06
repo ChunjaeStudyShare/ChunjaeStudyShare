@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const EmailCodeModel = require('../models/emailcode.model');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 class EmailService {
     constructor() {
