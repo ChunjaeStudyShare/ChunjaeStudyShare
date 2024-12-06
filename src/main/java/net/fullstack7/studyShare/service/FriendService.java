@@ -12,4 +12,6 @@ public interface FriendService {
     Integer amISender(String userId, String searchId);
     Integer amIReceiver(String userId, String searchId);
     Boolean sendFriendRequest(FriendDTO friendDTO);
+    Boolean cancelFriendRequest(FriendDTO friendDTO);
+    Boolean acceptFriendRequest(FriendDTO friendDTO);
 }
