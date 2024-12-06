@@ -40,3 +40,6 @@ out/
 /src/test/*
 
 .DS_Store
+/auth-server/node_modules
+/auth-server/package-lock.json
+/auth-server/.env
