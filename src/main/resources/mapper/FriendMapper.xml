@@ -2,10 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.fullstack7.studyShare.mapper.FriendMapper">
-    <select id="list" resultType="net.fullstack7.studyShare.dto.FriendDTO">
+    <select id="list1" resultType="java.lang.String">
         SELECT * FROM friend
         WHERE status = 1
-        AND #{memberId} IN (friendId, requesterId)
+          AND friendId = #{userId}
+    </select>
+    <select id="list2" resultType="java.lang.String">
+        SELECT * FROM friend
+        WHERE status = 1
+        AND requesterId = #{userId}
     </select>
     <select id="searchById" resultType="java.lang.String">
         SELECT userId FROM member

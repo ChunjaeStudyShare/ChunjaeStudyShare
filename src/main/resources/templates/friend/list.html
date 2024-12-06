@@ -2,7 +2,7 @@
 <html
         lang="en"
         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-        layout:decorate="~{index.html}"
+        layout:decorate="~{common/layout.html}"
 >
 <div layout:fragment="content">
     <div>
@@ -13,12 +13,14 @@
             <tr>
                 <th>#</th>
                 <th>아이디</th>
-                <th>수락/거절</th>
+                <th>채팅</th>
+                <th>삭제</th>
             </tr>
-            <tr th:each="dto, status : ${friendList}">
+            <tr th:each="userId, status : ${friendList}">
                 <td th:text="${status.index+1}"></td>
-                <td th:text="${dto.requesterId}"></td>
-                <td><button>수락</button><button>거절</button></td>
+                <td th:text="${userId}"></td>
+                <td><a href="#">채팅</a></td>
+                <td><button>삭제</button></td>
             </tr>
         </table>
     </div>

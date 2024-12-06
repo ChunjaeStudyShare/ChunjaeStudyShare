@@ -8,6 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface FriendMapper {
-    List<FriendDTO> list(String memberId);
+    List<String> list1(String userId);
+    List<String> list2(String userId);
     List<String> searchById(String userId);
 }

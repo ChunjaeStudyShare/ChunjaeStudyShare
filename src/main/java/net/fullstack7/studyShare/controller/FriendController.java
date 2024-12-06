@@ -24,8 +24,8 @@ public class FriendController {
 
     @GetMapping("/list")
     public String list(Model model) {
-        String memberId = "test1"; //세션아이디
-        List<FriendDTO> friendList = friendService.list(memberId);
+        String userId = "test1"; //세션아이디
+        List<String> friendList = friendService.list(userId);
         model.addAttribute("friendList", friendList);
         return "friend/list";
     }
