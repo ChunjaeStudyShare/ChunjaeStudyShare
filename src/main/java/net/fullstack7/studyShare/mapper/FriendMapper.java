@@ -10,5 +10,8 @@ import java.util.List;
 public interface FriendMapper {
     List<String> list1(String userId);
     List<String> list2(String userId);
-    List<String> searchById(String userId);
+    List<String> searchById(String userId, String searchId);
+    Integer amISender(String userId, String searchId);
+    Integer amIReceiver(String userId, String searchId);
+    Boolean sendFriendRequest(FriendDTO friendDTO);
 }

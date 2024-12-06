@@ -2,16 +2,16 @@ package net.fullstack7.studyShare.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.fullstack7.studyShare.dto.FriendCheckDTO;
 import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.MemberDTO;
 import net.fullstack7.studyShare.service.FriendService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -24,22 +24,64 @@ public class FriendController {
 
     @GetMapping("/list")
     public String list(Model model) {
-        String userId = "test1"; //세션아이디
+        String userId = "testuser1"; //세션아이디
         List<String> friendList = friendService.list(userId);
+        log.info("friendList: {}", friendList);
         model.addAttribute("friendList", friendList);
         return "friend/list";
     }
 
-    @GetMapping("/find")
-    public String find(Model model) {
-        return "friend/find";
-    }
+//    @GetMapping("/find")
+//    public String find(Model model) {
+//        return "friend/find";
+//    }
 
     @GetMapping("/searchUserById")
     @ResponseBody
-    public List<String> searchUserById(@RequestParam String userId) {
-        return friendService.searchUsersById(userId);  // 아이디로 검색한 결과를 반환
+    public List<FriendCheckDTO> searchUserById(@RequestParam String searchId) { // 여기에서 검색된 아이디가 있는지 없는지 여부를 확인하려면 ? 만약 null이 나오면 어떤 에러가 뜨는지?
+        String userId = "testuser1"; //세션아이디
+        log.info("searchId: {}", searchId);
+        List<String> friendList = friendService.list(userId);
+        List<String> searchList = friendService.searchUsersById(userId, searchId);
+
+        List<FriendCheckDTO> friendCheckedList = new ArrayList<>();
+        for(String search : searchList) {
+            FriendCheckDTO friendCheckDTO = new FriendCheckDTO();
+            friendCheckDTO.setUserId(search);
+
+            //여기서 나랑 친구 신청이 걸려있는지 여부를 체크해줘야 함.
+            friendCheckDTO.setReceived(friendService.amIReceiver(userId, search)); // 내가 받았는지 여부 확인 0이면 없음, 1이면 내가 받은거임.
+            friendCheckDTO.setSent(friendService.amISender(userId, search)); // 내가 보냈는지 여부 확인 0이면 없음 1이면 내가 보낸거임.
+
+            for (String friend : friendList) {
+                if (search.equals(friend)) {
+                    friendCheckDTO.setIsFriend(1);
+                    break;
+                }
+            }
+            friendCheckedList.add(friendCheckDTO);
+        }
+        return friendCheckedList;
     }
+
+    @PostMapping("/sendRequest")
+    @ResponseBody  // 응답을 JSON으로 반환하도록 설정
+    public ResponseEntity<?> sendRequest(@RequestBody FriendDTO friendDTO) {
+        String userId = "testuser1"; //세션아이디
+        friendDTO.setRequesterId(userId);
+        friendDTO.setStatus(0);
+        boolean success = friendService.sendFriendRequest(friendDTO);
+
+        if(success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+
+
+
 
 
 }
