@@ -1,11 +1,13 @@
 package net.fullstack7.studyShare.service.post;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.File;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
 import net.fullstack7.studyShare.repository.FileRepository;
+import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.repository.PostRepository;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +18,11 @@ import java.time.LocalDateTime;
 
 @Log4j2
 @Service
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostServiceIf{
-    @Autowired
-    private PostRepository postrepository;
-
-    @Autowired
-    private FileRepository fileRepository;
-
+    private final PostRepository postRepository;
+    private final FileRepository fileRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public boolean regist(PostRegistDTO dto, String memberId) throws IOException {
@@ -33,8 +33,8 @@ public class PostServiceImpl implements PostServiceIf{
         if (dto.getFile() != null && !dto.getFile().isEmpty()) {
             try {
                 fileName = CommonFileUtil.uploadFile(dto.getFile()); // 파일 업로드
-                dto.setFileName(fileName);
-                filePath = "/upload/path/" + fileName; // 여기가 잘못된 것 같음
+                filePath = "/file/" + fileName; // 업로드된 파일의 전체 경로 설정
+                dto.setFileName(fileName); // DTO에 파일 이름 저장
                 log.info("파일명: {}, 파일경로: {}", fileName, filePath);
             } catch (Exception e) {
                 log.error("파일 업로드 실패{}", e.getMessage(), e);
@@ -42,6 +42,10 @@ public class PostServiceImpl implements PostServiceIf{
         } else {
             log.warn("없음");
         }
+
+        // 이미 저장된 Member 엔티티 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
 
         if (dto != null) {
             try {
@@ -55,9 +59,9 @@ public class PostServiceImpl implements PostServiceIf{
                         .createdAt(LocalDateTime.now())
                         .domain(dto.getDomain())
                         .hashtag(dto.getHashtag())
-                        .member(Member.builder().userId(memberId).build())
+                        .member(member)
                         .build();
-                postrepository.save(post);
+                postRepository.save(post);
                 log.info(" 성공  ID: {}", post.getId());
 
                 // 파일 정보 저장

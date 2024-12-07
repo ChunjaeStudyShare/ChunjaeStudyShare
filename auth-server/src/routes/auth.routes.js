@@ -1,14 +1,13 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const AuthController = require('../controllers/auth.controller');
-const validateRequest = require('../validators/validateRequest');
-const validators = require('../validators/validators');
+const { verifyToken } = require('../middleware/auth.middleware');
 
-const authController = new AuthController();
+// const authController = new AuthController();
 
-router.post('/login', 
-    validateRequest(validators.login), 
-    (req, res, next) => authController.login(req, res, next)
-);
+// POST /api/auth/login - 로그인
+router.post('/login', AuthController.login);
+
+// POST /api/auth/logout - 로그아웃 (인증 필요)
+router.post('/logout', verifyToken, AuthController.logout);
 
 module.exports = router;

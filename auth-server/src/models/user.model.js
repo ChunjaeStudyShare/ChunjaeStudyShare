@@ -1,74 +1,73 @@
 const db = require('../config/database');
 
-/* 
-table : Member
-
-column :
-userId; // 아이디
-name; // 이름
-salt; // 솔트
-email; // 이메일
-password; // 비밀번호
-phone; // 휴대폰 번호
-status; // 0: 활동 중, 1: 휴면, 2: 탈퇴(강퇴), 3: 미인증
-lastLogin; // 마지막 로그인 시간
-loginTry; // 로그인 시도 횟수 최대 5회까지 가능
-*/
 class UserModel {
+    // 회원 생성
+    async create(userData) {
+        const query = `
+            INSERT INTO Member (userId, name, salt, email, password, phone, status)
+            VALUES (?, ?, ?, ?, ?, ?, 3)
+        `;
+        const [result] = await db.query(query, [
+            userData.userId,
+            userData.name,
+            userData.salt,
+            userData.email,
+            userData.password,
+            userData.phone
+        ]);
+        return result.insertId;
+    }
+
+    // ID로 회원 찾기
     async findById(userId) {
-        const [rows] = await db.query(
-            'SELECT * FROM Member WHERE userId = ?',
-            [userId]
-        );
+        const [rows] = await db.query('SELECT * FROM Member WHERE userId = ?', [userId]);
         return rows[0];
     }
 
+    // 이메일로 회원 찾기
     async findByEmail(email) {
-        const [rows] = await db.query(
-            'SELECT * FROM Member WHERE email = ?',
-            [email]
-        );
+        const [rows] = await db.query('SELECT * FROM Member WHERE email = ?', [email]);
         return rows[0];
     }
 
-    async updateLastLogin(userId) {
-        await db.query(
-            'UPDATE Member SET lastLogin = NOW() WHERE userId = ?',
-            [userId]
-        );
+    // 전화번호로 회원 찾기
+    async findByPhone(phone) {
+        const [rows] = await db.query('SELECT * FROM Member WHERE phone = ?', [phone]);
+        return rows[0];
     }
 
-    async updateStatus(userId, status) {
-        await db.query(
-            'UPDATE Member SET status = ? WHERE userId = ?',
-            [status, userId]
-        );
+    // 회원 정보 수정
+    async updateUser(userId, userData) {
+        const query = 'UPDATE Member SET name = ?, phone = ? WHERE userId = ?';
+        const [result] = await db.query(query, [userData.name, userData.phone, userId]);
+        return result.affectedRows > 0;
     }
 
-    async updateLoginTry(userId) {
-        await db.query(
-            'UPDATE Member SET loginTry = loginTry + 1 WHERE userId = ?',
-            [userId]
-        );
-    }
-
-    async resetLoginTry(userId) {
-        await db.query(
-            'UPDATE Member SET loginTry = 0 WHERE userId = ?',
-            [userId]
-        );
-    }
-
-    async insertUser(user) {
-        await db.query('INSERT INTO Member (userId, name, salt, email, password, phone, status, lastLogin, loginTry) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [user.userId, user.name, user.salt, user.email, user.password, user.phone, 3, user.lastLogin, user.loginTry]
-        );
-    }
-    
+    // 비밀번호 업데이트
     async updatePassword(userId, password, salt) {
-        await db.query('UPDATE Member SET password = ?, salt = ? WHERE userId = ?', [password, salt, userId]);
+        const query = 'UPDATE Member SET password = ?, salt = ? WHERE userId = ?';
+        const [result] = await db.query(query, [password, salt, userId]);
+        return result.affectedRows > 0;
     }
 
+    // 로그인 시도 횟수 증가
+    async incrementLoginTry(userId) {
+        const query = 'UPDATE Member SET loginTry = loginTry + 1 WHERE userId = ?';
+        await db.query(query, [userId]);
+    }
+
+    // 로그인 시도 횟수 초기화
+    async resetLoginTry(userId) {
+        const query = 'UPDATE Member SET loginTry = 0, lastLogin = CURRENT_TIMESTAMP WHERE userId = ?';
+        await db.query(query, [userId]);
+    }
+
+    // 계정 상태 변경
+    async updateStatus(userId, status) {
+        const query = 'UPDATE Member SET status = ? WHERE userId = ?';
+        const [result] = await db.query(query, [status, userId]);
+        return result.affectedRows > 0;
+    }
 }
 
 module.exports = new UserModel();

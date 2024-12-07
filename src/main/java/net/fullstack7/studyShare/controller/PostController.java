@@ -21,15 +21,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+
 import static java.awt.SystemColor.info;
 
+
 @Controller
-@Log4j2
-@RequiredArgsConstructor
 @RequestMapping("/post")
+@RequiredArgsConstructor
+@Log4j2
 public class PostController {
 
-    private PostServiceIf postService;
+    private final PostServiceIf postService;
 
     @GetMapping("myList")
     public String myStudyList(){
@@ -41,35 +44,60 @@ public class PostController {
         return "post/regist";
     }
 
-    @PostMapping("/regist")
-    public String registPost(@ModelAttribute @Valid PostRegistDTO dto,
-                             BindingResult bindingResult,
-                             RedirectAttributes redirectAttributes,
-                             HttpServletResponse response,
-                             HttpSession session, Model model){
-        response.setCharacterEncoding("UTF-8");
-        //세션 아이디
-        String memberId = "user1";
-        if(bindingResult.hasErrors()){
-            log.error("Validation errors: {}", bindingResult.getAllErrors());
-            model.addAttribute("postDTO", dto);
-            redirectAttributes.addFlashAttribute("errors", bindingResult);
-            return "post/regist";
-        }
-        // 파일업로드
-        String fileName = null;
-        try{
-            postService.regist(dto, memberId);
-            //fileName = CommonFileUtil.uploadFile(dto.getFile());
-            return "redirect:/post/myList";
-        }catch(Exception e){
-            log.info("업로드 실패");
-            JSFunc.alert("업로드 실패. 다시 시도해주세요",response);
-            return "redirect:/post/regist";
-        }
-//        if(fileName != null && !fileName.isEmpty()){
-//            dto.setFileName(fileName);
+//    @PostMapping("/regist")
+//    public String registPost(@ModelAttribute @Valid PostRegistDTO dto,
+//                             BindingResult bindingResult,
+//                             RedirectAttributes redirectAttributes,
+//                             HttpServletResponse response,
+//                             HttpSession session, Model model){
+//        response.setCharacterEncoding("UTF-8");
+//        //세션 아이디
+//        String memberId = "user1";
+//        if(bindingResult.hasErrors()){
+//            log.error("Validation errors: {}", bindingResult.getAllErrors());
+//            model.addAttribute("postDTO", dto);
+//            redirectAttributes.addFlashAttribute("errors", bindingResult);
+//            return "post/regist";
 //        }
+//        // 파일업로드
+//        try{
+//            postService.regist(dto, memberId);
+//            return "redirect:/post/myList";
+//        } catch (IOException e) {
+//            log.error("PostController - 업로드 실패: {}", e.getMessage(), e);
+//            JSFunc.alert("업로드 실패. 다시 시도해주세요", response);
+//        } catch (Exception e) {
+//            log.error("PostController - 예기치 않은 오류: {}", e.getMessage(), e);
+//            JSFunc.alert("예기치 않은 오류가 발생했습니다.", response);
+//        }
+//    return "redirect:/post/regist";
+@PostMapping("/regist")
+public String registPost(@ModelAttribute @Valid PostRegistDTO dto,
+                         BindingResult bindingResult,
+                         RedirectAttributes redirectAttributes,
+                         HttpServletResponse response,
+                         HttpSession session, Model model) {
+    response.setCharacterEncoding("UTF-8");
 
+    String memberId = "user1"; // 하드코딩된 사용자 ID
+    if (bindingResult.hasErrors()) {
+        log.error("Validation errors: {}", bindingResult.getAllErrors());
+        model.addAttribute("postDTO", dto);
+        redirectAttributes.addFlashAttribute("errors", bindingResult);
+        return "post/regist";
     }
+
+    try {
+        postService.regist(dto, memberId); // 서비스 계층 호출
+        return "redirect:/post/myList";
+    } catch (IOException e) {
+        log.error("PostController - 업로드 실패: {}", e.getMessage(), e);
+        JSFunc.alert("업로드 실패. 다시 시도해주세요", response);
+    } catch (Exception e) {
+        log.error("PostController - 예기치 않은 오류: {}", e.getMessage(), e);
+        JSFunc.alert("예기치 않은 오류가 발생했습니다.", response);
+    }
+    return "redirect:/post/regist";
+}
+
 }

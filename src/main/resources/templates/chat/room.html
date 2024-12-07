@@ -12,13 +12,17 @@
 <div layout:fragment="content">
   <div class="row">
     <div class="col-md-12">
-      <table id="conversation" class="table table-striped">
+      <table id="conversation" class="table">
         <thead>
         <tr>
           <th>채팅방</th>
         </tr>
         </thead>
         <tbody id="messages">
+        <tr th:each="item, status:${messages}">
+          <td class="col-1" th:text="${item.sender.name}"></td>
+          <td class="col-auto" th:text="${item.message}"></td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -27,8 +31,8 @@
         <div class="form-group">
           <input type="text" id="sender" class="form-control" placeholder="name...">
           <input type="text" id="content" class="form-control" placeholder="content...">
+          <button id="send" class="btn btn-default" type="submit">Send</button>
         </div>
-        <button id="send" class="btn btn-default" type="submit">Send</button>
       </form>
     </div>
   </div>
@@ -50,10 +54,10 @@
     // setConnected(true);
     console.log('Connected: '+frame);
     stompClient.subscribe('/room/'+roomId, (chatMessage) => {
-      console.log(chatMessage)
-      let rContent = JSON.parse(chatMessage.body).message;
+      console.log(chatMessage.body)
+      let rContent = chatMessage.body;
       if(rContent != null)
-        showMessageContent(JSON.parse(chatMessage.body).message)
+        showMessageContent(JSON.parse(rContent))
       // showMessageContent(JSON.parse(messageContent.body).content)
     });
   };
@@ -79,6 +83,7 @@
   }
 
   function sendMessageContent() {
+    if(inputContent.value === '') return;
     stompClient.publish({
       destination: "/send/"+roomId,
       body: JSON.stringify({ 'sender': $("#sender").val(), 'content': $("#content").val() })
@@ -87,7 +92,7 @@
   }
 
   function showMessageContent(message) {
-    $("#messages").append("<tr><td>" + message + "</td></tr>");
+    $("#messages").append("<tr ><td>"+ message.sender.userId +"</td><td>" + message.message + "</td></tr>");
   }
 
   $(function () {
@@ -98,6 +103,12 @@
   });
 
   connect();
+
+  // window.onbeforeunload(
+  //         (ev) => {
+  //           stompClient.
+  //         }
+  // )
 </script>
 </body>
 </html>
