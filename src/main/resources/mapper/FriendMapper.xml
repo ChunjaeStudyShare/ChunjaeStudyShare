@@ -47,4 +47,14 @@
         DELETE FROM friend
         WHERE friendId = #{friendId} AND requesterId = #{requesterId}
     </delete>
+    <select id="receivedList" resultType="java.lang.String">
+        SELECT requesterId FROM friend
+        WHERE friendId = #{userId}
+        AND status = 0
+    </select>
+    <select id="sentList" resultType="java.lang.String">
+        SELECT friendId FROM friend
+        WHERE requesterId = #{userId}
+        AND status = 0
+    </select>
 </mapper>
