@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.bind.annotation.RequestMapping;
 /* 리다이렉트용 회원 관련 컨트롤러
  * 회원관련 요청은 api 서버에서 처리 /api/auth/ 또는 /api/user/ 로 요청
  * 회원가입, 로그인, 비밀번호 변경 등 회원 관련 요청은 모두 api 서버에서 처리
@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 @RequiredArgsConstructor
 @Log4j2
+@RequestMapping("/member")
 public class MemberController {
-    // @GetMapping("/")
-    // public String index() {
-    //     return "main/login";
-    // }
+    @GetMapping("/login")
+    public String login() {
+        return "member/login";
+    }
 }

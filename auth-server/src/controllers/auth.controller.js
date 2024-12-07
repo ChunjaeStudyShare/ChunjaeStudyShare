@@ -8,6 +8,7 @@ class AuthController {
             const { error } = validator.login.validate(req.body);
             console.log(req.body.userId);
             console.log(req.body.password);
+            console.log(req.body.rememberMe);
             if (error) {
                 return res.status(400).json({
                     success: false,
@@ -25,7 +26,7 @@ class AuthController {
         } catch (error) {
             res.status(401).json({
                 success: false,
-                message: error.message
+                message: error.message || '알 수 없는 오류로 로그인에 실패하였습니다.'
             });
         }
     }

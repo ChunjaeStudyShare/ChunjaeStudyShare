@@ -111,7 +111,7 @@
                 
                 const userId = document.getElementById('userId').value;
                 const password = document.getElementById('password').value;
-                const rememberMe = document.getElementById('rememberMe').checked;
+                const rememberMe = document.getElementById('rememberMe').checked ? true : false;
                 
                 try {
                     const response = await fetch('https://api.gyeongminiya.asia/api/auth/login', {
@@ -132,7 +132,7 @@
                     if (data.success) {
                         localStorage.setItem('token', data.data.token);
                         localStorage.setItem('user', JSON.stringify(data.data.user));
-                        window.location.href = '/';
+                        // window.location.href = '/';//메인페이지
                     } else {
                         alert(data.message);
                     }
