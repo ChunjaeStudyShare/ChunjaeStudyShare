@@ -107,6 +107,21 @@ public class FriendController {
         }
     }
 
+    @PostMapping("/rejectRequest")
+    @ResponseBody  // 응답을 JSON으로 반환하도록 설정
+    public ResponseEntity<?> rejectRequest(@RequestBody FriendDTO friendDTO) {
+        log.info("friendDTO:{}", friendDTO);
+        String userId = "testuser2"; //세션아이디
+        friendDTO.setFriendId(userId);
+
+        boolean success = friendService.rejectFriendRequest(friendDTO);
+        if(success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
 
 
 

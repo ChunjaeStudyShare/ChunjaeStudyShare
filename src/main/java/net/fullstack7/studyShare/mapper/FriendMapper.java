@@ -16,5 +16,6 @@ public interface FriendMapper {
     Boolean sendFriendRequest(FriendDTO friendDTO);
     Boolean cancelFriendRequest(FriendDTO friendDTO);
     Boolean acceptFriendRequest(FriendDTO friendDTO);
+    Boolean rejectFriendRequest(FriendDTO friendDTO);
 
 }

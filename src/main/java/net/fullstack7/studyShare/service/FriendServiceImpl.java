@@ -55,5 +55,10 @@ public class FriendServiceImpl implements FriendService {
         return friendMapper.acceptFriendRequest(friendDTO);
     }
 
+    @Override
+    public Boolean rejectFriendRequest(FriendDTO friendDTO) {
+        return friendMapper.rejectFriendRequest(friendDTO);
+    }
+
 
 }
