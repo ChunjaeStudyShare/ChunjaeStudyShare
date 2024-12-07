@@ -11,6 +11,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -21,9 +25,7 @@ public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(columnDefinition = "TINYINT(1) DEFAULT 0 COMMENT '0: 채팅 중, 1: 채팅 종료'")
-    private Integer senderStatus;
-    @Column(columnDefinition = "TINYINT(1) DEFAULT 0 COMMENT '0: 채팅 중, 1: 채팅 종료'")
-    private Integer receiverStatus;
+    @CreatedDate
+    @Column(columnDefinition = "DATETIME not null default now()")
+    private LocalDateTime createdAt;
 }

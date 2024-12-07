@@ -12,10 +12,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/chat")
@@ -26,22 +24,35 @@ public class ChatController {
 
     @GetMapping("/list")
     public String chatList(HttpSession session, Model model) {
-        String username ="user1";
+        String userId ="user1";
 
-        model.addAttribute("chatlist", chatService.getChatRoomList(username));
+        model.addAttribute("chatlist", chatService.getChatRoomList(userId));
         return "chat/list";
     }
 
-    @GetMapping("/create")
-    public String create(HttpSession session, Model model) {
-        String username ="user1";
-        return "chat/create";
+    @PostMapping("/create")
+    public String create(HttpSession session, String[] invited, Model model) {
+        String userId = "user1";
+
+        chatService.createChatRoom(userId, invited);
+
+        return "redirect:/chat/room";
     }
 
     @GetMapping("/room/{id}")
     public String room(HttpSession session, @PathVariable int id, Model model) {
+        String userId = "user1";
         model.addAttribute("roomId", id);
+        model.addAttribute("userId", userId);
         model.addAttribute("messages", chatService.getChatMessageListByRoomId(id));
         return "chat/room";
+    }
+
+    @GetMapping("/room/{id}/exit")
+    public String exit(HttpSession session, @PathVariable int id, RedirectAttributes redirectAttributes) {
+        String userId = "user1";
+        chatService.exitRoom(id, userId);
+        redirectAttributes.addFlashAttribute("errors", "채팅방에서 퇴장하셨습니다.");
+        return "redirect:/chat/list";
     }
 }
