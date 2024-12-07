@@ -1,8 +1,9 @@
 const Joi = require('joi');
 const errorMessage = require('../errormessage/error.message');
+
 module.exports = {
     register: Joi.object({
-        id: Joi.string()
+        userId: Joi.string()
             .pattern(new RegExp('^[a-z0-9]{4,12}$'))
             .required()
             .messages({
@@ -21,7 +22,7 @@ module.exports = {
     }),
 
     login: Joi.object({
-        id: Joi.string().required(),
+        userId: Joi.string().required(),
         password: Joi.string().required()
     }),
 

@@ -1,57 +1,113 @@
 const UserService = require('../services/user.service');
+const EmailService = require('../services/email.service');
+const validator = require('../validators/validator');
 
 class UserController {
-    constructor() {
-        this.userService = new UserService();
-    }
-
-    async register(req, res, next) {
+    // 회원가입
+    async register(req, res) {
         try {
-            const userData = req.body;
-            const result = await this.userService.register(userData);
-            
-            res.status(201).json({
-                success: true,
-                message: '회원가입이 완료되었습니다. 이메일 인증을 후 로그인이 가능합니다.',
-                data: result
-            });
-        } catch (error) {
-            next(error);
-        }
-    }
-    async updateUser(req, res, next) {
-        try {
-            const userData = req.body;
-            const result = await this.userService.updateUser(userData);
-            if (!result) {
-                return res.status(404).json({
+            const { error } = validator.register.validate(req.body);
+            if (error) {
+                return res.status(400).json({
                     success: false,
-                    message: '회원정보를 찾을 수 없습니다.',
+                    message: error.details[0].message
                 });
             }
-            //jwt 토큰 재발급
-            const token = TokenBuilderUtil.generateToken(result);
-            res.status(200).json({
+
+            const userId = await UserService.register(req.body);
+            await EmailService.sendVerificationEmail(userId, req.body.email);
+
+            res.status(201).json({
                 success: true,
-                message: '회원정보 수정이 완료되었습니다.',
-                data: result,
-                token
+                message: '회원가입이 완료되었습니다. 이메일 인증을 진행해주세요.'
             });
         } catch (error) {
-            next(error);
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
         }
     }
-    async updatePassword(req, res, next) {
+
+    // 회원정보 수정
+    async updateUser(req, res) {
         try {
-            const userData = req.body;
-            const result = await this.userService.updatePassword(userData);
-            res.status(200).json({
+            const userId = req.user.id;  // JWT 미들웨어에서 추가된 user 객체
+            await UserService.updateUser(userId, req.body);
+
+            res.json({
                 success: true,
-                message: '비밀번호 수정이 완료되었습니다.',
-                data: result
+                message: '회원정보가 수정되었습니다.'
             });
         } catch (error) {
-            next(error);
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // 비밀번호 변경
+    async updatePassword(req, res) {
+        try {
+            const { error } = validator.updatePassword.validate(req.body);
+            if (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: error.details[0].message
+                });
+            }
+
+            const userId = req.user.id;
+            const { currentPassword, newPassword } = req.body;
+            await UserService.updatePassword(userId, currentPassword, newPassword);
+
+            res.json({
+                success: true,
+                message: '비밀번호가 변경되었습니다.'
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // 이메일 인증
+    async verifyEmail(req, res) {
+        try {
+            const { userId, token } = req.query;
+            await UserService.verifyEmail(userId, token);
+            
+            // 인증 성공 시 메인 페이지로 리다이렉트
+            res.redirect('https://www.gyeongminiya.asia/main');
+        } catch (error) {
+            // 인증 실패 시 로그인 페이지로 리다이렉트
+            res.redirect('https://www.gyeongminiya.asia/login');
+        }
+    }
+
+    // 비밀번호 재설정 메일 발송
+    async sendPasswordResetEmail(req, res) {
+        try {
+            const { email } = req.body;
+            const user = await UserService.findByEmail(email);
+            if (!user) {
+                throw new Error('등록되지 않은 이메일입니다.');
+            }
+
+            await EmailService.sendPasswordResetEmail(user.userId, email);
+
+            res.json({
+                success: true,
+                message: '비밀번호 재설정 메일이 발송되었습니다.'
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
         }
     }
 }
