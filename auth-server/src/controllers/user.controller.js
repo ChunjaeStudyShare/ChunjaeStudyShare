@@ -110,6 +110,42 @@ class UserController {
             });
         }
     }
+
+    // 아이디 중복 체크
+    async checkId(req, res) {
+        try {
+            const { userId } = req.query;
+            const isDuplicate = await UserService.checkId(userId);
+
+            res.json({
+                success: true,
+                isDuplicate : isDuplicate
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // 이메일 중복 체크
+    async checkEmail(req, res) {
+        try {
+            const { email } = req.query;
+            const isDuplicate = await UserService.checkEmail(email);
+
+            res.json({
+                success: true,
+                isDuplicate : isDuplicate
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = new UserController();

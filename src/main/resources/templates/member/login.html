@@ -88,13 +88,37 @@
                         </form>
                         
                         <div class="text-center">
-                            <a th:href="@{/member/find-id}" class="link-gray text-decoration-none me-2">아이디 찾기</a>
-                            <span class="divider">|</span>
                             <a th:href="@{/member/find-password}" class="link-gray text-decoration-none mx-2">비밀번호 찾기</a>
-                            <span class="divider">|</span>
-                            <a th:href="@{/member/signup}" class="link-gray text-decoration-none ms-2">회원가입</a>
+                            <span class="divider">  |</span>
+                            <a th:href="@{/member/register}" class="link-gray text-decoration-none ms-2">회원가입</a>
+                            <span class="divider">  |</span>
+                            <a href="#" class="link-gray text-decoration-none ms-2" data-bs-toggle="modal" data-bs-target="#inquiryModal">1:1 문의</a>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 모달 추가 -->
+    <div class="modal fade" id="inquiryModal" tabindex="-1" aria-labelledby="inquiryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="inquiryModalLabel">1:1 문의 안내</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-3">1:1 문의는 이메일로 받고 있습니다.</p>
+                    <p class="mb-3">아래 이메일로 문의해 주시면<br>빠른 시일 내에 답변 드리겠습니다.</p>
+                    <div class="d-flex align-items-center justify-content-center gap-2 bg-light py-3 rounded">
+                        <span>info@gyeongminiya.asia</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="copyEmail()">
+                            복사
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                 </div>
             </div>
         </div>
@@ -104,6 +128,11 @@
 <th:block layout:fragment="script">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            //로컬 스토리지에 토큰이 있으면 삭제
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
             const loginForm = document.getElementById('loginForm');
             
             loginForm.addEventListener('submit', async function(e) {
@@ -132,7 +161,7 @@
                     if (data.success) {
                         localStorage.setItem('token', data.data.token);
                         localStorage.setItem('user', JSON.stringify(data.data.user));
-                        // window.location.href = '/';//메인페이지
+                        window.location.href = '/';
                     } else {
                         alert(data.message);
                     }
@@ -142,6 +171,16 @@
                 }
             });
         });
+
+        function copyEmail() {
+            navigator.clipboard.writeText('info@gyeongminiya.asia')
+            .then(() => {
+                alert('이메일이 복사되었습니다.');
+            })
+            .catch(err => {
+                console.error('이메일 복사 실패:', err);
+            });
+        }
     </script>
 </th:block>
 </html>

@@ -19,4 +19,10 @@ router.get('/verify-email', UserController.verifyEmail);
 // POST /api/user/reset-password-email - 비밀번호 재설정 메일 발송
 router.post('/reset-password-email', UserController.sendPasswordResetEmail);
 
+// GET /api/user/check-id - 아이디 중복 체크
+router.get('/check-id', UserController.checkId);
+
+// GET /api/user/check-email - 이메일 중복 체크
+router.get('/check-email', UserController.checkEmail);
+
 module.exports = router;

@@ -16,8 +16,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Log4j2
 @RequestMapping("/member")
 public class MemberController {
+
     @GetMapping("/login")
     public String login() {
         return "member/login";
     }
+
+    @GetMapping("/register")
+    public String register() {
+        return "member/register";
+    }
+
+    @GetMapping("/find-password")
+    public String findPassword() {
+        return "member/find-password";
+    }
+    
 }

@@ -111,6 +111,18 @@ class UserService {
 
         return true;
     }
+
+    // 아이디 중복 체크
+    async checkId(userId) {
+        const existingUser = await UserModel.checkId(userId);
+        return existingUser ? true : false;
+    }
+
+    // 이메일 중복 체크
+    async checkEmail(email) {
+        const existingEmail = await UserModel.checkEmail(email);
+        return existingEmail ? true : false;
+    } 
 }
 
 module.exports = new UserService();
