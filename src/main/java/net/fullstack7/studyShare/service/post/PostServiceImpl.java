@@ -12,6 +12,7 @@ import net.fullstack7.studyShare.repository.PostRepository;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -28,9 +29,12 @@ public class PostServiceImpl implements PostServiceIf{
     private final MemberRepository memberRepository;
 
     @Override
+    @Transactional
     public boolean regist(PostRegistDTO dto, String memberId) throws IOException {
         String fileName = null;
         String filePath = null;
+        String thumbnailName = null;
+        String thumbnailPath = null;
         long maxSize = 1024*1024*500L;
         List<String> allowedMimeTypes = Arrays.asList("image/jpeg", "image/png");
         List<String> allowedExtensions = Arrays.asList(".jpg", ".png");
@@ -73,10 +77,22 @@ public class PostServiceImpl implements PostServiceIf{
         // 파일 업로드 처리
         if (dto.getFile() != null && !dto.getFile().isEmpty()) {
             try {
+                //원본
                 fileName = CommonFileUtil.uploadFile(dto.getFile()); // 파일 업로드
                 filePath = "/file/" + fileName; // 업로드된 파일의 전체 경로 설정
                 dto.setFileName(fileName); // DTO에 파일 이름 저장
                 log.info("파일명: {}, 파일경로: {}", fileName, filePath);
+
+                //썸네일
+                thumbnailName = "thumb_" + fileName;
+                try{
+                    CommonFileUtil.createThumbnail(fileName);
+                    thumbnailPath = "/file/" + thumbnailName;
+                    log.info("썸네일 생성 완료: {}", thumbnailPath);
+                }catch (Exception e){
+                    log.error("썸네일 생성 실패: {}", e.getMessage());
+                    throw new IllegalArgumentException("썸네일 생성 중 오류가 발생했습니다.");
+                }
             } catch (Exception e) {
                 log.info("파일 업로드 실패{}", e.getMessage(), e);
             }
@@ -102,6 +118,8 @@ public class PostServiceImpl implements PostServiceIf{
                         .domain(dto.getDomain())
                         .hashtag(dto.getHashtag())
                         .member(member)
+                        .thumbnailName(thumbnailName) // 썸네일 이름 저장
+                        .thumbnailPath(thumbnailPath) // 썸네일 경로 저장
                         .build();
                 postRepository.save(post);
                 log.info(" 성공  ID: {}", post.getId());

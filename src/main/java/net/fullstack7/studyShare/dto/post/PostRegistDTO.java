@@ -56,4 +56,6 @@ public class PostRegistDTO {
     private String fileName;
     private String path;
     private Post post;
+    private String thumbnailName;
+    private String thumbnailPath;
 }

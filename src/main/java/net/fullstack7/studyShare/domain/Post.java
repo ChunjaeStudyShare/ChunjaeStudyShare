@@ -56,4 +56,10 @@ public class Post {
     @JoinColumn(name = "userId")
     private Member member;
 
+    @Column(columnDefinition = "VARCHAR(100) COMMENT '썸네일명'")
+    private String thumbnailName;
+
+    @Column(columnDefinition = "VARCHAR(200) COMMENT '썸네일경로'")
+    private String thumbnailPath;
+
 }
