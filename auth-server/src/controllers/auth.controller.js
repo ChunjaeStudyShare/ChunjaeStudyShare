@@ -24,6 +24,8 @@ class AuthController {
                 data: result
             });
         } catch (error) {
+            console.log(error);
+            console.log(error.message);
             res.status(401).json({
                 success: false,
                 message: error.message || '알 수 없는 오류로 로그인에 실패하였습니다.'
@@ -34,7 +36,7 @@ class AuthController {
     // 로그아웃
     async logout(req, res) {
         try {
-            const userId = req.user.id;  // JWT 미들웨어에서 추가된 user 객체
+            const userId = req.user.userId;  // JWT 미들웨어에서 추가된 user 객체
             await AuthService.logout(userId);
             
             res.json({
