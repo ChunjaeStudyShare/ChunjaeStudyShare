@@ -9,10 +9,10 @@
 
     <ul class="nav nav-tabs" id="friendTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="friend-list-tab" data-bs-toggle="tab" type="button" role="tab" aria-selected="true" onclick="location.href='/friend/list'">친구 목록</button>
+            <button class="nav-link" id="friend-list-tab" data-bs-toggle="tab" type="button" role="tab" aria-selected="false" onclick="location.href='/friend/list'">친구 목록</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="received-requests-tab" data-bs-toggle="tab" type="button" role="tab" aria-selected="false" onclick="location.href='/friend/received'">받은 요청</button>
+            <button class="nav-link active" id="received-requests-tab" data-bs-toggle="tab" type="button" role="tab" aria-selected="true" onclick="location.href='/friend/received'">받은 요청</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="sent-requests-tab" data-bs-toggle="tab" type="button" role="tab"  aria-selected="false"  onclick="location.href='/friend/sent'">보낸 요청</button>
@@ -53,26 +53,34 @@
             <colgroup>
                 <col style="width: 15%;">
                 <col style="width: 65%;">
-                <col style="width: 10%;">
-                <col style="width: 10%;">
+                <col style="width: 20%;">
             </colgroup>
             <tr>
                 <th>#</th>
                 <th>아이디</th>
-                <th>채팅</th>
-                <th>삭제</th>
+                <th>수락/거절</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="userId, status : ${friendList}">
+            <tr th:each="userId, status : ${receivedList}">
                 <td th:text="${status.index + 1}"></td>
                 <td th:text="${userId}"></td>
-                <td><a href="#" class="btn btn-secondary">채팅</a></td>
-                <td><button class="btn btn-dark">삭제</button></td>
+                <td><button
+                        class="btn btn-lignt"
+                        th:data-user-id="${userId}"
+                        onclick="acceptRequest1(this)">
+                        수락
+                    </button>
+                    <button
+                            class="btn btn-dark"
+                            th:data-user-id="${userId}"
+                            onclick="rejectRequest1(this)">
+                        거절
+                    </button>
             </tr>
             <tr>
-                <td colspan="4" class="text-center">
-                    "친구 찾기"에서 친구를 추가해보세요.
+                <td colspan="3" class="text-center" th:if="${receivedList.isEmpty() || receivedList == null}">
+                    받은 친구 요청이 없습니다.
                 </td>
             </tr>
             </tbody>
@@ -106,6 +114,10 @@
                     .then(data => {
                         let suggestionsHtml = `
                 <table class="table table-bordered">
+                    <colgroup>
+                        <col style="width:60%;">
+                        <col style="width:40%;">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>아이디</th>
@@ -239,6 +251,51 @@
                         if (response.ok) {
                             alert('친구 요청을 성공적으로 거절했습니다.');
                             refreshModal();
+                        } else {
+                            alert('거절 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+
+        function acceptRequest1(button) {
+            const userId = button.getAttribute('data-user-id');
+            const confirmation = confirm(`${userId}에게서 온 친구 요청을 수락하시겠습니까?`);
+            if (confirmation) {
+                fetch('/friend/acceptRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requesterId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 요청을 성공적으로 수락했습니다.');
+                            location.reload();
+                        } else {
+                            alert('수락 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+        function rejectRequest1(button) {
+            const userId = button.getAttribute('data-user-id');
+            const confirmation = confirm(`${userId}에게서 온 친구 요청을 거절하시겠습니까?`);
+            if (confirmation) {
+                fetch('/friend/rejectRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requesterId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 요청을 성공적으로 거절했습니다.');
+                            location.reload();
                         } else {
                             alert('거절 실패. 다시 시도해주세요.');
                         }
