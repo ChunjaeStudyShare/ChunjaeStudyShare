@@ -4,20 +4,38 @@ const EmailCodeModel = require('../models/emailcode.model');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const errorMessage = require('../errormessage/error.message');
+
 class EmailService {
     constructor() {
-        this.transporter = nodemailer.createTransport({
+        // 커스텀 도메인 트랜스포터
+        this.customTransporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: process.env.EMAIL_PORT,
-            secure: false,  // TLS
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD
             },
             tls: {
-                rejectUnauthorized: false  // 자체 서명 인증서 허용
+                rejectUnauthorized: false
             }
         });
+
+        // Gmail 트랜스포터
+        this.gmailTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_PASSWORD
+            }
+        });
+    }
+
+    // 도메인에 따른 트랜스포터 선택
+    getTransporter(email) {
+        const koreanDomains = ['naver.com', 'daum.net', 'kakao.com', 'hanmail.net'];
+        const domain = email.split('@')[1].toLowerCase();
+        return koreanDomains.includes(domain) ? this.gmailTransporter : this.customTransporter;
     }
 
     // 인증 토큰 생성
@@ -29,9 +47,13 @@ class EmailService {
     async sendVerificationEmail(userId, email) {
         const token = this.generateVerificationToken();
         const verificationLink = `https://api.gyeongminiya.asia/api/user/verify-email?token=${token}&userId=${userId}`;
+        const transporter = this.getTransporter(email);
+        const sender = transporter === this.gmailTransporter ? 
+            process.env.GMAIL_USER : 
+            process.env.EMAIL_USER;
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"StudyShare" <${sender}>`,
             to: email,
             subject: '[StudyShare] 이메일 인증',
             html: `
@@ -64,23 +86,26 @@ class EmailService {
         };
 
         try {
-            await this.transporter.sendMail(mailOptions);
+            await transporter.sendMail(mailOptions);
             await EmailCodeModel.create(userId, token);
             return true;
         } catch (error) {
             console.error('Email sending failed:', error);
-            throw new Error('이메일 전송에 실패했습니다.');
+            throw new Error(errorMessage.EMAIL_ERROR);
         }
     }
 
-    // 비밀번호 재설정 메일 발송 (추가 기능으로 구현 가능)
-    // 비밀번호 재설정 페이지는 스프링 부트 서버에서 구현
+    // 비밀번호 재설정 메일 발송
     async sendPasswordResetEmail(userId, email) {
         const token = this.generateVerificationToken();
         const resetLink = `https://www.gyeongminiya.asia/reset-password?token=${token}&userId=${userId}`;
+        const transporter = this.getTransporter(email);
+        const sender = transporter === this.gmailTransporter ? 
+            process.env.GMAIL_USER : 
+            process.env.EMAIL_USER;
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"StudyShare" <${sender}>`,
             to: email,
             subject: '[StudyShare] 비밀번호 재설정',
             html: `
@@ -107,7 +132,7 @@ class EmailService {
         };
 
         try {
-            await this.transporter.sendMail(mailOptions);
+            await transporter.sendMail(mailOptions);
             await EmailCodeModel.create(userId, token);
             return true;
         } catch (error) {
