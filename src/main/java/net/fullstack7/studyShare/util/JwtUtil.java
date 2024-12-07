@@ -29,7 +29,7 @@ public class JwtUtil {
 
     public String getUserId(String token) {
         Claims claims = parseClaims(token);
-        return claims.get("id", String.class);
+        return claims.get("userId", String.class);
     }
 
     public boolean validateToken(String token) {
