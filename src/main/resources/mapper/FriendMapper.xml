@@ -34,4 +34,13 @@
         INSERT INTO friend (status, friendId, requesterId)
         VALUES (#{status}, #{friendId}, #{requesterId})
     </insert>
+    <delete id="cancelFriendRequest">
+        DELETE FROM friend
+        WHERE friendId = #{friendId} AND requesterId = #{requesterId}
+    </delete>
+    <update id="acceptFriendRequest">
+        UPDATE friend
+        SET status = 1
+        WHERE friendId = #{friendId} AND requesterId = #{requesterId}
+    </update>
 </mapper>

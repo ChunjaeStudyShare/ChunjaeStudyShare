@@ -24,7 +24,7 @@ public class FriendController {
 
     @GetMapping("/list")
     public String list(Model model) {
-        String userId = "testuser1"; //세션아이디
+        String userId = "testuser2"; //세션아이디
         List<String> friendList = friendService.list(userId);
         log.info("friendList: {}", friendList);
         model.addAttribute("friendList", friendList);
@@ -39,7 +39,7 @@ public class FriendController {
     @GetMapping("/searchUserById")
     @ResponseBody
     public List<FriendCheckDTO> searchUserById(@RequestParam String searchId) { // 여기에서 검색된 아이디가 있는지 없는지 여부를 확인하려면 ? 만약 null이 나오면 어떤 에러가 뜨는지?
-        String userId = "testuser1"; //세션아이디
+        String userId = "testuser2"; //세션아이디
         log.info("searchId: {}", searchId);
         List<String> friendList = friendService.list(userId);
         List<String> searchList = friendService.searchUsersById(userId, searchId);
@@ -67,17 +67,46 @@ public class FriendController {
     @PostMapping("/sendRequest")
     @ResponseBody  // 응답을 JSON으로 반환하도록 설정
     public ResponseEntity<?> sendRequest(@RequestBody FriendDTO friendDTO) {
-        String userId = "testuser1"; //세션아이디
+        String userId = "testuser2"; //세션아이디
         friendDTO.setRequesterId(userId);
         friendDTO.setStatus(0);
         boolean success = friendService.sendFriendRequest(friendDTO);
-
         if(success) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(400).build();
         }
     }
+
+    @PostMapping("/cancelRequest")
+    @ResponseBody  // 응답을 JSON으로 반환하도록 설정
+    public ResponseEntity<?> cancelRequest(@RequestBody FriendDTO friendDTO) {
+        String userId = "testuser2"; //세션아이디
+        friendDTO.setRequesterId(userId);
+
+        boolean success = friendService.cancelFriendRequest(friendDTO);
+        if(success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @PostMapping("/acceptRequest")
+    @ResponseBody  // 응답을 JSON으로 반환하도록 설정
+    public ResponseEntity<?> acceptRequest(@RequestBody FriendDTO friendDTO) {
+        log.info("friendDTO:{}", friendDTO);
+        String userId = "testuser2"; //세션아이디
+        friendDTO.setFriendId(userId);
+
+        boolean success = friendService.acceptFriendRequest(friendDTO);
+        if(success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
 
 
 
