@@ -11,6 +11,7 @@ const app = express();
 const corsOptions = {
     //www.gyeongminiya.asia 에서 오는 요청만 허용
     // origin: ['https://www.gyeongminiya.asia'],
+    // 일단 모든 요청 허용
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],

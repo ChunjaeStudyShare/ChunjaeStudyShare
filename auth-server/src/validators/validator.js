@@ -23,7 +23,8 @@ module.exports = {
 
     login: Joi.object({
         userId: Joi.string().required(),
-        password: Joi.string().required()
+        password: Joi.string().required(),
+        rememberMe: Joi.boolean().optional().default(false)
     }),
 
     updatePassword: Joi.object({

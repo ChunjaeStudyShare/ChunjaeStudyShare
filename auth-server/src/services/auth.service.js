@@ -18,8 +18,9 @@ class AuthService {
         if (!user) {
             throw new Error(errorMessage.INVALID_USER);
         }
-
+        //'0: 활동 중, 1: 휴면, 2: 탈퇴(강퇴), 3: 미인증, 4: 잠금'
         // 계정 상태 확인
+        if (user.status === 1) throw new Error(errorMessage.ACCOUNT_DORMANT);
         if (user.status === 2) throw new Error(errorMessage.ACCOUNT_RESTRICTED);
         if (user.status === 3) throw new Error(errorMessage.EMAIL_VERIFICATION_REQUIRED);
         if (user.status === 4) throw new Error(errorMessage.ACCOUNT_LOCKED);
