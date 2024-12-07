@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Service
 public interface PostServiceIf {
     boolean regist(PostRegistDTO postRegistDTO, String memberId) throws IOException;
 }

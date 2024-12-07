@@ -30,12 +30,12 @@ public class CommonFileUtil {
             uploadDir.mkdirs();
         }
 
-        String originalFileName = file.getOriginalFilename();
+        String originalFileName = file.getOriginalFilename(); //업로드 된 원래 파일 이름
         if (originalFileName != null && !originalFileName.isEmpty()) {
-            String uniqueFileName = generateUniqueFileName(originalFileName);
-            String fullPath = uploadDir.getPath() + File.separator + uniqueFileName;
-            File destinationFile = new File(fullPath);
-            file.transferTo(destinationFile);
+            String uniqueFileName = generateUniqueFileName(originalFileName); //고유 파일명 생성
+            String fullPath = uploadDir.getPath() + File.separator + uniqueFileName; // 파일 저장 경로 생성
+            File destinationFile = new File(fullPath); // 파일 객체 생성
+            file.transferTo(destinationFile); //MultipartFile의 내용을 실제 파일로 저장
             // 업로드된 파일의 경로 반환
             return "/file/" + uniqueFileName;
         } else {
@@ -91,11 +91,11 @@ public class CommonFileUtil {
     // 고유 파일명 생성 메서드
     private static String generateUniqueFileName(String originalFileName) {
         String extension = "";
-        int index = originalFileName.lastIndexOf(".");
+        int index = originalFileName.lastIndexOf("."); //lastIndexOf(".")를 사용해 파일 이름에서 마지막 .의 위치 찾음
         if (index > 0) {
-            extension = originalFileName.substring(index);
+            extension = originalFileName.substring(index); //파일 확장자 추출
         }
-        return UUID.randomUUID().toString() + extension;
+        return UUID.randomUUID().toString() + extension; //고유 파일명 생성
     }
 
     public static Resource downloadFile(String fileName) throws IOException {
