@@ -41,6 +41,7 @@ public class ChatController {
     @GetMapping("/room/{id}")
     public String room(HttpSession session, @PathVariable int id, Model model) {
         model.addAttribute("roomId", id);
+        model.addAttribute("messages", chatService.getChatMessageListByRoomId(id));
         return "chat/room";
     }
 }

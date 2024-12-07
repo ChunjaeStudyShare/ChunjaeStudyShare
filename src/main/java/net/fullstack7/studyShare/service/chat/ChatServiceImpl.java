@@ -1,5 +1,6 @@
 package net.fullstack7.studyShare.service.chat;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.fullstack7.studyShare.chat.MessageContent;
 import net.fullstack7.studyShare.domain.ChatMessage;
@@ -7,6 +8,7 @@ import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.dto.ChatMessageDTO;
 import net.fullstack7.studyShare.mapper.ChatMessageMapper;
+import net.fullstack7.studyShare.repository.ChatMemberRepository;
 import net.fullstack7.studyShare.repository.ChatMessageRepository;
 import net.fullstack7.studyShare.repository.ChatRoomRepository;
 import net.fullstack7.studyShare.repository.MemberRepository;
@@ -21,13 +23,13 @@ import java.util.Optional;
 public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private final ChatMessageMapper chatMessageMapper;
     private final MemberRepository memberRepository;
+    private final ChatMemberRepository chatMemberRepository;
 
     @Override
     public List<ChatRoom> getChatRoomList(String userId) {
         Optional<Member> member = memberRepository.findById(userId);
-        return member.map(chatRoomRepository::findBySender).orElse(null);
+        return chatRoomRepository.findAll();
     }
 
     @Override
