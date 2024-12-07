@@ -59,6 +59,9 @@ class AuthService {
         const expiresAt = new Date();
         // 7일 또는 1일 후 만료 (rememberMe가 true일 경우 7일, false일 경우 1일)
         expiresAt.setHours(expiresAt.getHours() + (rememberMe ? 24*7 : 24));
+        // 기존 토큰 삭제
+        await TokenModel.removeUserTokens(userId);
+        // 새로운 토큰 저장
         await TokenModel.saveToken(userId, jti, expiresAt);
 
         return {

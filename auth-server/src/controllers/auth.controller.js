@@ -26,7 +26,7 @@ class AuthController {
         } catch (error) {
             res.status(401).json({
                 success: false,
-                message: error.message
+                message: error.message || '알 수 없는 오류로 로그인에 실패하였습니다.'
             });
         }
     }
