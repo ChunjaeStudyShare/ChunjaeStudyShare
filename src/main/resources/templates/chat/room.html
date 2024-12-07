@@ -6,40 +6,116 @@
     <title>Title</title>
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+  <style>
+    .chat-bubble {
+      display: inline-block;
+      max-width: 70%; /* 말풍선의 최대 너비 */
+      padding: 10px 15px; /* 내부 여백 */
+      margin: 5px 0; /* 상하 간격 */
+      background-color: #f1f0f0; /* 말풍선 배경색 */
+      border-radius: 20px; /* 둥근 모서리 */
+      color: #333; /* 글씨 색상 */
+      word-wrap: break-word; /* 긴 단어 줄바꿈 */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
+    }
+    .chat-bubble-my {
+      display: inline-block;
+      max-width: 70%; /* 말풍선의 최대 너비 */
+      padding: 10px 15px; /* 내부 여백 */
+      margin: 5px 0; /* 상하 간격 */
+      background-color: #1e2125; /* 말풍선 배경색 */
+      border-radius: 20px; /* 둥근 모서리 */
+      color: #fff; /* 글씨 색상 */
+      word-wrap: break-word; /* 긴 단어 줄바꿈 */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
+    }
+    .chat-bubble-manager {
+      text-align: center;
+      padding: 10px 15px; /* 내부 여백 */
+      margin: 5px 0; /* 상하 간격 */
+      color: #333; /* 글씨 색상 */
+      word-wrap: break-word; /* 긴 단어 줄바꿈 */
+    }
+    .chat-box {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .chat-input-box {
+        max-width: 900px;
+        margin: 20px auto;
+
+    }
+    .chat-date {
+        display: inline-block;
+      font-size: 12px;
+      color: #4f5050;
+    }
+    .chat-id {
+        display: inline-block;
+        text-align: center;
+    }
+    #messages {
+        max-height: 500px; /* 최대 높이 600px로 제한 */
+        overflow-y: auto; /* 세로 스크롤바 활성화 */
+        display: block; /* tbody에 block을 적용해 스크롤 가능하도록 설정 */
+    }
+    /*#messages tr {*/
+    /*    display: table; !* tbody의 자식 tr은 table 형태 유지 *!*/
+    /*    width: 100%; !* 전체 너비 유지 *!*/
+    /*    table-layout: fixed; !* 셀 크기 고정 *!*/
+    /*}*/
+  </style>
 </head>
 <body>
 
 <div layout:fragment="content">
-  <div class="row">
+  <div class="row chat-box">
     <div class="col-md-12">
-      <table id="conversation" class="table">
+      <table id="conversation" class="">
         <thead>
         <tr>
-          <th>채팅방</th>
+          <th style="text-align: center">채팅방</th>
         </tr>
         </thead>
         <tbody id="messages">
         <tr th:each="item, status:${messages}">
-          <td class="col-1" th:text="${item.sender.name}"></td>
-          <td class="col-auto" th:text="${item.message}"></td>
+              <td style="min-height: 60px">
+                  <div class="row">
+                      <div class="col-2"><span class="chat-id" th:text="${item.sender.userId}"></span></div>
+                      <div class="col-10"><span th:class="${item.sender.userId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}" th:text="${item.message}"></span>
+                      <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></div>
+                  </div>
+              </td>
         </tr>
         </tbody>
       </table>
     </div>
-    <div class="col-md-6">
-      <form class="form-inline">
-        <div class="form-group">
+
+  </div>
+  <div class="row chat-input-box fixed-bottom">
+      <div class="col-12">
+        <form class="form-inline">
+
+        <div class="input-group">
           <input type="text" id="sender" class="form-control" placeholder="name...">
           <input type="text" id="content" class="form-control" placeholder="content...">
-          <button id="send" class="btn btn-default" type="submit">Send</button>
+          <button id="send" class="btn btn-dark" type="submit">Send</button>
         </div>
-      </form>
-    </div>
+        </form>
+
+      </div>
   </div>
 </div>
 
 <script th:inline="javascript" layout:fragment="script">
+    window.onload = function() {
+        var messagesContainer = document.getElementById('messages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    };
+
   const inputContent = document.getElementById("content");
+  const roomId = [[${roomId}]];
+  const userId = `[[${userId}]]`;
 
   const host = window.location.hostname; // 현재 호스트 이름 가져오기
   const port = window.location.port; // 포트 설정
@@ -49,7 +125,6 @@
     brokerURL: `${protocol}://${host}:${port}/ws-stomp`
   });
 
-  const roomId = [[${roomId}]];
   stompClient.onConnect = (frame) => {
     // setConnected(true);
     console.log('Connected: '+frame);
@@ -92,7 +167,11 @@
   }
 
   function showMessageContent(message) {
-    $("#messages").append("<tr ><td>"+ message.sender.userId +"</td><td>" + message.message + "</td></tr>");
+      if(message.sender.userId === userId)
+          let bubbleclass = 'chat-bubble-my'
+      else if(message.sender.userId === 'chatmanager')
+
+    $("#messages").append("<tr ><td>"+ message.sender.userId +"</td><td class=\""+ bubbleclass +"\">" + message.message + "</td><td class=\"col-3\"><span class=\"chat-date\" >"+message.createdAt+"</span></td></tr>");
   }
 
   $(function () {
@@ -109,6 +188,7 @@
   //           stompClient.
   //         }
   // )
+
 </script>
 </body>
 </html>
