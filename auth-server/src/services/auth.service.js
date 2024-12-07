@@ -42,7 +42,7 @@ class AuthService {
         const jti = crypto.randomBytes(16).toString('hex');
         const token = jwt.sign(
             { 
-                id: user.userId,
+                userId: user.userId,
                 email: user.email,
                 name: user.name,
                 jti: jti
