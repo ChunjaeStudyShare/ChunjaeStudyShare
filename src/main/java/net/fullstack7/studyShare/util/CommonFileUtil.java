@@ -37,7 +37,7 @@ public class CommonFileUtil {
             File destinationFile = new File(fullPath); // 파일 객체 생성
             file.transferTo(destinationFile); //MultipartFile의 내용을 실제 파일로 저장
             // 업로드된 파일의 경로 반환
-            return "/file/" + uniqueFileName;
+            return uniqueFileName;
         } else {
             throw new IllegalArgumentException("업로드할 파일이 없습니다.");
         }
