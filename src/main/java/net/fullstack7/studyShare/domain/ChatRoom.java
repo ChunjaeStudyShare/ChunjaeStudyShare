@@ -22,14 +22,6 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "senderId")
-    private Member sender;
-
-    @ManyToOne
-    @JoinColumn(name = "receiverId")
-    private Member receiver;
-
     @Column(columnDefinition = "TINYINT(1) DEFAULT 0 COMMENT '0: 채팅 중, 1: 채팅 종료'")
     private Integer senderStatus;
     @Column(columnDefinition = "TINYINT(1) DEFAULT 0 COMMENT '0: 채팅 중, 1: 채팅 종료'")
