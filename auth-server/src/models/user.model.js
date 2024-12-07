@@ -30,6 +30,12 @@ class UserModel {
         return rows[0];
     }
 
+    // 전화번호로 회원 찾기
+    async findByPhone(phone) {
+        const [rows] = await db.query('SELECT * FROM Member WHERE phone = ?', [phone]);
+        return rows[0];
+    }
+
     // 회원 정보 수정
     async updateUser(userId, userData) {
         const query = 'UPDATE Member SET name = ?, phone = ? WHERE userId = ?';

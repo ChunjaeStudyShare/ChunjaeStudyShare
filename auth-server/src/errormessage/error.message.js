@@ -12,6 +12,7 @@ const errorMessage = {
     // 회원가입 관련 에러
     DUPLICATE_ID: "이미 사용 중인 아이디입니다.",
     DUPLICATE_EMAIL: "이미 사용 중인 이메일입니다.",
+    DUPLICATE_PHONE: "이미 사용 중인 전화번호입니다.",
     
     // 입력값 검증 에러
     MISSING_CREDENTIALS: "비밀번호또는 아이디를 입력해주세요.",

@@ -24,6 +24,11 @@ class UserService {
         if (existingEmail) {
             throw new Error(errorMessage.DUPLICATE_EMAIL);
         }
+        // 전화번호 중복 검사
+        const existingPhone = await UserModel.findByPhone(userData.phone);
+        if (existingPhone) {
+            throw new Error(errorMessage.DUPLICATE_PHONE);
+        }
 
         // 솔트 생성 및 비밀번호 해시화
         const salt = crypto.randomBytes(32).toString('hex');
