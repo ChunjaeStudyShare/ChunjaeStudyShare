@@ -10,15 +10,13 @@ import net.fullstack7.studyShare.dto.post.PostRegistDTO;
 import net.fullstack7.studyShare.service.post.PostServiceIf;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import net.fullstack7.studyShare.util.JSFunc;
+import net.fullstack7.studyShare.util.ValidateList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -35,7 +33,17 @@ public class PostController {
     private final PostServiceIf postService;
 
     @GetMapping("myList")
-    public String myStudyList(){
+    public String myStudyList(Model model,
+                              HttpServletResponse response,
+                              @RequestParam(defaultValue = "1") int pageNo,
+                              @RequestParam(required = false) String searchCategory,
+                              @RequestParam(required = false) String searchValue,
+                              @RequestParam(required = false) String sortType,
+                              @RequestParam(required = false) String sortOrder){
+        response.setCharacterEncoding("utf-8");
+        if (!ValidateList.validateMyListParameters(pageNo, searchCategory, searchValue,  response)) {
+            return null;
+        }
         return "post/list";
     }
 
