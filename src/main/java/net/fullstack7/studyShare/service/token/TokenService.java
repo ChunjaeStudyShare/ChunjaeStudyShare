@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.util.SecurityUtil;
-import net.fullstack7.studyShare.exception.TokenExceoption;
+import net.fullstack7.studyShare.exception.TokenException;
 
 import java.time.LocalDateTime;
 
@@ -43,7 +43,7 @@ public class TokenService {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
             
             activeTokensRepository.deleteByUserIdAndJti(member, jti);
-        } catch (TokenExceoption e) {
+        } catch (TokenException e) {
             throw new RuntimeException("토큰 무효화 실패", e);
         }
     }
