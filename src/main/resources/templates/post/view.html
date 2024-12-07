@@ -5,18 +5,21 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .scroll-box {
-            max-height: 200px; /* 스크롤 높이 조정 */
+            max-height: 200px;
             overflow-y: auto;
             border: 1px solid #ddd;
             padding: 10px;
         }
+
         .image-box {
             max-width: 100%;
             height: auto;
         }
+
         .table-custom th, .table-custom td {
             vertical-align: middle;
         }
+
         .btn-close-custom {
             background: none;
             border: none;
@@ -31,37 +34,42 @@
             <!-- 제목, 좋아요 -->
             <tr>
                 <th style="width: 20%;">제목</th>
-                <td style="width: 50%;">오늘 학습 내용은 블라블라~~~</td>
+                <td style="width: 50%;" th:text="${post.title}">제목</td>
                 <th style="width: 15%;">좋아요</th>
-                <td style="width: 15%;">0</td>
+                <td style="width: 15%;" th:text="${post.share}">0</td>
             </tr>
             <!-- 등록일, 노출 여부 -->
             <tr>
                 <th>등록일</th>
-                <td>20xx-01-01 오후 1:49:36</td>
+                <td th:text="${post.createdAt}">등록일</td>
                 <th>오늘의 학습 노출 여부</th>
-                <td>✅</td>
+                <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
             </tr>
             <!-- 노출 기간 -->
             <tr>
                 <th>오늘의 학습 노출 기간</th>
-                <td colspan="3">20xx-01-01 ~ 2024-05-13</td>
+                <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
+               : (post.displayAt != null ? post.displayAt + ' ~'
+               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">
+                </td>
             </tr>
             <!-- 이미지 및 내용 -->
+            <div>
+                <img th:src="@{${post.path}}" alt="기존 이미지" class="img-thumbnail" style="max-width: 200px;">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="deleteImage" name="deleteImage">
+                    <label class="form-check-label" for="deleteImage">이미지 삭제 선택</label>
+                </div>
             <tr>
                 <td colspan="2">
-                    <img src="sample-image.jpg" alt="학습 이미지" class="image-box img-fluid border rounded">
+                    <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}"
+                         style="object-fit: cover; width: 400px; height: 600px;">
+                    <span th:if="${post.path == null}">이미지가 없습니다.</span>
                 </td>
                 <td colspan="2">
                     <div class="card">
                         <div class="card-header">오늘의 학습 내용</div>
-                        <div class="card-body scroll-box">
-                            블라블라~~~<br>
-                            블라블라~~~<br>
-                            블라블라~~~<br>
-                            블라블라~~~<br>
-                            블라블라~~~<br>
-                        </div>
+                        <div class="card-body scroll-box" th:text="${post.content}"></div>
                     </div>
                 </td>
             </tr>
@@ -69,39 +77,66 @@
             <tr>
                 <th>공유한 사람</th>
                 <td colspan="3">
-                    김개발 (20xx-01-01 오전 13:00:30)
-                    <button class="btn-close-custom">&times;</button>
-                    <br>
-                    김지능 (20xx-01-01 오전 13:00:30)
-                    <button class="btn-close-custom">&times;</button>
+<!--                    <div th:each="shared : ${post.share}">-->
+<!--                        <span th:text="${shared.name} + ' (' + #dates.format(shared.sharedAt, 'yyyy-MM-dd HH:mm:ss') + ')'"></span>-->
+<!--                        <button class="btn-close-custom" data-shared-id="${shared.id}">&times;</button>-->
+<!--                        <br>-->
+<!--                    </div>-->
+<!--                    <span th:if="${post.share == null || post.share.isEmpty()}">공유 정보가 없습니다.</span>-->
                 </td>
             </tr>
             <!-- 분야와 해시태그 -->
             <tr>
                 <th>분야</th>
-                <td>맛집, 식당</td>
+                <td th:text="${post.domain != null ? post.domain : '없음'}">분야</td>
                 <th>해시태그</th>
-                <td>#맛집, #학교</td>
+                <td th:text="${post.hashtag != null ? post.hashtag : '없음'}">해시태그</td>
             </tr>
             </tbody>
         </table>
         <!-- 하단 버튼 -->
         <div class="text-end">
-            <button class="btn btn-primary">목록</button>
-            <button class="btn btn-secondary">등록</button>
-            <button class="btn btn-warning">수정</button>
-            <button class="btn btn-danger">삭제</button>
+            <button class="btn btn-primary" th:onclick="|location.href='@{/post/list}'|">목록</button>
+            <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
+            <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
+            <button class="btn btn-danger" onclick="confirmDelete(${post.id})">삭제</button>
         </div>
     </div>
     <script th:inline="javascript">
-        document.querySelectorAll('.btn-close-custom').forEach(button => {
-            button.addEventListener('click', function () {
-                const confirmDelete = confirm("공유된 사람을 삭제하시겠습니까?");
-                if (confirmDelete) {
-                    this.parentElement.remove(); // 삭제
-                    alert("삭제되었습니다.");
+        document.addEventListener("DOMContentLoaded", function () {
+            const deleteImageCheckbox = document.getElementById("deleteImage");
+            const newImageInput = document.getElementById("newImage");
+
+            deleteImageCheckbox.addEventListener("change", function () {
+                if (this.checked) {
+                    newImageInput.disabled = true; // 새 이미지 업로드 비활성화
+                } else {
+                    newImageInput.disabled = false; // 새 이미지 업로드 활성화
                 }
             });
+
+            // 이미지 미리보기 기능
+            const imageElement = document.querySelector(".img-thumbnail");
+            imageElement.addEventListener("mouseover", function () {
+                // 크게 보여줄 코드
+                this.style.transform = "scale(1.5)";
+                this.style.transition = "transform 0.2s";
+            });
+            imageElement.addEventListener("mouseout", function () {
+                // 원래 크기로
+                this.style.transform = "scale(1)";
+            });
         });
+
+        document.querySelectorAll('.btn-close-custom').forEach(button => {
+            button.addEventListener('click', function () {
+                const sharedId = this.getAttribute('data-shared-id');
+                const confirmDelete = confirm("공유된 사람을 삭제하시겠습니까?");
+                if (confirmDelete) {
+                    // Ajax 요청 또는 DOM 업데이트를 추가
+                    alert("삭제되었습니다.");
+                }
+            })
+        })
     </script>
 </div>

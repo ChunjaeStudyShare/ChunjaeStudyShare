@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<div layout:fragment="content">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .modify-table th {
+            background-color: #f8f9fa; /* 연한 회색 */
+            color: #000;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+        }
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto; /* 드롭다운 스크롤 가능 */
+        }
+    </style>
+    <div class="container mt-5">
+        <h1 class="mb-4">학습 정보 수정</h1>
+        <form th:action="@{/update-study}" method="POST" enctype="multipart/form-data">
+            <table class="table modify-table">
+                <tbody>
+                <!-- 제목 -->
+                <tr>
+                    <th class="text-end align-middle" style="width: 20%;">제목</th>
+                    <td style="width: 80%;">
+                        <input type="text" class="form-control" id="title" name="title" th:value="${post.title}" maxlength="100" placeholder="제목을 입력하세요" required>
+                    </td>
+                </tr>
+
+                <!-- 학습 내용 -->
+                <tr>
+                    <th class="text-end align-middle">학습 내용</th>
+                    <td>
+                        <textarea class="form-control" id="content" name="content" rows="5" placeholder="오늘의 학습 내용을 입력하세요" required th:text="${post.content}"></textarea>
+                    </td>
+                </tr>
+
+                <!-- 이미지 -->
+                <tr>
+                    <th class="text-end align-middle">이미지</th>
+                    <td>
+                        <!-- 기존 이미지 -->
+                        <div th:if="${post.path != null}" class="mb-2">
+                            <span th:text="${post.fileName}">기존 이미지명.jpg</span>
+                            <label class="form-check-label ms-3">
+                                <input class="form-check-input" type="checkbox" name="deleteImage" value="true">
+                                이미지 삭제
+                            </label>
+                        </div>
+                        <input type="file" class="form-control" id="image" name="image" accept=".jpg, .png">
+                    </td>
+                </tr>
+
+                <!-- 오늘의 학습 노출 여부 -->
+                <tr>
+                    <th class="text-end align-middle">오늘의 학습 노출 여부</th>
+                    <td>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="display" id="displayYes" value="yes" th:checked="${post.privacy == 1}">
+                            <label class="form-check-label" for="displayYes">노출</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="display" id="displayNo" value="no" th:checked="${post.privacy == 0}">
+                            <label class="form-check-label" for="displayNo">노출 안 함</label>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 오늘의 학습 노출 기간 -->
+<!--                <tr>-->
+<!--                    <th class="text-end align-middle">오늘의 학습 노출 기간</th>-->
+<!--                    <td>-->
+<!--                        <div class="row g-2">-->
+<!--                            <div class="col">-->
+<!--                                <input type="date" class="form-control" id="startDate" name="startDate" th:value="${#dates.format(post.displayAt, 'yyyy-MM-dd')}" required>-->
+<!--                            </div>-->
+<!--                            <span class="col-auto align-self-center">~</span>-->
+<!--                            <div class="col">-->
+<!--                                <input type="date" class="form-control" id="endDate" name="endDate" th:value="${#dates.format(post.displayEnd, 'yyyy-MM-dd')}" required>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </td>-->
+<!--                </tr>-->
+                <tr>
+                    <th class="text-end align-middle">공유한 사람</th>
+                    <td>
+                        <ul class="list-unstyled">
+                            <li>홍길동그리 (2024-01-22 오후 1:00)</li>
+                            <li>홍길동 (2024-01-22 오후 1:30)</li>
+                        </ul>
+                        <!-- 공유하기 버튼 및 목록 -->
+                        <div class="dropdown mt-2">
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    공유하기
+                                </button>
+                            </div>
+                            <ul class="dropdown-menu p-3" aria-labelledby="dropdownMenuButton">
+                                <li>
+                                    <input type="text" class="form-control mb-2" placeholder="아이디/이름 검색" id="searchInput" >
+                                </li>
+                                <li>
+                                    <div id="userList">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="user1" value="아이디1">
+                                            <label class="form-check-label" for="user1">아이디1</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="user2" value="아이디2">
+                                            <label class="form-check-label" for="user2">아이디2</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="user3" value="아이디3">
+                                            <label class="form-check-label" for="user3">아이디3</label>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <!-- 분야 -->
+                <tr>
+                    <th class="text-end align-middle">분야</th>
+                    <td>
+                        <input type="text" class="form-control" id="categories" name="categories" th:value="${post.domain}" placeholder="분야를 입력하세요 (최대 4개)" required>
+                        <div class="form-text">분야는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
+                    </td>
+                </tr>
+
+                <!-- 해시태그 -->
+                <tr>
+                    <th class="text-end align-middle">해시태그</th>
+                    <td>
+                        <input type="text" class="form-control" id="hashtags" name="hashtags" th:value="${post.hashtag}" placeholder="해시태그를 입력하세요 (최대 4개)" required>
+                        <div class="form-text">해시태그는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- 버튼 -->
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">수정</button>
+                <a href="/my-study-list" class="btn btn-outline-dark">목록</a>
+            </div>
+        </form>
+    </div>
+</div>

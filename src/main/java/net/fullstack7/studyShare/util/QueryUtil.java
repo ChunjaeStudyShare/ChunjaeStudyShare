@@ -8,4 +8,5 @@ public class QueryUtil {
         String direction = (sortOrder != null && sortOrder.equalsIgnoreCase("DESC")) ? "DESC" : "ASC";
         return "ORDER BY " + sortType + " " + direction;
     }
+
 }

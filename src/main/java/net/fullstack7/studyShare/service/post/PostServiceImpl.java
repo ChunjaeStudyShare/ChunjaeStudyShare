@@ -5,20 +5,23 @@ import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.File;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
+import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
+import net.fullstack7.studyShare.dto.post.PostViewDTO;
+import net.fullstack7.studyShare.mapper.PostMapper;
 import net.fullstack7.studyShare.repository.FileRepository;
 import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.repository.PostRepository;
 import net.fullstack7.studyShare.util.CommonFileUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -27,6 +30,8 @@ public class PostServiceImpl implements PostServiceIf{
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
     private final MemberRepository memberRepository;
+    private final PostMapper postMapper;
+    private final ModelMapper modelMapper;
 
     @Override
     @Transactional
@@ -143,5 +148,34 @@ public class PostServiceImpl implements PostServiceIf{
             log.warn("DTO 없음");
         }
         return false;
+    }
+
+
+    @Override
+    public int totalCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
+        return postMapper.totalCnt(searchCategory, searchValue, userId, sortType, displayAt, displayEnd);
+    }
+
+    @Override
+    public List<PostDTO> selectAllPost(int pageNo, int pageSize, String searchCategory,
+                                       String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("offset", (pageNo - 1) * pageSize);
+        map.put("limit", pageSize);
+        map.put("searchCategory", searchCategory);
+        map.put("searchValue", searchValue);
+        map.put("userId", userId);
+        map.put("sortType", sortType);
+        map.put("displayAt", displayAt);
+        map.put("displayEnd", displayEnd);
+
+        List<Post> list = postMapper.selectAllPost(map);
+        return list.stream()
+                .map(i -> modelMapper.map(i, PostDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public PostViewDTO findPostWithFile(String id) {
+        return postMapper.findPostWithFile(id);
     }
 }
