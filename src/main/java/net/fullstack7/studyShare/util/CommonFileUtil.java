@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import net.coobird.thumbnailator.Thumbnails;
 
 public class CommonFileUtil {
-
 
     private static final String UPLOAD_DIR = "D:\\chunjae\\file";
     private static final String DELETE_DIR = "D:\\chunjae";
@@ -41,6 +41,20 @@ public class CommonFileUtil {
         } else {
             throw new IllegalArgumentException("업로드할 파일이 없습니다.");
         }
+    }
+
+    //썸네일
+    public static String createThumbnail(String fileName) throws IOException {
+        String inputFilePath = UPLOAD_DIR + File.separator + fileName; // 원본 파일 경로
+        String thumbnailName = "thumb_" + fileName; // 썸네일 파일 이름
+        String outputFilePath = UPLOAD_DIR + File.separator + thumbnailName; // 썸네일 저장 경로
+
+        Thumbnails.of(inputFilePath)
+                .size(100, 100)  // 썸네일 크기
+                .outputQuality(0.8) // 용량
+                .outputFormat("jpg")  // 파일 형식
+                .toFile(outputFilePath);  // 저장 경로
+        return thumbnailName;
     }
 
     // 다중 파일 업로드 메서드

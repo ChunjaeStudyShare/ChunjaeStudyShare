@@ -76,6 +76,7 @@ dependencies {
 
     // 파일 업로드 용량 제한 설정을 위한 의존성
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.20'
 
     // implementation 'org.springframework.boot:spring-boot-starter-mail'
 

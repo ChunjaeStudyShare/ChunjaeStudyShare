@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 @Log4j2
 public class MemberController {
-    @GetMapping("/")
-    public String index() {
-        return "main/login";
-    }
+    // @GetMapping("/")
+    // public String index() {
+    //     return "main/login";
+    // }
 }

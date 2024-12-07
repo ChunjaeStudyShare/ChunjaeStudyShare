@@ -2,7 +2,9 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
       layout:decorate="~{common/layout}">
 <div layout:fragment="content">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
+
         /* 테이블 선 스타일 */
         table, th, td {
             border: 1px solid #ddd !important;
@@ -14,10 +16,15 @@
             background-color: #f8f9fa; /* 연한 회색 */
             color: #000;
         }
+         .text-danger {
+             color: #dc3545; /* 붉은색 */
+             font-size: 0.875rem; /* 작은 글씨 */
+             margin-top: 0.25rem; /* 약간의 위아래 여백 */
+         }
     </style>
     <div class="container mt-5">
         <h4 class="mb-4">학습 정보 등록</h4>
-        <form th:action="@{/post/regist}" method="POST" enctype="multipart/form-data">
+        <form th:action="@{/post/regist}" method="POST" enctype="multipart/form-data" novalidate>
             <table class="table regist-table">
                 <tbody>
                 <tr>
@@ -25,7 +32,7 @@
                         <label for="title">제목</label>
                     </th>
                     <td style="width: 80%;">
-                        <input type="text" class="form-control" id="title" name="title" maxlength="100" placeholder="제목을 입력하세요" required>
+                        <input type="text" class="form-control" id="title" name="title" minlength="2" maxlength="50" placeholder="제목을 입력하세요" required>
                     </td>
                 </tr>
                 <!-- 학습 내용 -->
@@ -34,7 +41,8 @@
                         <label for="content">학습 내용</label>
                     </th>
                     <td>
-                        <textarea class="form-control" id="content" name="content" rows="5" placeholder="오늘의 학습 내용을 입력하세요" required></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="5" minlength="10" maxlength="100" placeholder="오늘의 학습 내용을 입력하세요" ></textarea>
+                        <div class="text-danger small" id="contentError"></div>
                     </td>
                 </tr>
 
@@ -45,7 +53,7 @@
                     </th>
                     <td>
                         <input type="file" class="form-control" id="file" name="file" accept=".jpg, .png">
-                        <div class="form-text">이미지는 가로/세로 400x600, 비율 2:3 권장</div>
+                        <div class="text-danger small" id="fileError"></div>
                     </td>
                 </tr>
 
@@ -54,11 +62,11 @@
                     <th class="text-end align-middle">오늘의 학습 노출 여부</th>
                     <td>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="privacy" id="displayYes" value="1" required>
+                            <input class="form-check-input" type="radio" name="privacy" id="displayYes" value="1">
                             <label class="form-check-label" for="displayYes">노출</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="privacy" id="displayNo" value="0">
+                            <input class="form-check-input" type="radio" name="privacy" id="displayNo" value="0" checked>
                             <label class="form-check-label" for="displayNo">노출 안 함</label>
                         </div>
                     </td>
@@ -72,11 +80,11 @@
                     <td>
                         <div class="row g-2">
                             <div class="col">
-                                <input type="datetime-local" class="form-control" id="displayAt" name="displayAt" required>
+                                <input type="datetime-local" class="form-control" id="displayAt" name="displayAt" disabled>
                             </div>
                             <span class="col-auto align-self-center">~</span>
                             <div class="col">
-                                <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd" required>
+                                <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd" disabled>
                             </div>
                         </div>
                     </td>
@@ -88,8 +96,9 @@
                         <label for="domain">분야</label>
                     </th>
                     <td>
-                        <input type="text" class="form-control" id="domain" name="domain" placeholder="분야를 입력하세요 (최대 4개)" required>
+                        <input type="text" class="form-control" id="domain" name="domain" placeholder="분야를 입력하세요 (최대 4개)">
                         <div class="form-text">분야는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
+                        <div class="text-danger small" id="domainError"></div>
                     </td>
                 </tr>
 
@@ -99,8 +108,9 @@
                         <label for="hashtag">해시태그</label>
                     </th>
                     <td>
-                        <input type="text" class="form-control" id="hashtag" name="hashtag" placeholder="해시태그를 입력하세요 (최대 4개)" required>
+                        <input type="text" class="form-control" id="hashtag" name="hashtag" placeholder="해시태그를 입력하세요 (최대 4개)">
                         <div class="form-text">해시태그는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
+                        <div class="text-danger small" id="hashtagError"></div>
                     </td>
                 </tr>
                 </tbody>
@@ -114,4 +124,193 @@
             </div>
         </form>
     </div>
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DOM 로드 완료");
+
+            const form = document.querySelector("form");
+            const title = document.getElementById("title");
+            const content = document.getElementById("content");
+            const file = document.getElementById("file");
+            const domain = document.getElementById("domain");
+            const hashtag = document.getElementById("hashtag");
+            const privacyYes = document.getElementById("displayYes");
+            const privacyNo = document.getElementById("displayNo");
+            const displayAt = document.getElementById("displayAt");
+            const displayEnd = document.getElementById("displayEnd");
+
+            const titleError = document.createElement("div");
+            titleError.className = "text-danger small";
+            title.insertAdjacentElement("afterend", titleError);
+
+            const contentError = document.createElement("div");
+            contentError.className = "text-danger small";
+            content.insertAdjacentElement("afterend", contentError);
+
+            const fileError = document.createElement("div");
+            fileError.className = "text-danger small";
+            file.insertAdjacentElement("afterend", fileError);
+
+            const domainError = document.createElement("div");
+            domainError.className = "text-danger small";
+            domain.insertAdjacentElement("afterend", domainError);
+
+            const hashtagError = document.createElement("div");
+            hashtagError.className = "text-danger small";
+            hashtag.insertAdjacentElement("afterend", hashtagError);
+
+            // 노출 여부에 따라 날짜 필드 활성화/비활성화
+            function displayPeriod() {
+                if (privacyYes.checked) {
+                    displayAt.disabled = false;
+                    displayEnd.disabled = false;
+                } else {
+                    displayAt.disabled = true;
+                    displayEnd.disabled = true;
+                    displayAt.value = "";
+                    displayEnd.value = "";
+                }
+            }
+
+            // 초기화
+            displayPeriod();
+
+            privacyYes.addEventListener("change", displayPeriod);
+            privacyNo.addEventListener("change", displayPeriod);
+
+            // 노출 여부 및 날짜 유효성 검사
+            const today = new Date();
+            const todayString = today.toISOString().slice(0, 16);
+            displayAt.min = todayString;
+            displayEnd.min = todayString;
+
+            displayAt.addEventListener("input", function () {
+                const selectedDate = new Date(this.value); // 사용자가 선택한 날짜
+                if (selectedDate < displayAt.min) {
+                    // 선택한 날짜가 최소 날짜보다 이전이면 경고 및 초기화
+                    alert("현재 시각 이후로만 선택 가능합니다.");
+                    this.value = ""; // 입력값 초기화
+                }
+            });
+
+            form.addEventListener("submit", function (event) {
+                console.log("폼 제출 이벤트 발생");
+
+                let isValid = true;
+
+                titleError.textContent = "";
+                contentError.textContent = "";
+                fileError.textContent = "";
+                domainError.textContent = "";
+                hashtagError.textContent = "";
+
+                // 제목 유효성 검사
+                if (!title.value.trim()) {
+                    titleError.textContent = "제목을 입력하세요.";
+                    isValid = false;
+                } else if (title.value.length < 2 || title.value.length > 50) {
+                    titleError.textContent = "제목은 2글자 이상 50자 이하로 입력하세요.";
+                    isValid = false;
+                }
+
+                // 내용 유효성 검사
+                if (!content.value.trim()) {
+                    contentError.textContent = "학습 내용을 입력하세요.";
+                    isValid = false;
+                } else if (content.value.length < 10 || content.value.length > 100) {
+                    contentError.textContent = "학습 내용은 10자 이상 100자 이하로 입력하세요.";
+                    isValid = false;
+                }
+
+                // 파일 유효성 검사
+                if (file.value) {
+                    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+                    if (!allowedExtensions.test(file.value)) {
+                        fileError.textContent = "이미지는 .jpg 또는 .png 형식만 가능합니다.";
+                        isValid = false;
+                    }
+                }
+
+
+                if (privacyYes.checked) {
+                    const existingStartError = document.querySelector("#displayAt + .text-danger");
+                    if (existingStartError) existingStartError.remove();
+                    if (!displayAt.value) {
+                        displayAt.insertAdjacentHTML(
+                            "afterend",
+                            "<div class='text-danger small'>노출 시작 날짜를 입력해야 합니다.</div>"
+                        );
+                        isValid = false;
+                    }
+                    const existingEndError = document.querySelector("#displayEnd + .text-danger");
+                    if (existingEndError) existingEndError.remove();
+                    if (!displayEnd.value) {
+                        displayEnd.insertAdjacentHTML(
+                            "afterend",
+                            "<div class='text-danger small'>노출 종료 날짜를 입력해야 합니다.</div>"
+                        );
+                        isValid = false;
+                    } else if (new Date(displayAt.value) >= new Date(displayEnd.value)) {
+                        displayEnd.insertAdjacentHTML(
+                            "afterend",
+                            "<div class='text-danger small'>노출 종료 날짜는 시작 날짜보다 뒤여야 합니다.</div>"
+                        );
+                        isValid = false;
+                    }
+                }
+
+                // 분야
+                if (domain.value.trim()) {
+                    const domains = domain.value
+                        .split(",")
+                        .map((d) => d.trim())
+                        .filter((d) => d); // 빈 값 제거
+                    if (domains.length > 4) {
+                        domainError.textContent = "분야는 최대 4개까지만 입력 가능합니다.";
+                        isValid = false;
+                    }
+                    if (domains.some((d) => d.length > 10)) {
+                        domainError.textContent = "분야의 각 항목은 최대 10자까지 입력 가능합니다.";
+                        isValid = false;
+                    }
+                }
+
+                // 해시태그
+                if (hashtag.value.trim()) {
+                    const hashtags = hashtag.value
+                        .split(",")
+                        .map((h) => h.trim())
+                        .filter((h) => h); // 빈 값 제거
+                    if (hashtags.length > 4) {
+                        hashtagError.textContent = "해시태그는 최대 4개까지만 입력 가능합니다.";
+                        isValid = false;
+                    }
+                    if (hashtags.some((h) => !h.startsWith("#"))) {
+                        hashtagError.textContent = "해시태그는 #으로 시작해야 합니다.";
+                        isValid = false;
+                    }
+                    if (hashtags.some((h) => h.length > 10)) {
+                        hashtagError.textContent = "해시태그의 각 항목은 최대 10자까지 입력 가능합니다.";
+                        isValid = false;
+                    }
+                }
+
+                //파일
+                const maxSize = 500*1024*1024
+                if (file.size > maxSize) {
+                    fileError.textContent = "파일 크기는 최대 500MB까지만 허용됩니다.";
+                    event.target.value = ""; // 파일 입력 초기화
+                    isValid = false;
+                }
+
+
+                // 유효성 검사 실패 시 폼 제출 중단
+                if (!isValid) {
+                    console.log("폼 제출 중단");
+                    event.preventDefault();
+                }
+            });
+        });
+
+    </script>
 </div>
