@@ -167,27 +167,27 @@
   }
 
   function showMessageContent(message) {
-      if(message.sender.userId === userId)
-          let bubbleclass = 'chat-bubble-my'
-      else if(message.sender.userId === 'chatmanager')
+      $("#messages").append('<tr><td style="min-height: 60px"><div class="row"><div class="col-2"><span class="chat-id">'+message.sender.userId+'</span></div>'
+          +'<div class="col-10"><span class="chat-bubble-my">'+message.message+'</span>'
+          +'<span class="chat-date">'+message.createdAt+'</span></div>'
+          +'</div></td></tr>');
 
-    $("#messages").append("<tr ><td>"+ message.sender.userId +"</td><td class=\""+ bubbleclass +"\">" + message.message + "</td><td class=\"col-3\"><span class=\"chat-date\" >"+message.createdAt+"</span></td></tr>");
   }
 
-  $(function () {
-    $("form").on('submit', (e) => e.preventDefault());
-    $( "#connect" ).click(() => connect());
-    $( "#disconnect" ).click(() => disconnect());
-    $( "#send" ).click(() => sendMessageContent());
-  });
+    $(function () {
+        $("form").on('submit', (e) => e.preventDefault());
+        $("#connect").click(() => connect());
+        $("#disconnect").click(() => disconnect());
+        $("#send").click(() => sendMessageContent());
+    });
 
-  connect();
+    connect();
 
-  // window.onbeforeunload(
-  //         (ev) => {
-  //           stompClient.
-  //         }
-  // )
+    // window.onbeforeunload(
+    //         (ev) => {
+    //           stompClient.
+    //         }
+    // )
 
 </script>
 </body>
