@@ -23,8 +23,4 @@ public class ChatMember {
     @ManyToOne
     @JoinColumn(name = "userId")
     private Member member;
-    @Column(columnDefinition = "datetime not null default now() comment '입장시간'")
-    private LocalDateTime joinAt;
-    @Column(columnDefinition = "datetime not null default now() comment '퇴장시간'")
-    private LocalDateTime leaveAt;
 }
