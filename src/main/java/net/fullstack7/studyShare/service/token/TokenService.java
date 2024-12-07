@@ -5,6 +5,10 @@ import net.fullstack7.studyShare.repository.ActiveTokensRepository;
 import net.fullstack7.studyShare.util.JwtUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import net.fullstack7.studyShare.domain.Member;
+import net.fullstack7.studyShare.repository.MemberRepository;
+import net.fullstack7.studyShare.util.SecurityUtil;
+import net.fullstack7.studyShare.exception.TokenExceoption;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +17,7 @@ import java.time.LocalDateTime;
 public class TokenService {
     private final ActiveTokensRepository activeTokensRepository;
     private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
     public boolean isTokenValid(String token) {
@@ -20,21 +25,29 @@ public class TokenService {
             String userId = jwtUtil.getUserId(token);
             String jti = jwtUtil.getJti(token);
             LocalDateTime now = LocalDateTime.now();
+            Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
             
-            // DB에서만 유효성 검증
-            return activeTokensRepository.findValidToken(userId, jti, now).isPresent();
+            return activeTokensRepository.findValidToken(member, jti, now).isPresent();
         } catch (Exception e) {
             return false;
         }
     }
 
     @Transactional
-    public void invalidateToken(String userId, String jti) {
-        // 토큰 즉시 무효화 (로그아웃 등에서 사용)
-        activeTokensRepository.deleteByUserIdAndJti(userId, jti);
+    public void invalidateToken(String token) {
+        try {
+            String userId = SecurityUtil.getCurrentUserId();
+            String jti = jwtUtil.getJti(token);
+            Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+            
+            activeTokensRepository.deleteByUserIdAndJti(member, jti);
+        } catch (TokenExceoption e) {
+            throw new RuntimeException("토큰 무효화 실패", e);
+        }
     }
 
-    // 만료된 토큰 삭제
     @Transactional
     public void cleanupExpiredTokens() {
         activeTokensRepository.deleteByExpiresAtBefore(LocalDateTime.now());
