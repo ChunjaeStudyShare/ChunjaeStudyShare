@@ -75,6 +75,10 @@
 <body>
 
 <div layout:fragment="content">
+    <div>채팅방</div>
+    <div>
+        <button data-invited-id="user2" class="btn-invite">초대</button>
+    </div>
     <div class="row chat-box" id="messages">
         <div class="row" th:each="item, status:${messages}">
             <div class="col-2"><span class="chat-id" th:text="${item.sender.userId}"></span></div>
@@ -222,26 +226,28 @@
     //     disconnect();
     // });
 
-    document.querySelectorAll(".btn-invite").forEach(value => {
-        value.addEventListener("click", evt => {
-           const url = "/api/chat/room/"+roomId+"/invite";
-           let invitedId = value.dataset.invitedId;
-
-           let response = invite(url, invitedId);
-
-           alert(response);
-
+    document.querySelectorAll(".btn-invite").forEach(button => {
+        button.addEventListener("click", evt => {
+           let invitedId = button.dataset.invitedId;
+           let response = invite(invitedId, roomId).then( (data) => {
+               alert(data);
+           });
+           // alert(response);
         });
     })
 
-    async function invite(url, invitedId) {
+    async function invite(invitedId, roomId) {
+        const url = "/api/chat/room/invite";
         const response = await fetch(url, {
             method: 'POST',
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({ "invitedId": invitedId })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({invitedId: invitedId , roomId: roomId})
         });
-        console.log(response.body);
-        return response.json();
+
+
+        return response.text();
     }
 </script>
 </body>
