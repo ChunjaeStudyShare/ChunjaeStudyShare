@@ -55,4 +55,12 @@ public class ChatController {
         redirectAttributes.addFlashAttribute("errors", "채팅방에서 퇴장하셨습니다.");
         return "redirect:/chat/list";
     }
+
+    @GetMapping("/room/{id}/invite")
+    public String invite(HttpSession session, @PathVariable int id, Model model, String invitedId) {
+
+        String inviteResult = chatService.inviteUserToChatRoom(id, invitedId);
+
+        return "redirect:/chat/room/";
+    }
 }

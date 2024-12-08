@@ -13,5 +13,6 @@ public interface ChatService {
     int createChatRoom(String userId, String[] invited);
     ChatMessage addMessageToChatRoom(int roomId, MessageContent message);
     void exitRoom(int roomId, String userId);
-    void inviteUserToChatRoom(int roomId, String userId);
+    String inviteUserToChatRoom(int roomId, String userId);
+    boolean enterChatRoom(int roomId, String userId);
 }

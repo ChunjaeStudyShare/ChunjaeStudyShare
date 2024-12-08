@@ -13,6 +13,7 @@ import net.fullstack7.studyShare.repository.ChatMemberRepository;
 import net.fullstack7.studyShare.repository.ChatMessageRepository;
 import net.fullstack7.studyShare.repository.ChatRoomRepository;
 import net.fullstack7.studyShare.repository.MemberRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,8 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
     private final ChatMemberRepository chatMemberRepository;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public List<ChatRoom> getChatRoomList(String userId) {
@@ -82,17 +85,50 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void exitRoom(int roomId, String userId) {
         chatMemberRepository.deleteMember(roomId, userId);
-        chatMessageRepository.save(ChatMessage.builder()
+        ChatMessage exitMessage = ChatMessage.builder()
                 .sender(Member.builder().userId("chatmanager").build())
                 .message(userId + " 님이 나가셨습니다.")
                 .isRead(1)
                 .chatRoom(ChatRoom.builder().id(roomId).build())
-                .build());
+                .build();
+        chatMessageRepository.save(exitMessage);
+        messagingTemplate.convertAndSend(exitMessage);
     }
 
     @Override
-    public void inviteUserToChatRoom(int roomId, String userId) {
+    @Transactional
+    public String inviteUserToChatRoom(int roomId, String userId) {
+        if(memberRepository.existsById(userId)){
+            Member member = Member.builder().userId(userId).build();
+            if(chatRoomRepository.existsById(roomId)){
+                ChatRoom chatRoom = ChatRoom.builder().id(roomId).build();
+                if(chatMemberRepository.existsByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build())){
+                    return "이미 참여 중인 회원입니다.";
+                }
+                ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).build();
+                chatMemberRepository.save(chatMember);
+                if(chatMember.getId() == 0) {
+                    return "다시 시도해주세요.";
+                }
 
+                ChatMessage inviteMessage = ChatMessage.builder()
+                        .sender(Member.builder().userId("chatmanager").build())
+                        .message(userId + " 님이 입장하셨습니다.")
+                        .isRead(1)
+                        .chatRoom(chatRoom)
+                        .build();
+
+                messagingTemplate.convertAndSend(inviteMessage);
+                return userId + "님을 초대했습니다.";
+            }
+            return "존재하지 않는 채팅방입니다.";
+        }
+        return "존재하지 않는 회원입니다.";
+    }
+
+    @Override
+    public boolean enterChatRoom(int roomId, String userId) {
+        return chatMemberRepository.existsByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build());
     }
 
 

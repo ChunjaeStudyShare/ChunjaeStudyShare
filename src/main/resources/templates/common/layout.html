@@ -34,6 +34,22 @@
 <div layout:fragment="content" style="padding-top:120px">
     <!-- 각 페이지가 여기에 콘텐츠를 삽입합니다 -->
 </div>
+<script>
+    function formatLocalDateTime(localDateTime, format) {
+        const date = new Date(localDateTime);
+
+        // 포맷에 맞게 날짜와 시간을 대체
+        const formatted = format
+            .replace('yyyy', date.getFullYear())
+            .replace('MM', String(date.getMonth() + 1).padStart(2, '0'))
+            .replace('dd', String(date.getDate()).padStart(2, '0'))
+            .replace('HH', String(date.getHours()).padStart(2, '0'))
+            .replace('mm', String(date.getMinutes()).padStart(2, '0'))
+            .replace('ss', String(date.getSeconds()).padStart(2, '0'));
+
+        return formatted;
+    }
+</script>
 <script layout:fragment="script"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

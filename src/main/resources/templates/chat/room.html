@@ -37,17 +37,18 @@
             margin: 5px 0; /* 상하 간격 */
             color: #333; /* 글씨 색상 */
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
+            font-size: 15px;
         }
 
         .chat-box {
             max-width: 900px;
             margin: 0 auto;
+            background-color: #f7f7f7;
         }
 
         .chat-input-box {
             max-width: 900px;
             margin: 20px auto;
-
         }
 
         .chat-date {
@@ -59,49 +60,30 @@
         .chat-id {
             display: inline-block;
             text-align: center;
+            margin: 0 auto;
         }
 
         #messages {
-            max-height: 500px; /* 최대 높이 600px로 제한 */
+            /*max-height: 550px; !* 최대 높이 600px로 제한 *!*/
+            height: 75vh;
             overflow-y: auto; /* 세로 스크롤바 활성화 */
             display: block; /* tbody에 block을 적용해 스크롤 가능하도록 설정 */
         }
 
-        /*#messages tr {*/
-        /*    display: table; !* tbody의 자식 tr은 table 형태 유지 *!*/
-        /*    width: 100%; !* 전체 너비 유지 *!*/
-        /*    table-layout: fixed; !* 셀 크기 고정 *!*/
-        /*}*/
     </style>
 </head>
 <body>
 
 <div layout:fragment="content">
-    <div class="row chat-box">
-        <div class="col-md-12">
-            <table id="conversation" class="">
-                <thead>
-                <tr>
-                    <th style="text-align: center">채팅방</th>
-                </tr>
-                </thead>
-                <tbody id="messages">
-                <tr th:each="item, status:${messages}">
-                    <td style="min-height: 60px">
-                        <div class="row">
-                            <div class="col-2 chat-id"><span th:text="${item.sender.userId}"></span></div>
-                            <div class="col-10">
+    <div class="row chat-box" id="messages">
+        <div class="row" th:each="item, status:${messages}">
+            <div class="col-2"><span class="chat-id" th:text="${item.sender.userId}"></span></div>
+            <div class="col-10">
                                 <span th:class="${item.sender.userId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}"
-                                    th:text="${item.message}"></span>
-                                <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                                      th:text="${item.message}"></span>
+                <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+            </div>
         </div>
-
     </div>
     <div class="row chat-input-box fixed-bottom">
         <div class="col-12">
@@ -109,7 +91,7 @@
 
                 <div class="input-group">
                     <input type="text" id="sender" class="form-control" placeholder="name...">
-                    <input type="text" id="content" class="form-control" placeholder="content...">
+                    <input type="text" id="content" class="form-control" placeholder="content..." maxlength="300">
                     <button id="send" class="btn btn-dark" type="submit">Send</button>
                 </div>
             </form>
@@ -127,12 +109,13 @@
 
     const inputContent = document.getElementById("content");
     const roomId = [[${roomId}]];
-    const userId = `[[${userId}]]`;
+    const userId = [[${userId}]];
     const messagesContainer = document.getElementById("messages");
 
     function scrollToBottom() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+
 
     const host = window.location.hostname; // 현재 호스트 이름 가져오기
     const port = window.location.port; // 포트 설정
@@ -143,16 +126,16 @@
     });
 
 
-
     stompClient.onConnect = (frame) => {
-        // setConnected(true);
         console.log('Connected: ' + frame);
         stompClient.subscribe('/room/' + roomId, (chatMessage) => {
-            // console.log(chatMessage.body)
             let rContent = chatMessage.body;
             if (rContent != null)
                 showMessageContent(JSON.parse(rContent))
-            // showMessageContent(JSON.parse(messageContent.body).content)
+        });
+        //개인채널
+        stompClient.subscribe('/user/queue/errors', function (message) {
+            alert(JSON.parse(message.body).message);
         });
     };
 
@@ -169,7 +152,7 @@
 
     function connect() {
         if (!isConnected && stompClient) {
-            stompClient.reconnectDelay = 0; // 연결 끊겼을 때 다시 시도 방지
+            stompClient.reconnectDelay = 60000; // 연결 끊겼을 때 다시 시도 방지
             stompClient.activate();
             isConnected = true;
             console.log("Connected");
@@ -183,23 +166,42 @@
     }
 
     function sendMessageContent() {
-        if (!stompClient.active) {
+        if (!stompClient.active || !stompClient.connected) {
             alert('채팅방 연결이 원활하지 않습니다. 페이지를 새로고침 해주세요.');
             return;
         }
         if (inputContent.value === '') return;
+        if (inputContent.value.length > 300) {
+            alert("300자 이내 전송 가능합니다.");
+            return;
+        }
+        //메시지 전송
         stompClient.publish({
             destination: "/send/" + roomId,
-            body: JSON.stringify({'sender': $("#sender").val(), 'content': $("#content").val()})
+            body: JSON.stringify({'content': $("#content").val(), 'sender': $("#sender").val() })
         });
         inputContent.value = '';
     }
 
     function showMessageContent(message) {
-        $("#messages").append('<tr><td style="min-height: 60px"><div class="row"><div class="col-2"><span class="chat-id">' + message.sender.userId + '</span></div>'
-            + '<div class="col-10"><span class="chat-bubble-my">' + message.message + '</span>'
-            + '<span class="chat-date">' + message.createdAt + '</span></div>'
-            + '</div></td></tr>');
+
+
+        let content = "<div class=\"row\"><div class=\"col-2\">";
+        if(message.sender.userId !== 'chatmanager') content += "<span class=\"chat-id\">"+message.sender.userId+"</span>";
+        content += "</div><div class=\"col-10\">";
+        if(message.sender.userId === 'chatmanager')
+            content += "<span class=\"chat-bubble-manager\">"+message.message+"</span>";
+        else {
+            if(message.sender.userId === userId)
+                content += "<span class=\"chat-bubble-my\">"+message.message+"</span> ";
+            else
+                content += "<span class=\"chat-bubble\">"+message.message+"</span> ";
+            content += "<span class=\"chat-date\">"+formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')+"</span>"
+        }
+        content += "</div></div>"
+
+        $("#messages").append(content);
+
         scrollToBottom();
     }
 
@@ -210,20 +212,37 @@
         $("#send").click(() => sendMessageContent());
     });
 
-    // connect();
-
     window.addEventListener("beforeunload", function (event) {
         if(isConnected) disconnect();
-        // Optional: 사용자에게 확인 메시지를 표시 (브라우저에 따라 무시될 수 있음)
         event.preventDefault();
-        // event.returnValue = ""; // 일부 브라우저에서 메시지를 표시하려면 필요
     });
 
-    // 또는 unload 이벤트를 사용
+    // unload 이벤트 사용
     // window.addEventListener("unload", function() {
     //     disconnect();
     // });
 
+    document.querySelectorAll(".btn-invite").forEach(value => {
+        value.addEventListener("click", evt => {
+           const url = "/api/chat/room/"+roomId+"/invite";
+           let invitedId = value.dataset.invitedId;
+
+           let response = invite(url, invitedId);
+
+           alert(response);
+
+        });
+    })
+
+    async function invite(url, invitedId) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ "invitedId": invitedId })
+        });
+        console.log(response.body);
+        return response.json();
+    }
 </script>
 </body>
 </html>
