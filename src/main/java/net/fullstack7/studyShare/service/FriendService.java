@@ -1,7 +1,7 @@
 package net.fullstack7.studyShare.service;
 
 import net.fullstack7.studyShare.dto.FriendDTO;
-import net.fullstack7.studyShare.dto.MemberDTO;
+import net.fullstack7.studyShare.dto.member.MemberDTO;
 
 import java.util.List;
 

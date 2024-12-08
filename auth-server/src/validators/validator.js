@@ -17,7 +17,7 @@ module.exports = {
             .messages({
                 'string.pattern.base': errorMessage.INVALID_PASSWORD_FORMAT
             }),
-        name: Joi.string().min(2).max(30).required(),
+        name: Joi.string().min(2).max(10).required(),
         phone: Joi.string().pattern(new RegExp('^[0-9]{10,11}$')).required().messages({
             'string.pattern.base': errorMessage.INVALID_PHONE_FORMAT
         }),

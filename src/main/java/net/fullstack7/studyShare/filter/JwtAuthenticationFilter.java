@@ -85,7 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if(true) {
             return true;
         }
-        
+
         // 정적 리소스와 공개 페이지는 필터링하지 않음
         return path.startsWith("/css/") ||
                path.startsWith("/js/") ||
@@ -97,6 +97,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                path.equals("/member/register") ||
                path.equals("/member/find-password") ||
                path.equals("/member/reset-password") ||
+               path.startsWith("/admin/") ||
                // 에러 파라미터가 있는 로그인 페이지도 필터링하지 않음
                (path.startsWith("/member/login") && request.getQueryString() != null && request.getQueryString().contains("error=true"));
     }

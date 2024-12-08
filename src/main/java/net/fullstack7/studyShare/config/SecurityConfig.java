@@ -51,7 +51,8 @@ public class SecurityConfig {
     //                 "/member/login",
     //                 "/member/register",
     //                 "/member/find-password",
-    //                 "/member/reset-password"
+    //                 "/member/reset-password",
+    //                 "/admin/**" //관리자 페이지는 독자적으로 처리
     //             ).permitAll()
     //             // 실제 존재하는 URL 패턴에 대해서만 인증 체크
     //             .requestMatchers(
