@@ -4,7 +4,7 @@
 <mapper namespace="net.fullstack7.studyShare.mapper.TodayMapper">
     <select id="todayList" resultType="net.fullstack7.studyShare.dto.today.TodayDTO">
         SELECT p.*
-        FROM post AS p
+        FROM Post AS p
         WHERE p.displayAt &lt;= #{selectedDate}
         AND p.displayEnd &gt;= #{selectedDate}
     </select>

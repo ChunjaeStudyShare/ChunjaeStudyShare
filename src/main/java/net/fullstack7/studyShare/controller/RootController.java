@@ -24,7 +24,7 @@ public class RootController {
             if (token != null && tokenService.isTokenValid(token)) {
                 String userId = jwtUtil.getUserId(token);
                 log.info("현재 사용자 ID: {}", userId);
-                return "today/main";
+                return "redirect:/today/main";
             }
         } catch (Exception e) {
             log.info("로그인되지 않은 사용자");

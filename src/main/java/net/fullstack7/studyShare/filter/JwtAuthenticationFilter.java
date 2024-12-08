@@ -98,6 +98,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                path.equals("/member/find-password") ||
                path.equals("/member/reset-password") ||
                path.startsWith("/admin/") ||
+               path.startsWith("/post/") ||
                // 에러 파라미터가 있는 로그인 페이지도 필터링하지 않음
                (path.startsWith("/member/login") && request.getQueryString() != null && request.getQueryString().contains("error=true"));
     }

@@ -28,7 +28,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp");
+        registry.addEndpoint("/ws-stomp")
+            .setAllowedOrigins(
+                "https://www.gyeongminiya.asia",
+                "https://api.gyeongminiya.asia"
+            );
     }
 
 //    @Bean
