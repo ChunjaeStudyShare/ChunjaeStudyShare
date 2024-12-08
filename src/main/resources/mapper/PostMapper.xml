@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.fullstack7.studyShare.mapper.PostMapper">
+    <select id="totalCnt">
+        SELECT COUNT(*)
+        FROM post
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null">
+                AND displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND displayEnd &lt;= #{displayEnd}
+            </if>
+            AND userId = #{userId}
+        </where>
+    </select>
+
+    <select id="selectAllPost">
+        SELECT *
+        FROM post
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            AND userId = #{userId}
+            <if test="displayAt != null">
+                AND displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND displayEnd &lt;= #{displayEnd}
+            </if>
+        </where>
+        <if test="sortType != null">
+            ORDER BY ${sortType} DESC
+        </if>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="findPostWithFile" resultType="net.fullstack7.studyShare.dto.post.PostViewDTO">
+        SELECT
+            p.id,
+            p.title,
+            p.content,
+            p.privacy,
+            p.share,
+            p.displayAt,
+            p.displayEnd,
+            p.createdAt,
+            p.domain,
+            p.hashtag,
+            f.fileName,
+            f.path
+        FROM post p
+                 LEFT JOIN file f ON p.id = f.postId
+        WHERE p.id = #{id}
+    </select>
+
+    <select id="checkWriter" resultType="boolean">
+        SELECT COUNT(*)
+        FROM post
+        WHERE id = #{id} AND userId = #{userId}
+    </select>
+
+</mapper>

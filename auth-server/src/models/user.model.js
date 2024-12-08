@@ -68,6 +68,28 @@ class UserModel {
         const [result] = await db.query(query, [status, userId]);
         return result.affectedRows > 0;
     }
+
+    // 아이디 중복 체크
+    async checkId(userId) {
+        //Exist 를 이용하여 쿼리 최적화
+        const query = 'SELECT EXISTS(SELECT 1 FROM Member WHERE userId = ?) AS is_duplicate';
+        const [rows] = await db.query(query, [userId]);
+        return rows[0].is_duplicate;
+    }
+
+    // 이메일 중복 체크
+    async checkEmail(email) {
+        const query = 'SELECT EXISTS(SELECT 1 FROM Member WHERE email = ?) AS is_duplicate';
+        const [rows] = await db.query(query, [email]);
+        return rows[0].is_duplicate;
+    }
+
+    // 전화번호 변경
+    async updatePhone(userId, phone) {
+        const query = 'UPDATE Member SET phone = ? WHERE userId = ?';
+        const [result] = await db.query(query, [phone, userId]);
+        return result.affectedRows > 0;
+    }
 }
 
 module.exports = new UserModel();

@@ -7,8 +7,261 @@
     <title>회원가입</title>
 </head>
 <div layout:fragment="content">
-    <h1>회원가입</h1>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mb-4">회원가입</h2>
+                <form id="registerForm" class="mb-5">
+                    <!-- 아이디 -->
+                    <div class="mb-3">
+                        <label for="userId" class="form-label">아이디</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="userId" required
+                                   pattern="^[a-zA-Z0-9]{4,20}$">
+                            <button class="btn btn-outline-secondary" type="button" id="checkIdBtn">중복확인</button>
+                        </div>
+                        <div class="form-text" id="userIdHelp">4~20자의 영문 대소문자와 숫자만 사용 가능</div>
+                    </div>
+
+                    <!-- 비밀번호 -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">비밀번호</label>
+                        <input type="password" class="form-control" id="password" required
+                               pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$">
+                        <div class="form-text">8자 이상, 영문/숫자/특수문자 조합</div>
+                    </div>
+
+                    <!-- 비밀번호 확인 -->
+                    <div class="mb-3">
+                        <label for="passwordConfirm" class="form-label">비밀번호 확인</label>
+                        <input type="password" class="form-control" id="passwordConfirm" required>
+                    </div>
+
+                    <!-- 이름 -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">이름</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+
+                    <!-- 이메일 -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">이메일</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="email" required>
+                            <button class="btn btn-outline-secondary" type="button" id="checkEmailBtn">중복확인</button>
+                        </div>
+                    </div>
+
+                    <!-- 전화번호 -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">전화번호</label>
+                        <input type="tel" class="form-control" id="phone" required
+                               pattern="[0-9]{10,11}">
+                        <div class="form-text">'-' 없이 숫자만 입력</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>회원가입</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-<!-- 회원가입 스크립트 내부 js 사용-->
-<script></script>
-</html> 
+
+<th:block layout:fragment="script">
+<script>
+    let isIdChecked = false;
+    let isEmailChecked = false;
+    
+    // 아이디 중복 확인
+    document.getElementById('checkIdBtn').addEventListener('click', async function() {
+        const userId = document.getElementById('userId').value;
+        const userIdHelp = document.getElementById('userIdHelp');
+        
+        if (!userId.match(/^[a-zA-Z0-9]{4,20}$/)) {
+            userIdHelp.className = 'form-text text-danger';
+            userIdHelp.textContent = '아이디는 4~20자의 영문 대소문자와 숫자만 사용 가능합니다.';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`https://api.gyeongminiya.asia/api/user/check-id?userId=${encodeURIComponent(userId)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.isDuplicate) {
+                    userIdHelp.className = 'form-text text-danger';
+                    userIdHelp.textContent = '이미 사용 중인 아이디입니다.';
+                    isIdChecked = false;
+                } else {
+                    userIdHelp.className = 'form-text text-success';
+                    userIdHelp.textContent = '사용 가능한 아이디입니다.';
+                    isIdChecked = true;
+                }
+                checkFormValidity();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('중복 확인 중 오류가 발생했습니다.');
+        }
+    });
+    
+    // 이메일 중복 확인
+    document.getElementById('checkEmailBtn').addEventListener('click', async function() {
+        const email = document.getElementById('email').value;
+        const emailHelp = document.createElement('div');
+        emailHelp.className = 'form-text';
+        const emailInput = document.getElementById('email');
+        
+        // 기존 도움말 제거
+        const oldHelp = emailInput.parentElement.parentElement.querySelector('.form-text');
+        if (oldHelp) oldHelp.remove();
+        
+        emailInput.parentElement.parentElement.appendChild(emailHelp);
+        
+        if (!email) {
+            emailHelp.className = 'form-text text-danger';
+            emailHelp.textContent = '이메일을 입력해주세요.';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`https://api.gyeongminiya.asia/api/user/check-email?email=${encodeURIComponent(email)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.isDuplicate) {
+                    emailHelp.className = 'form-text text-danger';
+                    emailHelp.textContent = '이미 사용 중인 이메일입니다.';
+                    isEmailChecked = false;
+                } else {
+                    emailHelp.className = 'form-text text-success';
+                    emailHelp.textContent = '사용 가능한 이메일입니다.';
+                    isEmailChecked = true;
+                }
+                checkFormValidity();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('중복 확인 중 오류가 발생했습니다.');
+        }
+    });
+    
+    // 실시간 유효성 검사
+    document.getElementById('userId').addEventListener('input', function() {
+        const userIdHelp = document.getElementById('userIdHelp');
+        isIdChecked = false;
+        
+        if (!this.value.match(/^[a-zA-Z0-9]{4,20}$/)) {
+            userIdHelp.className = 'form-text text-danger';
+            this.classList.add('is-invalid');
+        } else {
+            userIdHelp.className = 'form-text text-muted';
+            userIdHelp.textContent = '4~20자의 영문 대소문자와 숫자만 사용 가능';
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
+    document.getElementById('password').addEventListener('input', function() {
+        const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+        const helpText = this.nextElementSibling;
+        
+        if (!regex.test(this.value)) {
+            helpText.className = 'form-text text-danger';
+            this.classList.add('is-invalid');
+        } else {
+            helpText.className = 'form-text text-muted';
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
+    document.getElementById('passwordConfirm').addEventListener('input', function() {
+        const password = document.getElementById('password').value;
+        if (this.value !== password) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
+    document.getElementById('email').addEventListener('input', function() {
+        isEmailChecked = false;
+        checkFormValidity();
+    });
+    
+    document.getElementById('phone').addEventListener('input', function() {
+        const helpText = this.nextElementSibling;
+        if (!this.value.match(/^[0-9]{10,11}$/)) {
+            helpText.className = 'form-text text-danger';
+            this.classList.add('is-invalid');
+        } else {
+            helpText.className = 'form-text text-muted';
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
+    // 폼 유효성 검사
+    function checkFormValidity() {
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('registerForm');
+        const isValid = form.checkValidity() && 
+                       isIdChecked && 
+                       isEmailChecked && 
+                       !form.querySelector('.is-invalid');
+        
+        submitBtn.disabled = !isValid;
+    }
+    
+    // 회원가입 제출
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!isIdChecked || !isEmailChecked) {
+            alert('아이디와 이메일 중복 확인이 필요합니다.');
+            return;
+        }
+        
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('passwordConfirm').value;
+        
+        if (password !== passwordConfirm) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+        
+        const formData = {
+            userId: document.getElementById('userId').value,
+            password: password,
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value
+        };
+        
+        try {
+            const response = await fetch('https://api.gyeongminiya.asia/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+
+            if (data.success) {
+                alert(data.message);
+                window.location.href = '/member/login';
+            } else {
+                alert(data.message || '회원가입 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('회원가입 중 오류가 발생했습니다.');
+        }
+    });
+</script>
+</th:block>
+</html>

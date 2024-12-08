@@ -58,4 +58,7 @@ public class PostRegistDTO {
     private Post post;
     private String thumbnailName;
     private String thumbnailPath;
+    private boolean deleteImage;
+
+
 }

@@ -1,7 +1,16 @@
-package net.fullstack7.studyShare.dto;
+package net.fullstack7.studyShare.dto.member;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor  
 public class MemberDTO {
     private Integer status;
     private LocalDateTime lastLogin;
@@ -11,5 +20,4 @@ public class MemberDTO {
     private String name;
     private String phone;
     private String userId;
-
 }
