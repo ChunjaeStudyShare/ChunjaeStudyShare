@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.fullstack7.studyShare.mapper.TodayMapper">
+    <select id="todayList" resultType="">
+        SELECT p.*, f.path, f.fileName
+        FROM post AS p
+        INNER JOIN file AS f ON f.postId = p.id
+        WHERE p.displayAt &lt;= '2024-12-08'
+        AND p.displayEnd &gt;= '2024-12-08'
+    </select>
+</mapper>
