@@ -94,6 +94,8 @@
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
             <button class="btn btn-danger" onclick="confirmDelete(${post.id})">삭제</button>
         </div>
+        <br>
+        <br>
     </div>
     <script th:inline="javascript">
         document.querySelectorAll('.btn-close-custom').forEach(button => {

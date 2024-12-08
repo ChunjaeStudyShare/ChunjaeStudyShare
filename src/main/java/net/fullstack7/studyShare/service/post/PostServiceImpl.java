@@ -202,6 +202,7 @@ public class PostServiceImpl implements PostServiceIf{
 //        if (!post.getMember().equals(userId)) {
 //            throw new IllegalArgumentException("수정 권한이 없습니다.");
 //        }
+
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
 
@@ -213,26 +214,6 @@ public class PostServiceImpl implements PostServiceIf{
             if (dto.getDisplayAt().isAfter(dto.getDisplayEnd())) {
                 throw new IllegalArgumentException("노출 종료 날짜는 시작 날짜 이후여야 합니다.");
             }
-        }
-
-        //기존 이미지 삭제 여부
-        if(dto.isDeleteImage()){
-            File file = fileRepository.findByPostId(post.getId());
-            if(file != null){
-                boolean isDeleted =  CommonFileUtil.deleteFile(file.getPath());
-                if (isDeleted) {
-                    log.info("파일 삭제 완료: {}", file.getPath());
-                } else {
-                    log.warn("파일 삭제 실패: {}", file.getPath());
-                }
-                fileRepository.delete(file);
-                log.info("DB에서 파일 정보 삭제 완료: id={}", file.getId());
-            }
-            // 기존 이미지 정보 초기화
-            post.setThumbnailName(null);
-            post.setThumbnailPath(null);
-        }else{
-            log.warn("삭제할 파일 정보가 없습니다.");
         }
 
         //새 이미지 업로드
@@ -258,6 +239,46 @@ public class PostServiceImpl implements PostServiceIf{
                     throw new IllegalArgumentException("허용되지 않는 파일 확장자입니다. JPG 또는 PNG 파일만 업로드 가능합니다.");
                 }
             }
+        }
+
+        //사용자가 박스를 체크하지 않은 상태에서 새로운 이미지를 업로드 했을 때
+        if(dto.getFile()!= null && !dto.getFile().isEmpty()){
+            //기존에 존재하는 파일이 있는지 확인
+            File exitFile = fileRepository.findByPostId(dto.getId());
+            if(exitFile != null){
+                boolean isDeleted =  CommonFileUtil.deleteFile(exitFile.getPath());
+                if (isDeleted) {
+                    log.info("파일 삭제 완료: {}", exitFile.getPath());
+                } else {
+                    log.warn("파일 삭제 실패: {}", exitFile.getPath());
+                }
+                fileRepository.delete(exitFile);
+                log.info("DB에서 파일 정보 삭제 완료: id={}", exitFile.getId());
+                // 기존 이미지 정보 초기화
+                post.setThumbnailName(null);
+                post.setThumbnailPath(null);
+            }
+        }
+
+
+        //사용자가 박스를 체크했을 때
+        if(dto.isDeleteImage()){
+            File file = fileRepository.findByPostId(post.getId());
+            if(file != null){
+                boolean isDeleted =  CommonFileUtil.deleteFile(file.getPath());
+                if (isDeleted) {
+                    log.info("파일 삭제 완료: {}", file.getPath());
+                } else {
+                    log.warn("파일 삭제 실패: {}", file.getPath());
+                }
+                fileRepository.delete(file);
+                log.info("DB에서 파일 정보 삭제 완료: id={}", file.getId());
+            }
+            // 기존 이미지 정보 초기화
+            post.setThumbnailName(null);
+            post.setThumbnailPath(null);
+        }else{
+            log.warn("삭제할 파일 정보가 없습니다.");
         }
 
         // 파일 업로드 처리
@@ -296,8 +317,8 @@ public class PostServiceImpl implements PostServiceIf{
                 post.setDisplayEnd(dto.getDisplayEnd());
                 post.setDomain(dto.getDomain());
                 post.setHashtag(dto.getHashtag());
-                post.setThumbnailName(dto.getThumbnailName());
-                post.setThumbnailPath(dto.getThumbnailPath());
+                post.setThumbnailName(thumbnailName);
+                post.setThumbnailPath(thumbnailPath);
                 postRepository.save(post);
                 log.info(" 성공  ID: {}", post.getId());
 
