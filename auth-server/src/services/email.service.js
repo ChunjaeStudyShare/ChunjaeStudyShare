@@ -98,7 +98,7 @@ class EmailService {
     // 비밀번호 재설정 메일 발송
     async sendPasswordResetEmail(userId, email) {
         const token = this.generateVerificationToken();
-        const resetLink = `https://www.gyeongminiya.asia/reset-password?token=${token}&userId=${userId}`;
+        const resetLink = `https://www.gyeongminiya.asia/member/reset-password?token=${token}&userId=${userId}`;
         const transporter = this.getTransporter(email);
         const sender = transporter === this.gmailTransporter ? 
             process.env.GMAIL_USER : 

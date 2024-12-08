@@ -16,7 +16,7 @@ exports.verifyToken = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         // 토큰 유효성 검사 (DB에 저장된 토큰인지 확인)
-        const isValidToken = await TokenModel.verifyToken(decoded.id, decoded.jti);
+        const isValidToken = await TokenModel.verifyToken(decoded.userId, decoded.jti);
         if (!isValidToken) {
             return res.status(401).json({
                 success: false,

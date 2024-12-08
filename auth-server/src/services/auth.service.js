@@ -14,14 +14,18 @@ class AuthService {
 
     // 로그인
     async login(userId, password, rememberMe) {
+        console.log('Login attempt for userId:', userId);
         const user = await UserModel.findById(userId);
+        console.log('Found user:', user);
         if (!user) {
             throw new Error(errorMessage.INVALID_USER);
         }
-
+        //'0: 활동 중, 1: 휴면, 2: 탈퇴(강퇴), 3: 미인증, 4: 잠금'
         // 계정 상태 확인
+        // console.log(user.status);
+        if (user.status === 1) throw new Error(errorMessage.ACCOUNT_DORMANT);
         if (user.status === 2) throw new Error(errorMessage.ACCOUNT_RESTRICTED);
-        if (user.status === 3) throw new Error(errorMessage.EMAIL_VERIFICATION_REQUIRED);
+        if (user.status === 3) throw new Error(errorMessage.EMAIL_NOT_VERIFIED);
         if (user.status === 4) throw new Error(errorMessage.ACCOUNT_LOCKED);
 
         // 비밀번호 검증
@@ -58,6 +62,9 @@ class AuthService {
         const expiresAt = new Date();
         // 7일 또는 1일 후 만료 (rememberMe가 true일 경우 7일, false일 경우 1일)
         expiresAt.setHours(expiresAt.getHours() + (rememberMe ? 24*7 : 24));
+        // 기존 토큰 삭제
+        await TokenModel.removeUserTokens(userId);
+        // 새로운 토큰 저장
         await TokenModel.saveToken(userId, jti, expiresAt);
 
         return {

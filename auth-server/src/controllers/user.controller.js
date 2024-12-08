@@ -58,9 +58,9 @@ class UserController {
                 });
             }
 
-            const userId = req.user.id;
-            const { currentPassword, newPassword } = req.body;
-            await UserService.updatePassword(userId, currentPassword, newPassword);
+            const userId = req.user.userId;
+            const { newPassword } = req.body;
+            await UserService.updatePassword(userId, newPassword);
 
             res.json({
                 success: true,
@@ -81,10 +81,10 @@ class UserController {
             await UserService.verifyEmail(userId, token);
             
             // 인증 성공 시 메인 페이지로 리다이렉트
-            res.redirect('https://www.gyeongminiya.asia/main');
+            res.redirect('https://www.gyeongminiya.asia/member/login');
         } catch (error) {
-            // 인증 실패 시 로그인 페이지로 리다이렉트
-            res.redirect('https://www.gyeongminiya.asia/login');
+            // 인증 실패 시 오류 메세지 알럿
+            res.redirect('https://www.gyeongminiya.asia/member/login?error=true&message=' + encodeURIComponent("이메일 인증에 실패하였습니다. 관리자에게 문의해주세요."));
         }
     }
 
@@ -102,6 +102,95 @@ class UserController {
             res.json({
                 success: true,
                 message: '비밀번호 재설정 메일이 발송되었습니다.'
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // 아이디 중복 체크
+    async checkId(req, res) {
+        try {
+            const { userId } = req.query;
+            const isDuplicate = await UserService.checkId(userId);
+
+            res.json({
+                success: true,
+                isDuplicate : isDuplicate
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // 이메일 중복 체크
+    async checkEmail(req, res) {
+        try {
+            const { email } = req.query;
+            const isDuplicate = await UserService.checkEmail(email);
+
+            res.json({
+                success: true,
+                isDuplicate : isDuplicate
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // 비밀번호 재설정
+    async resetPassword(req, res) {
+        try {
+            const { error } = validator.resetPassword.validate(req.body);
+            if (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: error.details[0].message
+                });
+            }
+            const { userId, token, newPassword } = req.body;
+            
+            // 토큰 검증 및 비밀번호 재설정
+            await UserService.resetPassword(userId, token, newPassword);
+            
+            res.json({
+                success: true,
+                message: '비밀번호가 성공적으로 변경되었습니다.'
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    // 전화번호 변경
+    async updatePhone(req, res) {
+        try {
+            const { error } = validator.updatePhone.validate(req.body);
+            if (error) {
+                return res.status(400).json({
+                    success: false,
+                    message: error.details[0].message
+                });
+            }
+            const userId = req.user.userId;
+            const { phone } = req.body;
+            await UserService.updatePhone(userId, phone);
+
+            res.json({
+                success: true,
+                message: '전화번호가 변경되었습니다.'
             });
         } catch (error) {
             res.status(400).json({

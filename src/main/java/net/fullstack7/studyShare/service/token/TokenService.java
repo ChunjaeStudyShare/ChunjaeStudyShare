@@ -8,10 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.util.SecurityUtil;
-import net.fullstack7.studyShare.exception.TokenExceoption;
-
+import net.fullstack7.studyShare.exception.TokenException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import java.time.LocalDateTime;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class TokenService {
@@ -25,11 +28,17 @@ public class TokenService {
             String userId = jwtUtil.getUserId(token);
             String jti = jwtUtil.getJti(token);
             LocalDateTime now = LocalDateTime.now();
+            log.info("Token validation - userId: {}, jti: {}, now: {}", userId, jti, now);
+            
             Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
             
-            return activeTokensRepository.findValidToken(member, jti, now).isPresent();
+            boolean isValid = activeTokensRepository.findValidToken(member, jti, now).isPresent();
+            log.info("Token validation result: {}", isValid);
+            
+            return isValid;
         } catch (Exception e) {
+            log.error("Token validation error", e);
             return false;
         }
     }
@@ -43,7 +52,7 @@ public class TokenService {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
             
             activeTokensRepository.deleteByUserIdAndJti(member, jti);
-        } catch (TokenExceoption e) {
+        } catch (TokenException e) {
             throw new RuntimeException("토큰 무효화 실패", e);
         }
     }
