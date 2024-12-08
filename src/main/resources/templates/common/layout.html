@@ -114,40 +114,13 @@
         options = options || {};
         options.headers = options.headers || {};
 
-        // gyeongminiya.asia 도메인에 대한 모든 요청에 토큰 추가
-        if (url.includes("gyeongminiya.asia")) {
-          const token = localStorage.getItem("token");
-          if (token) {
+        // 모든 요청(API 서버와 Spring 서버)에 토큰 추가
+        const token = localStorage.getItem("token");
+        if (token) {
             options.headers["Authorization"] = `Bearer ${token}`;
-          } else {
-            // 토큰이 없는 경우, 로그인/회원가입 등 인증 불필요 엔드포인트 체크
-            const publicEndpoints = [
-              "/member/login",
-              "/member/register",
-              "/member/find-password",
-              "/",
-            ];
-
-            // 현재 요청 경로 추출
-            const path = new URL(url).pathname;
-
-            // 공개 엔드포인트가 아니면 로그인 페이지로 리다이렉트
-            if (!publicEndpoints.some((endpoint) => path.includes(endpoint))) {
-              window.location.href = "/member/login";
-              return new Response(null, { status: 401 });
-            }
-          }
         }
 
-        const response = await originalFetch(url, options);
-
-        // 401 응답 처리 (모든 도메인)
-        if (response.status === 401) {
-          localStorage.removeItem("token");
-          window.location.href = "/member/login";
-        }
-
-        return response;
+        return originalFetch(url, options);
       };
     </script>
   </body>

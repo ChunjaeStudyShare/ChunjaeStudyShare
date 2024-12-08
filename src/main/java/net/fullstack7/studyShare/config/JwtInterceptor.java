@@ -8,6 +8,8 @@ import net.fullstack7.studyShare.service.token.TokenService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import groovy.util.logging.Log4j2;
+
 /**
  * 토큰 유효성 검증 및 userId 설정
  * 
@@ -38,6 +40,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        System.out.println("JwtInterceptor 호출");
         String token = extractToken(request);
         
         if (token != null && tokenService.isTokenValid(token)) {
@@ -46,7 +49,8 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
         
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        // response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        System.out.println("JwtInterceptor 호출 실패");
         return false;
     }
 
