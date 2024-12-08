@@ -27,54 +27,6 @@ public class SecurityConfig {
     /*
     배포시
     */
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint))
-            .authorizeHttpRequests(auth -> auth
-                // 정적 리소스
-                .requestMatchers(
-                    "/css/**",
-                    "/js/**",
-                    "/images/**",
-                    "/favicon.ico",
-                    "/assets/**"
-                ).permitAll()
-                // 공개 페이지
-                .requestMatchers(
-                    "/",
-                    "/member/login",
-                    "/member/register",
-                    "/member/find-password",
-                    "/member/reset-password"
-                ).permitAll()
-                // 실제 존재하는 URL 패턴에 대해서만 인증 체크
-                .requestMatchers(
-                    "/post/**",
-                    "/chat/**",
-                    "/friend/**",
-                    "/member/modify",
-                    "/member/delete"
-                ).authenticated()
-                // 나머지는 모두 허용 (404 처리를 위해)
-                .anyRequest().permitAll()
-            )
-            .addFilterBefore(
-                jwtAuthenticationFilter, 
-                UsernamePasswordAuthenticationFilter.class
-            );
-            
-        return http.build();
-    }
-    
-    /*
-    개발시
-    */
     // @Bean
     // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     //     http
@@ -85,20 +37,68 @@ public class SecurityConfig {
     //         .exceptionHandling(exception -> exception
     //             .authenticationEntryPoint(jwtAuthenticationEntryPoint))
     //         .authorizeHttpRequests(auth -> auth
-    //             // 개발 중에는 모든 요청 허용
+    //             // 정적 리소스
+    //             .requestMatchers(
+    //                 "/css/**",
+    //                 "/js/**",
+    //                 "/images/**",
+    //                 "/favicon.ico",
+    //                 "/assets/**"
+    //             ).permitAll()
+    //             // 공개 페이지
+    //             .requestMatchers(
+    //                 "/",
+    //                 "/member/login",
+    //                 "/member/register",
+    //                 "/member/find-password",
+    //                 "/member/reset-password"
+    //             ).permitAll()
+    //             // 실제 존재하는 URL 패턴에 대해서만 인증 체크
+    //             .requestMatchers(
+    //                 "/post/**",
+    //                 "/chat/**",
+    //                 "/friend/**",
+    //                 "/member/modify",
+    //                 "/member/delete"
+    //             ).authenticated()
+    //             // 나머지는 모두 허용 (404 처리를 위해)
     //             .anyRequest().permitAll()
-                
-    //             /* 운영 설정은 주석처리
-    //             .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**").permitAll()
-    //             .requestMatchers("/", "/member/login", "/member/register", "/member/find-password").permitAll()
-    //             .requestMatchers("/error").permitAll()
-    //             .anyRequest().authenticated()
-    //             */
     //         )
-    //         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-                
+    //         .addFilterBefore(
+    //             jwtAuthenticationFilter, 
+    //             UsernamePasswordAuthenticationFilter.class
+    //         );
+            
     //     return http.build();
     // }
+    
+    /*
+    개발시
+    */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint))
+            .authorizeHttpRequests(auth -> auth
+                // 개발 중에는 모든 요청 허용
+                .anyRequest().permitAll()
+                
+                /* 운영 설정은 주석처리
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**").permitAll()
+                .requestMatchers("/", "/member/login", "/member/register", "/member/find-password").permitAll()
+                .requestMatchers("/error").permitAll()
+                .anyRequest().authenticated()
+                */
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                
+        return http.build();
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
