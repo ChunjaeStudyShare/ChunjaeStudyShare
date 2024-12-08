@@ -1,24 +1,124 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout.html}">
 <div layout:fragment="content" class="container mt-4">
-
+    <style>
+        .container1 {
+            display: grid;
+            grid-template-areas:
+            "thumbnail title"
+            "thumbnail content"
+            "category tags"
+            "category shared";
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto auto;
+            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+        }
+        .thumbnail {
+            grid-area: thumbnail;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #d0d0d0;
+            height: 200px;
+        }
+        .title {
+            grid-area: title;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .content {
+            grid-area: content;
+            background-color: #ffffff;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            height: 200px;
+            overflow-y: auto;
+        }
+        .category {
+            grid-area: category;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            text-align: center;
+        }
+        .tags {
+            grid-area: tags;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            text-align: center;
+            color: #555;
+        }
+        .shared {
+            grid-area: shared;
+            background-color: #ffffff;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            text-align: center;
+            color: #555;
+        }
+    </style>
 
     <!-- 메인 컨테이너 -->
-    <div class="d-flex flex-row mb-3 justify-content-between align-items-stretch" style="height:100vh;">
+    <div class="d-flex" style="height: 100vh;">
         <!-- 좌측 달력 영역 -->
-        <div class="h-100" style="border:1px solid black; width:15%">
-            달력
+        <div class="border-end h-100 w-25" style="width: 15%; background-color: #f8f9fa;">
+            <div th:replace="today/calender :: calender"></div>
         </div>
 
         <!-- 중앙 메인 콘텐츠 영역 -->
-        <div class="h-100 flex-fill" style="border:1px solid black;">
-            중앙 메인 컨텐츠
+        <div class="border-end h-100 w-50">
+            <div id="carouselExampleDark" class="carousel carousel-dark slide h-100" data-bs-ride="carousel">
+                <!-- 캐러셀 콘텐츠 -->
+                <div class="carousel-inner">
+                    <!-- 반복적으로 보여질 항목 -->
+                    <div class="carousel-item"
+                         th:each="item, status : ${todayList}"
+                         th:classappend="${status.index == 0 ? 'active' : ''}"
+                         data-bs-interval="10000">
+                        <div class="container1">
+                            <div class="thumbnail"><img th:src="${item.thumbnailPath}" alt="썸네일"></div>
+                            <div class="title" th:text="${item.title}">제목</div>
+                            <div class="content" th:text="${item.content}">내용</div>
+                            <div class="category" th:text="${item.domain}">분야</div>
+                            <div class="tags" th:text="${item.hashtag}"></div>
+                            <div class="shared" th:text="${item.shareId}">공유한 사람1<br>공유한 사람2<br>공유한 사람3</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 캐러셀 컨트롤 -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">이전</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">다음</span>
+                </button>
+
+                <!-- 캐러셀 인디케이터 -->
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#carouselExampleDark"
+                            th:each="item, status : ${todayList}"
+                            th:data-bs-slide-to="${status.index}"
+                            th:classappend="${status.index == 0 ? 'active' : ''}"
+                            th:aria-label="'슬라이드 '+${status.index+1}"></button>
+                </div>
+            </div>
         </div>
 
         <!-- 우측 서브 콘텐츠 영역 -->
-        <div class="w-25 h-100" style="border:1px solid black;">
-            우측 공유 콘텐츠
+        <div class="h-100 w-25" style="background-color: #f8f9fa;">
+            <p class="text-center py-4">우측 공유 콘텐츠</p>
         </div>
     </div>
+
 
 </div>
