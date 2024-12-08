@@ -36,6 +36,7 @@
     <div layout:fragment="content" style="padding-top: 120px">
       <!-- 각 페이지가 여기에 콘텐츠를 삽입합니다 -->
     </div>
+
     <script layout:fragment="script">
       function renderNavbar() {
         const token = localStorage.getItem("token");
@@ -158,5 +159,24 @@
       // 페이지 로드 시 네비게이션 바 렌더링
       document.addEventListener("DOMContentLoaded", renderNavbar);
     </script>
+    
+
+<script>
+    function formatLocalDateTime(localDateTime, format) {
+        const date = new Date(localDateTime);
+
+        // 포맷에 맞게 날짜와 시간을 대체
+        const formatted = format
+            .replace('yyyy', date.getFullYear())
+            .replace('MM', String(date.getMonth() + 1).padStart(2, '0'))
+            .replace('dd', String(date.getDate()).padStart(2, '0'))
+            .replace('HH', String(date.getHours()).padStart(2, '0'))
+            .replace('mm', String(date.getMinutes()).padStart(2, '0'))
+            .replace('ss', String(date.getSeconds()).padStart(2, '0'));
+
+        return formatted;
+    }
+</script>
+
   </body>
 </html>
