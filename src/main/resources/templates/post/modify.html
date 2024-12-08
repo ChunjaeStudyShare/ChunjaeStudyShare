@@ -18,6 +18,19 @@
             max-height: 200px;
             overflow-y: auto; /* 드롭다운 스크롤 가능 */
         }
+        .position-relative {
+            position: relative;
+        }
+
+        .img-preview {
+            width: 200px; /* 미리보기 이미지 너비 */
+            height: auto;
+            top: 20px; /* 파일명 아래로 약간 띄움 */
+            left: 0;
+            z-index: 10; /* 다른 요소 위에 표시 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 약간의 그림자 효과 */
+            display: none; /* 초기 상태에서 숨김 */
+        }
     </style>
     <div class="container mt-5">
         <h1 class="mb-4">학습 정보 수정</h1>
@@ -45,16 +58,21 @@
                     <th class="text-end align-middle">이미지</th>
                     <td>
                         <!-- 기존 이미지 -->
-                        <div th:if="${post.path != null}" class="mb-2">
-                            <span th:text="${post.fileName}">기존 이미지명.jpg</span>
+                        <div th:if="${post.path != null}" class="mb-2 position-relative">
+                            <!-- 파일명 -->
+                            <span th:text="${post.fileName}" class="fileName">기존 이미지명.jpg</span>
                             <label class="form-check-label ms-3">
-                                <input class="form-check-input" type="checkbox" name="deleteImage" value="true">
+                                <input class="form-check-input" type="checkbox" id="deleteImage" name="deleteImage" value="true">
                                 이미지 삭제
                             </label>
+                            <!-- 이미지 미리보기 -->
+                            <img th:src="@{${post.path}}" alt="이미지 미리보기" class="imgPreview position-absolute border rounded" style="display: none; top: 0;width: 150px;">
                         </div>
+                        <!-- 새 이미지 업로드 -->
                         <input type="file" class="form-control" id="image" name="image" accept=".jpg, .png">
                     </td>
                 </tr>
+
 
                 <!-- 오늘의 학습 노출 여부 -->
                 <tr>
@@ -151,4 +169,44 @@
             </div>
         </form>
     </div>
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DOM 로드 완료");
+
+            // 이미지 미리보기 관련 로직
+            const fileNameElement = document.querySelector(".fileName"); // 파일명을 나타내는 요소
+            const imgPreviewElement = document.querySelector(".imgPreview"); // 이미지를 나타내는 요소
+
+            if (fileNameElement && imgPreviewElement) {
+                // 마우스를 파일명에 올렸을 때
+                fileNameElement.addEventListener("mouseover", function () {
+                    imgPreviewElement.style.display = "block"; // 이미지 보이기
+                });
+
+                // 마우스를 파일명에서 뗐을 때
+                fileNameElement.addEventListener("mouseout", function () {
+                    imgPreviewElement.style.display = "none"; // 이미지 숨기기
+                });
+            } else {
+                console.error("fileNameElement 또는 imgPreviewElement를 찾을 수 없습니다.");
+            }
+
+            // 이미지 삭제 체크박스 관련 로직
+            const deleteImageCheckbox = document.querySelector("input[name='deleteImage']");
+            const newImageInput = document.getElementById("image");
+
+            if (deleteImageCheckbox && newImageInput) {
+                deleteImageCheckbox.addEventListener("change", function () {
+                    if (this.checked) {
+                        newImageInput.disabled = true; // 새 이미지 업로드 비활성화
+                    } else {
+                        newImageInput.disabled = false; // 새 이미지 업로드 활성화
+                    }
+                });
+            } else {
+                console.error("deleteImageCheckbox 또는 newImageInput을 찾을 수 없습니다.");
+            }
+        });
+    </script>
+
 </div>

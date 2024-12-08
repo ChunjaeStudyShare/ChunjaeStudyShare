@@ -53,13 +53,6 @@
                : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">
                 </td>
             </tr>
-            <!-- 이미지 및 내용 -->
-            <div>
-                <img th:src="@{${post.path}}" alt="기존 이미지" class="img-thumbnail" style="max-width: 200px;">
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" id="deleteImage" name="deleteImage">
-                    <label class="form-check-label" for="deleteImage">이미지 삭제 선택</label>
-                </div>
             <tr>
                 <td colspan="2">
                     <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}"
@@ -103,31 +96,6 @@
         </div>
     </div>
     <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
-            const deleteImageCheckbox = document.getElementById("deleteImage");
-            const newImageInput = document.getElementById("newImage");
-
-            deleteImageCheckbox.addEventListener("change", function () {
-                if (this.checked) {
-                    newImageInput.disabled = true; // 새 이미지 업로드 비활성화
-                } else {
-                    newImageInput.disabled = false; // 새 이미지 업로드 활성화
-                }
-            });
-
-            // 이미지 미리보기 기능
-            const imageElement = document.querySelector(".img-thumbnail");
-            imageElement.addEventListener("mouseover", function () {
-                // 크게 보여줄 코드
-                this.style.transform = "scale(1.5)";
-                this.style.transition = "transform 0.2s";
-            });
-            imageElement.addEventListener("mouseout", function () {
-                // 원래 크기로
-                this.style.transform = "scale(1)";
-            });
-        });
-
         document.querySelectorAll('.btn-close-custom').forEach(button => {
             button.addEventListener('click', function () {
                 const sharedId = this.getAttribute('data-shared-id');
