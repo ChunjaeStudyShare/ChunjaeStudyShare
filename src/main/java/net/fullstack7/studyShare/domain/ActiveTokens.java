@@ -33,6 +33,6 @@ public class ActiveTokens {
     private LocalDateTime createdAt;
 
     @OneToOne
-    @JoinColumn(name = "userId")
-    private Member user;
+    @JoinColumn(name = "userId", nullable = false, columnDefinition = "VARCHAR(20)")
+    private Member member;
 }
