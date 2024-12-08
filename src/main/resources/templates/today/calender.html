@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout.html}">
+
+<div th:fragment="calender" class="container mt-4">
+    <style>
+        .date-selector {
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #f9f9f9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .year-month {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scroll-container {
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin-top: 15px;
+            border-radius: 5px;
+            background: #fff;
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background-color: #000000;
+            border-radius: 4px;
+        }
+
+        .date-item {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .date-item:hover {
+            background-color: #545662;
+            color: white;
+        }
+    </style>
+    <div class="date-selector">
+        <div class="year-month">
+            <button class="btn btn-secondary" id="year-btn">YEAR</button>
+            <select class="form-select w-auto" id="month-select">
+                <option value="1">1월</option>
+                <option value="2">2월</option>
+                <option value="3">3월</option>
+                <option value="4">4월</option>
+                <option value="5">5월</option>
+                <option value="6">6월</option>
+                <option value="7">7월</option>
+                <option value="8">8월</option>
+                <option value="9">9월</option>
+                <option value="10">10월</option>
+                <option value="11">11월</option>
+                <option value="12">12월</option>
+            </select>
+        </div>
+
+        <div class="scroll-container" id="date-container">
+
+        </div>
+    </div>
+
+    <!--연도 선택 모달-->
+    <div class="modal" tabindex="-1" id="year-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select a Year</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="year-options">
+                    <!-- Year options will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const yearBtn = document.getElementById("year-btn");
+        const monthSelect = document.getElementById("month-select");
+        const dateContainer = document.getElementById("date-container");
+        const yearModal = new bootstrap.Modal(document.getElementById("year-modal"));
+        const yearOptions = document.getElementById("year-options");
+
+        let selectedYear = new Date().getFullYear();
+        let selectedMonth = new Date().getMonth() + 1;
+
+        // 1. Populate Year Options in Modal
+        function populateYearOptions() {
+            yearOptions.innerHTML = "";
+            for (let i = 2000; i <= 2030; i++) {
+                const yearItem = document.createElement("button");
+                yearItem.className = "btn btn-outline-secondary d-block w-100 my-1";
+                yearItem.textContent = i;
+                yearItem.addEventListener("click", () => {
+                    selectedYear = i;
+                    yearBtn.textContent = i;
+                    yearModal.hide();
+                    updateDates();
+                });
+                yearOptions.appendChild(yearItem);
+            }
+        }
+
+        yearBtn.addEventListener("click", () => {
+            populateYearOptions();
+            yearModal.show();
+        });
+
+        // 2. Populate Month Dates
+        monthSelect.addEventListener("change", (event) => {
+            selectedMonth = parseInt(event.target.value, 10);
+            updateDates();
+        });
+
+        // 3. Update Dates
+        function updateDates() {
+            const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+            dateContainer.innerHTML = "";
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateItem = document.createElement("div");
+                dateItem.textContent = i;
+                dateItem.className = "date-item";
+                dateContainer.appendChild(dateItem);
+            }
+        }
+
+        // Initialize dates
+        updateDates();
+
+        dateContainer.addEventListener("click", (event) => {
+            if (event.target.classList.contains("date-item")) {
+                const selectedDate = event.target.textContent;
+                fetchPosts(selectedYear, selectedMonth, selectedDate);
+            }
+        });
+
+        // 5. AJAX Request to Fetch Posts
+        function fetchPosts(year, month, date) {
+            fetch('/today/list', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ year, month, date }),
+            })
+                .then((response) => response.json())
+                .then((data) => updatePostList(data))
+                .catch((error) => console.error('Error fetching posts:', error));
+        }
+
+        function updatePostList(items) {
+            const carouselInner = document.querySelector(".carousel-inner");
+            const carouselIndicators = document.querySelector(".carousel-indicators");
+
+            // 기존 캐러셀 콘텐츠 초기화
+            carouselInner.innerHTML = "";
+            carouselIndicators.innerHTML = "";
+
+            if (items.length === 0) {
+                carouselInner.innerHTML = `<div class="carousel-item active">
+            <div class="container1">
+                <div class="title">오늘의 학습에 등록된 글이 없습니다.</div>
+            </div>
+        </div>`;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                // 캐러셀 아이템 생성
+                const carouselItem = document.createElement("div");
+                carouselItem.className = `carousel-item ${index === 0 ? "active" : ""}`;
+                carouselItem.setAttribute("data-bs-interval", "10000");
+                carouselItem.innerHTML = `
+            <div class="container1">
+                <div class="thumbnail"><img src="${item.thumbnailPath}" alt="썸네일"></div>
+                <div class="title">${item.title}</div>
+                <div class="content">${item.content}</div>
+                <div class="category">${item.domain}</div>
+                <div class="tags">${item.hashtag}</div>
+                <div class="shared">${item.shareId}</div>
+            </div>
+        `;
+
+                // 캐러셀 인디케이터 생성
+                const indicatorButton = document.createElement("button");
+                indicatorButton.type = "button";
+                indicatorButton.setAttribute("data-bs-target", "#carouselExampleDark");
+                indicatorButton.setAttribute("data-bs-slide-to", index);
+                if (index === 0) {
+                    indicatorButton.classList.add("active");
+                    indicatorButton.setAttribute("aria-current", "true");
+                }
+                indicatorButton.setAttribute("aria-label", `슬라이드 ${index + 1}`);
+
+                // 캐러셀 아이템 및 인디케이터 추가
+                carouselInner.appendChild(carouselItem);
+                carouselIndicators.appendChild(indicatorButton);
+            });
+        }
+
+    </script>
+</div>
