@@ -55,5 +55,20 @@ public class FriendServiceImpl implements FriendService {
         return friendMapper.acceptFriendRequest(friendDTO);
     }
 
+    @Override
+    public Boolean rejectFriendRequest(FriendDTO friendDTO) {
+        return friendMapper.rejectFriendRequest(friendDTO);
+    }
+
+    @Override
+    public List<String> receivedList(String userId) {
+        return friendMapper.receivedList(userId);
+    }
+
+    @Override
+    public List<String> sentList(String userId) {
+        return friendMapper.sentList(userId);
+    }
+
 
 }

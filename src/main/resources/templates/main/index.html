@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<div layout:fragment="content">
+    <style>
+        .hero-section {
+            padding: 80px 0;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        
+        .feature-section {
+            padding: 60px 0;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .cta-section {
+            padding: 60px 0;
+            background-color: #e9ecef;
+            text-align: center;
+        }
+    </style>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4">오늘의 학습</h1>
+            <p class="lead">나만의 학습 내용을 기록하고 공유하세요</p>
+            <a href="/auth/login" class="btn btn-primary btn-lg">시작하기</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="feature-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <h3>학습 기록</h3>
+                        <p>나만의 학습 내용을 체계적으로 기록하고 관리할 수 있습니다.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <h3>학습 공유</h3>
+                        <p>다른 사용자들과 학습 내용을 공유하고 피드백을 주고받을 수 있습니다.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <h3>학습 커뮤니티</h3>
+                        <p>함께 공부하는 사람들과 소통하며 더 나은 학습 경험을 만들어갑니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>지금 바로 시작하세요</h2>
+            <p>회원가입 후 다양한 기능을 무료로 이용할 수 있습니다.</p>
+            <div class="mt-4">
+                <a href="/auth/register" class="btn btn-primary me-2">회원가입</a>
+                <a href="/auth/login" class="btn btn-outline-primary">로그인</a>
+            </div>
+        </div>
+    </section>
+</div>
+</html>

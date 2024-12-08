@@ -10,6 +10,8 @@ import java.util.List;
 public interface ChatService {
     List<ChatRoom> getChatRoomList(String userId);
     List<ChatMessage> getChatMessageListByRoomId(int roomId);
-    int createChatRoom(ChatRoom chatRoom);
+    int createChatRoom(String userId, String[] invited);
     ChatMessage addMessageToChatRoom(int roomId, MessageContent message);
+    void exitRoom(int roomId, String userId);
+    void inviteUserToChatRoom(int roomId, String userId);
 }

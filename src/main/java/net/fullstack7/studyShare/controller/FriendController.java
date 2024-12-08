@@ -31,11 +31,6 @@ public class FriendController {
         return "friend/list";
     }
 
-//    @GetMapping("/find")
-//    public String find(Model model) {
-//        return "friend/find";
-//    }
-
     @GetMapping("/searchUserById")
     @ResponseBody
     public List<FriendCheckDTO> searchUserById(@RequestParam String searchId) { // 여기에서 검색된 아이디가 있는지 없는지 여부를 확인하려면 ? 만약 null이 나오면 어떤 에러가 뜨는지?
@@ -107,6 +102,43 @@ public class FriendController {
         }
     }
 
+    @PostMapping("/rejectRequest")
+    @ResponseBody
+    public ResponseEntity<?> rejectRequest(@RequestBody FriendDTO friendDTO) {
+        log.info("friendDTO:{}", friendDTO);
+        String userId = "testuser2"; //세션아이디
+        friendDTO.setFriendId(userId);
+
+        boolean success = friendService.rejectFriendRequest(friendDTO);
+        if(success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @GetMapping("/received")
+    public String received(Model model) {
+        String userId = "testuser2"; //세션아이디
+        List<String> receivedList = friendService.receivedList(userId);
+        log.info("receivedList: {}", receivedList);
+        model.addAttribute("receivedList", receivedList);
+        return "friend/received";
+    }
+
+    @GetMapping("/sent")
+    public String sent(Model model) {
+        String userId = "testuser2"; //세션아이디
+        List<String> sentList = friendService.sentList(userId);
+        log.info("sentList: {}", sentList);
+        model.addAttribute("sentList", sentList);
+        return "friend/sent";
+    }
+
+    @GetMapping("/today")
+    public String today(Model model) {
+        return "today/main";
+    }
 
 
 
