@@ -11,7 +11,7 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h2 class="text-center mb-4">회원가입</h2>
-                <form id="registerForm">
+                <form id="registerForm" class="mb-5">
                     <!-- 아이디 -->
                     <div class="mb-3">
                         <label for="userId" class="form-label">아이디</label>
@@ -75,8 +75,11 @@
     // 아이디 중복 확인
     document.getElementById('checkIdBtn').addEventListener('click', async function() {
         const userId = document.getElementById('userId').value;
+        const userIdHelp = document.getElementById('userIdHelp');
+        
         if (!userId.match(/^[a-zA-Z0-9]{4,20}$/)) {
-            alert('아이디는 4~20자의 영문 대소문자와 숫자만 사용 가능합니다.');
+            userIdHelp.className = 'form-text text-danger';
+            userIdHelp.textContent = '아이디는 4~20자의 영문 대소문자와 숫자만 사용 가능합니다.';
             return;
         }
         
@@ -86,10 +89,12 @@
             
             if (data.success) {
                 if (data.isDuplicate) {
-                    alert('이미 사용 중인 아이디입니다.');
+                    userIdHelp.className = 'form-text text-danger';
+                    userIdHelp.textContent = '이미 사용 중인 아이디입니다.';
                     isIdChecked = false;
                 } else {
-                    alert('사용 가능한 아이디입니다.');
+                    userIdHelp.className = 'form-text text-success';
+                    userIdHelp.textContent = '사용 가능한 아이디입니다.';
                     isIdChecked = true;
                 }
                 checkFormValidity();
@@ -103,8 +108,19 @@
     // 이메일 중복 확인
     document.getElementById('checkEmailBtn').addEventListener('click', async function() {
         const email = document.getElementById('email').value;
+        const emailHelp = document.createElement('div');
+        emailHelp.className = 'form-text';
+        const emailInput = document.getElementById('email');
+        
+        // 기존 도움말 제거
+        const oldHelp = emailInput.parentElement.parentElement.querySelector('.form-text');
+        if (oldHelp) oldHelp.remove();
+        
+        emailInput.parentElement.parentElement.appendChild(emailHelp);
+        
         if (!email) {
-            alert('이메일을 입력해주세요.');
+            emailHelp.className = 'form-text text-danger';
+            emailHelp.textContent = '이메일을 입력해주세요.';
             return;
         }
         
@@ -114,10 +130,12 @@
             
             if (data.success) {
                 if (data.isDuplicate) {
-                    alert('이미 사용 중인 이메일입니다.');
+                    emailHelp.className = 'form-text text-danger';
+                    emailHelp.textContent = '이미 사용 중인 이메일입니다.';
                     isEmailChecked = false;
                 } else {
-                    alert('사용 가능한 이메일입니다.');
+                    emailHelp.className = 'form-text text-success';
+                    emailHelp.textContent = '사용 가능한 이메일입니다.';
                     isEmailChecked = true;
                 }
                 checkFormValidity();
@@ -128,10 +146,73 @@
         }
     });
     
+    // 실시간 유효성 검사
+    document.getElementById('userId').addEventListener('input', function() {
+        const userIdHelp = document.getElementById('userIdHelp');
+        isIdChecked = false;
+        
+        if (!this.value.match(/^[a-zA-Z0-9]{4,20}$/)) {
+            userIdHelp.className = 'form-text text-danger';
+            this.classList.add('is-invalid');
+        } else {
+            userIdHelp.className = 'form-text text-muted';
+            userIdHelp.textContent = '4~20자의 영문 대소문자와 숫자만 사용 가능';
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
+    document.getElementById('password').addEventListener('input', function() {
+        const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+        const helpText = this.nextElementSibling;
+        
+        if (!regex.test(this.value)) {
+            helpText.className = 'form-text text-danger';
+            this.classList.add('is-invalid');
+        } else {
+            helpText.className = 'form-text text-muted';
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
+    document.getElementById('passwordConfirm').addEventListener('input', function() {
+        const password = document.getElementById('password').value;
+        if (this.value !== password) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
+    document.getElementById('email').addEventListener('input', function() {
+        isEmailChecked = false;
+        checkFormValidity();
+    });
+    
+    document.getElementById('phone').addEventListener('input', function() {
+        const helpText = this.nextElementSibling;
+        if (!this.value.match(/^[0-9]{10,11}$/)) {
+            helpText.className = 'form-text text-danger';
+            this.classList.add('is-invalid');
+        } else {
+            helpText.className = 'form-text text-muted';
+            this.classList.remove('is-invalid');
+        }
+        checkFormValidity();
+    });
+    
     // 폼 유효성 검사
     function checkFormValidity() {
         const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = !(isIdChecked && isEmailChecked);
+        const form = document.getElementById('registerForm');
+        const isValid = form.checkValidity() && 
+                       isIdChecked && 
+                       isEmailChecked && 
+                       !form.querySelector('.is-invalid');
+        
+        submitBtn.disabled = !isValid;
     }
     
     // 회원가입 제출
@@ -180,17 +261,6 @@
             console.error('Error:', error);
             alert('회원가입 중 오류가 발생했습니다.');
         }
-    });
-    
-    // 입력값 변경 시 중복 확인 초기화
-    document.getElementById('userId').addEventListener('input', function() {
-        isIdChecked = false;
-        checkFormValidity();
-    });
-    
-    document.getElementById('email').addEventListener('input', function() {
-        isEmailChecked = false;
-        checkFormValidity();
     });
 </script>
 </th:block>

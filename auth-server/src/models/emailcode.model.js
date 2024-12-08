@@ -41,6 +41,19 @@ class EmailCodeModel {
         const query = 'DELETE FROM EmailCode WHERE userId = ?';
         await db.query(query, [userId]);
     }
+
+    // 비밀번호 재설정용 토큰 검증 (1시간)
+    async verifyResetToken(userId, token) {
+        const query = `
+            SELECT * FROM EmailCode 
+            WHERE userId = ? AND code = ? 
+            AND createdAt > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+            ORDER BY createdAt DESC 
+            LIMIT 1
+        `;
+        const [rows] = await db.query(query, [userId, token]);
+        return rows[0];
+    }
 }
 
 module.exports = new EmailCodeModel();

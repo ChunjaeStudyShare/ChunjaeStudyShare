@@ -39,10 +39,12 @@
     <script layout:fragment="script">
       function renderNavbar() {
         const token = localStorage.getItem("token");
+        const cookie = document.cookie.split('; ').find(row => row.startsWith('Authorization='));
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         const navbarContent = document.getElementById("navbarContent");
         const navbarSupportedContent = document.getElementById("navbarSupportedContent");
-        if (token) {
+        //토큰과 쿠키 모두 있으면 로그인 상태
+        if (token && cookie) {
             // 로그인 상태
             navbarContent.innerHTML = `
                 <button class="btn btn-primary" type="button">나의 학습</button>
@@ -51,16 +53,20 @@
             navbarSupportedContent.innerHTML = `
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="/friend/list">친구</a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">${user.name || '사용자'}</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/member/update-user">${user.name || '사용자'}</a></li>
                     <button class="btn btn-primary" type="button" onclick="logout()">로그아웃</button>
                 </ul>
             `;
         } else {
             // 비로그인 상태
+            // 쿠키 또는 로컬 스토리지 모두 없으면 나머지 삭제
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            document.cookie = 'Authorization=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             navbarSupportedContent.innerHTML = `
                 <div class="d-grid gap-2 d-md-block ms-auto">
                     <button class="btn btn-primary" type="button" onclick="location.href='/member/login'">로그인</button>
-                    <button class="btn btn-primary" type="button" onclick="location.href='/member/signup'">회원가입</button>
+                    <button class="btn btn-primary" type="button" onclick="location.href='/member/register'">회원가입</button>
                 </div>
             `;
         }
@@ -84,6 +90,8 @@
             // 로컬 스토리지 토큰 삭제
             localStorage.removeItem("token");
             localStorage.removeItem("user");
+            //쿠키 삭제
+            document.cookie = 'Authorization=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             // 메인 페이지로 리다이렉트
             window.location.href = "/";
           } else {
@@ -114,14 +122,41 @@
         options = options || {};
         options.headers = options.headers || {};
 
-        // 모든 요청(API 서버와 Spring 서버)에 토큰 추가
-        const token = localStorage.getItem("token");
-        if (token) {
-            options.headers["Authorization"] = `Bearer ${token}`;
+        // API 서버로 가는 요청에만 토큰 추가
+        if (url.includes('api.gyeongminiya.asia')) {
+            const token = localStorage.getItem("token");
+            console.log('API Request URL:', url);
+            console.log('Current token:', token);
+
+            if (token) {
+                options.headers["Authorization"] = `Bearer ${token}`;
+                console.log('Added Authorization header:', options.headers["Authorization"]);
+            }
         }
 
-        return originalFetch(url, options);
+        try {
+            const response = await originalFetch(url, options);
+            
+            // API 서버 응답이고 401 상태코드인 경우에만 처리
+            if (url.includes('api.gyeongminiya.asia') && response.status === 401) {
+                console.log('API Server returned 401 - clearing token');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                document.cookie = 'Authorization=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                if (!url.includes('/auth/login')) {
+                    window.location.href = '/member/login';
+                }
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
       };
+
+      // 페이지 로드 시 네비게이션 바 렌더링
+      document.addEventListener("DOMContentLoaded", renderNavbar);
     </script>
   </body>
 </html>

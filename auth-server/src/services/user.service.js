@@ -62,16 +62,10 @@ class UserService {
     }
 
     // 비밀번호 변경
-    async updatePassword(userId, currentPassword, newPassword) {
+    async updatePassword(userId, newPassword) {
         const user = await UserModel.findById(userId);
         if (!user) {
             throw new Error(errorMessage.INVALID_USER);
-        }
-
-        // 현재 비밀번호 확인
-        const currentHashedPassword = await this.hashPassword(currentPassword, user.salt);
-        if (currentHashedPassword !== user.password) {
-            throw new Error(errorMessage.INVALID_PASSWORD);
         }
 
         // 새 비밀번호 해시화
@@ -123,6 +117,48 @@ class UserService {
         const existingEmail = await UserModel.checkEmail(email);
         return existingEmail ? true : false;
     } 
+
+    async findByEmail(email) {
+        const user = await UserModel.findByEmail(email);
+        if (!user) {
+            throw new Error(errorMessage.USER_NOT_FOUND);
+        }
+        return user;
+    }
+
+    // 비밀번호 재설정
+    async resetPassword(userId, token, newPassword) {
+        // 1. 토큰 검증
+        const emailCode = await EmailCodeModel.verifyCode(userId, token);
+        if (!emailCode) {
+            throw new Error(errorMessage.INVALID_EMAIL_VERIFICATION);
+        }
+
+        // 2. 토큰 만료 시간 체크 (1시간)
+        const currentTime = new Date();
+        const codeTime = new Date(emailCode.createdAt);
+        const timeDifference = currentTime - codeTime;
+        if (timeDifference > 1000 * 60 * 60) { // 1시간
+            throw new Error(errorMessage.TOKEN_EXPIRED);
+        }
+
+        // 3. 새 비밀번호 해시화
+        const newSalt = crypto.randomBytes(32).toString('hex');
+        const hashedPassword = await this.hashPassword(newPassword, newSalt);
+
+        // 4. 비밀번호 업데이트
+        await UserModel.updatePassword(userId, hashedPassword, newSalt);
+        
+        // 5. 사용된 토큰 삭제
+        await EmailCodeModel.deleteCode(userId);
+
+        return true;
+    }
+
+    // 전화번호 변경
+    async updatePhone(userId, phone) {
+        return await UserModel.updatePhone(userId, phone);
+    }
 }
 
 module.exports = new UserService();

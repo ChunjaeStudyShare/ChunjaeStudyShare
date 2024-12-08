@@ -19,6 +19,14 @@ class AuthController {
             const { userId, password, rememberMe } = req.body;
             const result = await AuthService.login(userId, password, rememberMe);
 
+            res.cookie('Authorization', result.token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                path: '/',
+                maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000
+            });
+
             res.json({
                 success: true,
                 data: result
@@ -38,6 +46,13 @@ class AuthController {
         try {
             const userId = req.user.userId;  // JWT 미들웨어에서 추가된 user 객체
             await AuthService.logout(userId);
+            
+            res.clearCookie('Authorization', {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                path: '/'
+            });
             
             res.json({
                 success: true,

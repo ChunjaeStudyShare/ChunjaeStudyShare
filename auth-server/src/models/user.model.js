@@ -83,6 +83,13 @@ class UserModel {
         const [rows] = await db.query(query, [email]);
         return rows[0].is_duplicate;
     }
+
+    // 전화번호 변경
+    async updatePhone(userId, phone) {
+        const query = 'UPDATE Member SET phone = ? WHERE userId = ?';
+        const [result] = await db.query(query, [phone, userId]);
+        return result.affectedRows > 0;
+    }
 }
 
 module.exports = new UserModel();

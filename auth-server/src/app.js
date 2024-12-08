@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth.routes');
@@ -23,8 +24,10 @@ app.use(cors(corsOptions));
 
 // json 파싱
 app.use(express.json());
+// 쿠키 파싱
+app.use(cookieParser());
 
-// 라우트
+// 라우트   
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 

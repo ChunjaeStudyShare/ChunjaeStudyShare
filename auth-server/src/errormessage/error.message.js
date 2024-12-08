@@ -8,6 +8,7 @@ const errorMessage = {
     ACCOUNT_DORMANT: "6개월 이상 로그인 이력이 없습니다. 관리자에게 문의해주세요.",
     ACCOUNT_RESTRICTED: "관리자 또는 이용 규칙 위반에 의해 이용이 제한된 아이디입니다. 관리자에게 문의해주세요.",
     INVALID_USER: "존재하지 않는 사용자입니다.",
+    INVALID_PHONE_FORMAT: "휴대폰번호는 '-' 없이 0~9 숫자 10~11자리로 입력해주세요.",
     
     // 회원가입 관련 에러
     DUPLICATE_ID: "이미 사용 중인 아이디입니다.",
