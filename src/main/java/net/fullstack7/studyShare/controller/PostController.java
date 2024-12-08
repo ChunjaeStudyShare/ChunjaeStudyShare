@@ -137,4 +137,38 @@ public class PostController {
         return null;
     }
 
+
+    @PostMapping("/modify")
+    public String modifyPost(
+                             @Valid PostRegistDTO dto,
+                             BindingResult bindingResult,
+                             RedirectAttributes redirectAttributes,
+                             HttpServletResponse response,
+                             Model model) {
+        response.setCharacterEncoding("utf-8");
+        String userId = "user1";
+        System.out.println(dto.getDisplayAt());
+        System.out.println(dto.getDisplayEnd());
+
+        // 작성자 확인
+        if (!postService.checkWriter(dto.getId(), userId)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
+            return "redirect:/post/myList"; // 권한 없으면 목록으로 리다이렉트
+        }
+
+        if (bindingResult.hasErrors()) {
+            log.error("Validation errors: {}", bindingResult.getAllErrors());
+            model.addAttribute("dto", dto);
+            redirectAttributes.addFlashAttribute("errors", bindingResult);
+            return "redirect:/post/myList";
+        }
+        try{
+            postService.modifyPost(dto, userId);
+            return "redirect:/post/myList";
+        }catch (Exception e){
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            log.info("수정 실패" + e.getMessage());
+            return "post/view";
+        }
+    }
 }

@@ -16,4 +16,6 @@ public interface PostMapper {
                  @Param("sortType") String sortType, @Param("displayAt") LocalDateTime displayAt, @Param("displayEnd") LocalDateTime displayEnd);
     List<Post> selectAllPost(Map<String, Object> map);
     PostViewDTO findPostWithFile(@Param("id") String id);
+
+    boolean checkWriter(@Param("id") int id, @Param("userId") String userId);
 }

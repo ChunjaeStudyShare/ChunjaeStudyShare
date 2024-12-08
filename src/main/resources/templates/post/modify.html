@@ -21,35 +21,31 @@
         .position-relative {
             position: relative;
         }
-
-        .img-preview {
-            width: 200px; /* 미리보기 이미지 너비 */
-            height: auto;
-            top: 20px; /* 파일명 아래로 약간 띄움 */
-            left: 0;
-            z-index: 10; /* 다른 요소 위에 표시 */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 약간의 그림자 효과 */
-            display: none; /* 초기 상태에서 숨김 */
-        }
     </style>
     <div class="container mt-5">
         <h1 class="mb-4">학습 정보 수정</h1>
-        <form th:action="@{/update-study}" method="POST" enctype="multipart/form-data">
+        <form th:action="@{/post/modify}" method="POST" enctype="multipart/form-data" novalidate>
             <table class="table modify-table">
+                <input type="hidden" id="id" name="id"  th:value="${post.id}">
                 <tbody>
                 <!-- 제목 -->
                 <tr>
-                    <th class="text-end align-middle" style="width: 20%;">제목</th>
+                    <th style="width: 20%;" class="text-end align-middle">
+                        <label for="title">제목</label>
+                    </th>
                     <td style="width: 80%;">
-                        <input type="text" class="form-control" id="title" name="title" th:value="${post.title}" maxlength="100" placeholder="제목을 입력하세요" required>
+                        <input type="text" class="form-control" id="title" name="title"  th:value="${post.title}" minlength="2" maxlength="50" placeholder="제목을 입력하세요" required>
                     </td>
                 </tr>
 
                 <!-- 학습 내용 -->
                 <tr>
-                    <th class="text-end align-middle">학습 내용</th>
+                    <th class="text-end align-middle">
+                        <label for="content">학습 내용</label>
+                    </th>
                     <td>
                         <textarea class="form-control" id="content" name="content" rows="5" placeholder="오늘의 학습 내용을 입력하세요" required th:text="${post.content}"></textarea>
+                        <div class="text-danger small" id="contentError"></div>
                     </td>
                 </tr>
 
@@ -69,94 +65,107 @@
                             <img th:src="@{${post.path}}" alt="이미지 미리보기" class="imgPreview position-absolute border rounded" style="display: none; top: 0;width: 150px;">
                         </div>
                         <!-- 새 이미지 업로드 -->
-                        <input type="file" class="form-control" id="image" name="image" accept=".jpg, .png">
+                        <input type="file" class="form-control" id="file" name="file" accept=".jpg, .png">
+                        <div class="text-danger small" id="fileError"></div>
                     </td>
                 </tr>
-
-
                 <!-- 오늘의 학습 노출 여부 -->
                 <tr>
                     <th class="text-end align-middle">오늘의 학습 노출 여부</th>
                     <td>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="display" id="displayYes" value="yes" th:checked="${post.privacy == 1}">
+                            <input class="form-check-input" type="radio" name="privacy" id="displayYes" value="1" th:checked="${post.privacy == 1}">
                             <label class="form-check-label" for="displayYes">노출</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="display" id="displayNo" value="no" th:checked="${post.privacy == 0}">
+                            <input class="form-check-input" type="radio" name="privacy" id="displayNo" value="0" th:checked="${post.privacy == 0}">
                             <label class="form-check-label" for="displayNo">노출 안 함</label>
                         </div>
                     </td>
                 </tr>
 
                 <!-- 오늘의 학습 노출 기간 -->
-<!--                <tr>-->
-<!--                    <th class="text-end align-middle">오늘의 학습 노출 기간</th>-->
-<!--                    <td>-->
-<!--                        <div class="row g-2">-->
-<!--                            <div class="col">-->
-<!--                                <input type="date" class="form-control" id="startDate" name="startDate" th:value="${#dates.format(post.displayAt, 'yyyy-MM-dd')}" required>-->
-<!--                            </div>-->
-<!--                            <span class="col-auto align-self-center">~</span>-->
-<!--                            <div class="col">-->
-<!--                                <input type="date" class="form-control" id="endDate" name="endDate" th:value="${#dates.format(post.displayEnd, 'yyyy-MM-dd')}" required>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </td>-->
-<!--                </tr>-->
                 <tr>
-                    <th class="text-end align-middle">공유한 사람</th>
+                    <th class="text-end align-middle">
+                        <label for="displayAt">오늘의 학습 노출 기간</label>
+                    </th>
                     <td>
-                        <ul class="list-unstyled">
-                            <li>홍길동그리 (2024-01-22 오후 1:00)</li>
-                            <li>홍길동 (2024-01-22 오후 1:30)</li>
-                        </ul>
-                        <!-- 공유하기 버튼 및 목록 -->
-                        <div class="dropdown mt-2">
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                    공유하기
-                                </button>
+                        <div class="row g-2">
+                            <div class="col">
+                                <input type="datetime-local" class="form-control" id="displayAt" name="displayAt"  th:value="${post.displayAt != null ? post.displayAt : ''}" >
                             </div>
-                            <ul class="dropdown-menu p-3" aria-labelledby="dropdownMenuButton">
-                                <li>
-                                    <input type="text" class="form-control mb-2" placeholder="아이디/이름 검색" id="searchInput" >
-                                </li>
-                                <li>
-                                    <div id="userList">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="user1" value="아이디1">
-                                            <label class="form-check-label" for="user1">아이디1</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="user2" value="아이디2">
-                                            <label class="form-check-label" for="user2">아이디2</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="user3" value="아이디3">
-                                            <label class="form-check-label" for="user3">아이디3</label>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
+                            <span class="col-auto align-self-center">~</span>
+                            <div class="col">
+                                <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd" th:value="${post.displayEnd != null ? post.displayEnd : ''}" >
+                            </div>
                         </div>
                     </td>
                 </tr>
+                <tr>
+                    <th class="text-end align-middle">공유된 친구</th>
+                    <td>
+                        <table id="sharedFriendsTable" class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>아이디</th>
+                                <th>공유 날짜</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- 공유된 친구 목록 추가 -->
+                            </tbody>
+                        </table>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#friendSearchModal">친구 찾기</button>
+                    </td>
+                </tr>
+
+                <!-- 친구 찾기 모달 -->
+                <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- 친구 검색 기능 -->
+                                <div class="container mt-3">
+                                    <!-- 입력 필드 -->
+                                    <div class="mb-3">
+                                        <label for="searchId" class="form-label">아이디 검색</label>
+                                        <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요" onkeyup="searchUserById()">
+                                    </div>
+                                    <!-- 친구 검색 결과 -->
+                                    <div id="suggestions"></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- 분야 -->
                 <tr>
-                    <th class="text-end align-middle">분야</th>
+                    <th class="text-end align-middle">
+                        <label for="domain">분야</label>
+                    </th>
                     <td>
-                        <input type="text" class="form-control" id="categories" name="categories" th:value="${post.domain}" placeholder="분야를 입력하세요 (최대 4개)" required>
+                        <input type="text" class="form-control" id="domain" name="domain" th:value="${post.domain}" placeholder="분야를 입력하세요 (최대 4개)">
                         <div class="form-text">분야는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
+                        <div class="text-danger small" id="domainError"></div>
                     </td>
                 </tr>
 
                 <!-- 해시태그 -->
                 <tr>
-                    <th class="text-end align-middle">해시태그</th>
+                    <th class="text-end align-middle">
+                        <label for="hashtag">해시태그</label>
+                    </th>
                     <td>
-                        <input type="text" class="form-control" id="hashtags" name="hashtags" th:value="${post.hashtag}" placeholder="해시태그를 입력하세요 (최대 4개)" required>
+                        <input type="text" class="form-control" id="hashtag" name="hashtag" th:value="${post.hashtag}" placeholder="해시태그를 입력하세요 (최대 4개)">
                         <div class="form-text">해시태그는 쉼표(,)로 구분하여 최대 4개까지 입력</div>
+                        <div class="text-danger small" id="hashtagError"></div>
                     </td>
                 </tr>
                 </tbody>
@@ -171,7 +180,106 @@
     </div>
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("DOM 로드 완료");
+            let debounceTimer;
+            let lastSearchId = '';
+
+            // function searchUserById() {
+            //     const searchId = document.getElementById('searchId').value;
+            //
+            //     // 입력값이 비어있으면 검색 결과를 지우고 리턴
+            //     if (searchId.length === 0) {
+            //         document.getElementById('suggestions').innerHTML = '';
+            //         return;
+            //     }
+            //
+            //     // 동일한 검색어에 대해 새로운 요청을 보내지 않도록
+            //     if (lastSearchId === searchId) {
+            //         return;
+            //     }
+            //
+            //     lastSearchId = searchId; // 최신 검색어로 갱신
+            //
+            //     clearTimeout(debounceTimer); // 이전 요청을 취소
+            //     debounceTimer = setTimeout(() => {
+            //         fetch(`/friend/searchUserById?searchId=${searchId}`)
+            //             .then(response => response.json())
+            //             .then(data => {
+            //                 let suggestionsHtml = `
+            //                     <table class="table table-bordered">
+            //                         <thead>
+            //                             <tr>
+            //                                 <th>아이디</th>
+            //                                 <th>신청</th>
+            //                             </tr>
+            //                         </thead>
+            //                         <tbody>
+            //                     `;
+            //
+            //                 if (data.length === 0) {
+            //                     suggestionsHtml += '<tr><td colspan="2">검색된 유저가 없습니다.</td></tr>';
+            //                 } else {
+            //                     data.forEach(user => {
+            //                         suggestionsHtml += `
+            //                 <tr>
+            //                     <td>${user.userId}</td>
+            //                     <td>
+            //                         <button class="btn ${user.isFriend === 1 ? 'btn-secondary' :
+            //                             (user.sent === 1 ? 'btn-warning' :
+            //                                 (user.received === 1 ? 'btn-success' : 'btn-primary'))}"
+            //                                 onclick="${user.isFriend === 1 ? '' :
+            //                             (user.sent === 1 ? `cancelRequest('${user.userId}')` :
+            //                                 (user.received === 1 ? `acceptRequest('${user.userId}')` : `sendRequest('${user.userId}')`))}">
+            //                             ${user.isFriend === 1 ? '이미 친구입니다' :
+            //                             (user.sent === 1 ? '친구 신청 취소' :
+            //                                 (user.received === 1 ? '친구 신청 수락' : '신청'))}
+            //                         </button>
+            //                         <!-- 친구 신청 수락 버튼 -->
+            //                         ${user.received === 1 ? `
+            //                             <button class="btn btn-danger" onclick="rejectRequest('${user.userId}')">거절</button>
+            //                         ` : ''}
+            //                     </td>
+            //                 </tr>
+            //             `;
+            //                     });
+            //                 }
+            //                 suggestionsHtml += '</tbody></table>';
+            //                 document.getElementById('suggestions').innerHTML = suggestionsHtml;
+            //             })
+            //             .catch(error => console.error('Error:', error));
+            //     }, 30);
+            //
+            //     // 친구 공유
+            //     function shareWithFriends() {
+            //         const checkboxes = document.querySelectorAll("input[name='friendCheckbox']:checked");
+            //         const selectedFriends = Array.from(checkboxes).map(cb => cb.value);
+            //
+            //         if (selectedFriends.length === 0) {
+            //             alert("공유할 친구를 선택하세요.");
+            //             return;
+            //         }
+            //
+            //         fetch('/sharePost', {
+            //             method: 'POST',
+            //             headers: { 'Content-Type': 'application/json' },
+            //             body: JSON.stringify({ postId: 123, friendIds: selectedFriends })
+            //         })
+            //             .then(response => response.ok ? alert("공유되었습니다.") : alert("공유 실패"))
+            //             .then(() => updateSharedFriendsTable())
+            //             .catch(err => console.error(err));
+            //     }
+            //
+            //     // 공유된 친구 목록 갱신
+            //     function updateSharedFriendsTable() {
+            //         fetch('/post/sharedFriends?postId=123')
+            //             .then(response => response.json())
+            //             .then(data => {
+            //                 const tableBody = document.querySelector("#sharedFriendsTable tbody");
+            //                 tableBody.innerHTML = '';
+            //                 data.forEach(friend => {
+            //                     tableBody.innerHTML += `<tr><td>${friend.userId}</td><td>${friend.sharedDate}</td></tr>`;
+            //                 });
+            //             });
+            //     }
 
             // 이미지 미리보기 관련 로직
             const fileNameElement = document.querySelector(".fileName"); // 파일명을 나타내는 요소
@@ -188,24 +296,196 @@
                     imgPreviewElement.style.display = "none"; // 이미지 숨기기
                 });
             } else {
-                console.error("fileNameElement 또는 imgPreviewElement를 찾을 수 없습니다.");
+                console.error("파일 요소를 찾을 수 없습니다.");
             }
 
-            // 이미지 삭제 체크박스 관련 로직
-            const deleteImageCheckbox = document.querySelector("input[name='deleteImage']");
-            const newImageInput = document.getElementById("image");
+            const form = document.querySelector("form");
+            const title = document.getElementById("title");
+            const content = document.getElementById("content");
+            const file = document.getElementById("file");
+            const domain = document.getElementById("domain");
+            const hashtag = document.getElementById("hashtag");
+            const privacyYes = document.getElementById("displayYes");
+            const privacyNo = document.getElementById("displayNo");
+            const displayAt = document.getElementById("displayAt");
+            const displayEnd = document.getElementById("displayEnd");
 
-            if (deleteImageCheckbox && newImageInput) {
-                deleteImageCheckbox.addEventListener("change", function () {
-                    if (this.checked) {
-                        newImageInput.disabled = true; // 새 이미지 업로드 비활성화
-                    } else {
-                        newImageInput.disabled = false; // 새 이미지 업로드 활성화
+            const titleError = document.createElement("div");
+            titleError.className = "text-danger small";
+            title.insertAdjacentElement("afterend", titleError);
+
+            const contentError = document.createElement("div");
+            contentError.className = "text-danger small";
+            content.insertAdjacentElement("afterend", contentError);
+
+            const fileError = document.createElement("div");
+            fileError.className = "text-danger small";
+            file.insertAdjacentElement("afterend", fileError);
+
+            const domainError = document.createElement("div");
+            domainError.className = "text-danger small";
+            domain.insertAdjacentElement("afterend", domainError);
+
+            const hashtagError = document.createElement("div");
+            hashtagError.className = "text-danger small";
+            hashtag.insertAdjacentElement("afterend", hashtagError);
+
+            function displayPeriod() {
+                if (privacyYes.checked) {
+                    displayAt.disabled = false;
+                    displayEnd.disabled = false;
+                } else {
+                    displayAt.disabled = true;
+                    displayEnd.disabled = true;
+                    displayAt.value = "";
+                    displayEnd.value = "";
+                }
+            }
+
+            // 초기화
+            displayPeriod();
+
+            privacyYes.addEventListener("change", displayPeriod);
+            privacyNo.addEventListener("change", displayPeriod);
+
+            // 디버깅용 로그
+            console.log("DisplayAt:", displayAt);
+            console.log("DisplayEnd:", displayEnd);
+            console.log("Privacy Yes:", privacyYes.checked);
+
+            // 노출 여부 및 날짜 유효성 검사
+            const today = new Date();
+            const todayString = today.toISOString().slice(0, 16);
+            displayAt.min = todayString;
+            displayEnd.min = todayString;
+
+            displayAt.addEventListener("input", function () {
+                const selectedDate = new Date(this.value); // 사용자가 선택한 날짜
+                if (selectedDate < displayAt.min) {
+                    // 선택한 날짜가 최소 날짜보다 이전이면 경고 및 초기화
+                    alert("현재 시각 이후로만 선택 가능합니다.");
+                    this.value = ""; // 입력값 초기화
+                }
+            });
+
+
+            form.addEventListener("submit", function (event) {
+                console.log("폼 제출 이벤트 발생");
+
+                let isValid = true;
+
+                titleError.textContent = "";
+                contentError.textContent = "";
+                fileError.textContent = "";
+                domainError.textContent = "";
+                hashtagError.textContent = "";
+
+                // 제목 유효성 검사
+                if (!title.value.trim()) {
+                    titleError.textContent = "제목을 입력하세요.";
+                    isValid = false;
+                } else if (title.value.length < 2 || title.value.length > 50) {
+                    titleError.textContent = "제목은 2글자 이상 50자 이하로 입력하세요.";
+                    isValid = false;
+                }
+
+                // 내용 유효성 검사
+                if (!content.value.trim()) {
+                    contentError.textContent = "학습 내용을 입력하세요.";
+                    isValid = false;
+                } else if (content.value.length < 10 || content.value.length > 100) {
+                    contentError.textContent = "학습 내용은 10자 이상 100자 이하로 입력하세요.";
+                    isValid = false;
+                }
+
+                // 파일 유효성 검사
+                if (file.value) {
+                    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+                    if (!allowedExtensions.test(file.value)) {
+                        fileError.textContent = "이미지는 .jpg 또는 .png 형식만 가능합니다.";
+                        isValid = false;
                     }
-                });
-            } else {
-                console.error("deleteImageCheckbox 또는 newImageInput을 찾을 수 없습니다.");
-            }
+                }
+
+
+                if (privacyYes.checked) {
+                    const existingStartError = document.querySelector("#displayAt + .text-danger");
+                    if (existingStartError) existingStartError.remove();
+                    if (!displayAt.value) {
+                        displayAt.insertAdjacentHTML(
+                            "afterend",
+                            "<div class='text-danger small'>노출 시작 날짜를 입력해야 합니다.</div>"
+                        );
+                        isValid = false;
+                    }
+                    const existingEndError = document.querySelector("#displayEnd + .text-danger");
+                    if (existingEndError) existingEndError.remove();
+                    if (!displayEnd.value) {
+                        displayEnd.insertAdjacentHTML(
+                            "afterend",
+                            "<div class='text-danger small'>노출 종료 날짜를 입력해야 합니다.</div>"
+                        );
+                        isValid = false;
+                    } else if (new Date(displayAt.value) >= new Date(displayEnd.value)) {
+                        displayEnd.insertAdjacentHTML(
+                            "afterend",
+                            "<div class='text-danger small'>노출 종료 날짜는 시작 날짜보다 뒤여야 합니다.</div>"
+                        );
+                        isValid = false;
+                    }
+                }
+
+                // 분야
+                if (domain.value.trim()) {
+                    const domains = domain.value
+                        .split(",")
+                        .map((d) => d.trim())
+                        .filter((d) => d); // 빈 값 제거
+                    if (domains.length > 4) {
+                        domainError.textContent = "분야는 최대 4개까지만 입력 가능합니다.";
+                        isValid = false;
+                    }
+                    if (domains.some((d) => d.length > 10)) {
+                        domainError.textContent = "분야의 각 항목은 최대 10자까지 입력 가능합니다.";
+                        isValid = false;
+                    }
+                }
+
+                // 해시태그
+                if (hashtag.value.trim()) {
+                    const hashtags = hashtag.value
+                        .split(",")
+                        .map((h) => h.trim())
+                        .filter((h) => h); // 빈 값 제거
+                    if (hashtags.length > 4) {
+                        hashtagError.textContent = "해시태그는 최대 4개까지만 입력 가능합니다.";
+                        isValid = false;
+                    }
+                    if (hashtags.some((h) => !h.startsWith("#"))) {
+                        hashtagError.textContent = "해시태그는 #으로 시작해야 합니다.";
+                        isValid = false;
+                    }
+                    if (hashtags.some((h) => h.length > 10)) {
+                        hashtagError.textContent = "해시태그의 각 항목은 최대 10자까지 입력 가능합니다.";
+                        isValid = false;
+                    }
+                }
+
+                //파일
+                const maxSize = 500*1024*1024
+                if (file.size > maxSize) {
+                    fileError.textContent = "파일 크기는 최대 500MB까지만 허용됩니다.";
+                    event.target.value = ""; // 파일 입력 초기화
+                    isValid = false;
+                }
+
+
+                // 유효성 검사 실패 시 폼 제출 중단
+                if (!isValid) {
+                    console.log("폼 제출 중단");
+                    event.preventDefault();
+                }
+            });
         });
     </script>
 

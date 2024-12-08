@@ -21,4 +21,8 @@ public interface PostServiceIf {
                                 String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
 
     PostViewDTO findPostWithFile(String id);
+
+    boolean checkWriter(int id, String userId);
+
+    PostRegistDTO modifyPost(PostRegistDTO dto, String userId);
 }

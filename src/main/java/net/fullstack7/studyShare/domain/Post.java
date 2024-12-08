@@ -10,13 +10,11 @@ import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import jakarta.persistence.Column;
-import lombok.NoArgsConstructor;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor // JPA 기본 생성자 필요
 @AllArgsConstructor // @Builder와 함께 필요
@@ -62,5 +60,4 @@ public class Post {
 
     @Column(columnDefinition = "VARCHAR(200) COMMENT '썸네일경로'")
     private String thumbnailPath;
-
 }

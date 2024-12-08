@@ -72,4 +72,11 @@
                  LEFT JOIN file f ON p.id = f.postId
         WHERE p.id = #{id}
     </select>
+
+    <select id="checkWriter" resultType="boolean">
+        SELECT COUNT(*)
+        FROM post
+        WHERE id = #{id} AND userId = #{userId}
+    </select>
+
 </mapper>
