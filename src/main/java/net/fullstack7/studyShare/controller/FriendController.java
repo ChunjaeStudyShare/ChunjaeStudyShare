@@ -31,6 +31,24 @@ public class FriendController {
         return "friend/list";
     }
 
+    @GetMapping("/searchUserIdById")
+    @ResponseBody
+    public List<FriendCheckDTO> searchUserIdById(@RequestParam String searchId){
+        String userId = "user1"; //세션아이디
+        log.info("searchId: {}", searchId);
+        List<String> friendList = friendService.list(userId);
+        System.out.println("friendListSize" + friendList.size());
+        List<FriendCheckDTO> friendCheckedList = new ArrayList<>();
+        for(String id : friendList){
+            FriendCheckDTO dto = new FriendCheckDTO();
+            dto.setUserId(id);
+            dto.setIsFriend(1);
+            friendCheckedList.add(dto);
+        }
+
+        return friendCheckedList;
+    }
+
     @GetMapping("/searchUserById")
     @ResponseBody
     public List<FriendCheckDTO> searchUserById(@RequestParam String searchId) { // 여기에서 검색된 아이디가 있는지 없는지 여부를 확인하려면 ? 만약 null이 나오면 어떤 에러가 뜨는지?
