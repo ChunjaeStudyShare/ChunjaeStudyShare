@@ -43,9 +43,9 @@
                 <th style="width: 15%;">기간</th>
                 <td style="width: 85%;">
                     <div class="input-group">
-                        <input type="date" class="form-control" id="startDate" name="startDate">
+                        <input type="datetime-local" class="form-control" id="displayAt" name="displayAt">
                         <span class="input-group-text">~</span>
-                        <input type="date" class="form-control" id="endDate" name="endDate">
+                        <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd">
                     </div>
                 </td>
             </tr>
@@ -82,10 +82,10 @@
         </div>
         <div>
             <select class="form-select w-auto" id="itemsPerPage" onchange="updateItemsPerPage()">
-                <option value="30">30개 보기</option>
-                <option value="50">50개 보기</option>
-                <option value="80">80개 보기</option>
-                <option value="100">100개 보기</option>
+                <option th:selected="${size == 30}" value="30">30개 보기</option>
+                <option th:selected="${size == 50}" value="50">50개 보기</option>
+                <option th:selected="${size == 80}" value="80">80개 보기</option>
+                <option th:selected="${size == 100}" value="100">100개 보기</option>
             </select>
         </div>
     </div>
@@ -95,20 +95,83 @@
             <th>No</th>
             <th>제목</th>
             <th>등록일</th>
-            <th>좋아요</th>
             <th>오늘의 학습 노출 여부</th>
             <th>오늘의 학습 노출 기간</th>
         </tr>
         </thead>
         <tbody id="dataTable">
-            <tr th:if="${list == null or list.isEmpty()}">
+            <tr th:each="post, status : ${posts}">
+                <td th:text="${status.index + 1}"></td>
+<!--                <td th:text="${post.title}"></td>-->
+                <td>
+                    <a th:href="@{/post/view(id=${post.id})}">[[${post.title}]]</a>
+                </td>
+
+                <td th:text="${post.createdAt}"></td>
+                <td>
+                    <span th:if="${post.privacy == 1}" >Y</span>
+                    <span th:if="${post.privacy == 0}" >N</span>
+                </td>
+                <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
+               : (post.displayAt != null ? post.displayAt + ' ~'
+               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">
+                </td>
+            </tr>
+            <tr th:if="${posts == null or posts.isEmpty()}">
                 <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>
             </tr>
         </tbody>
     </table>
-<!--    <div th:replace="~{common/paging :: paging}"></div>-->
+    <div th:replace="~{common/paging :: paging}"></div>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <button class="btn btn-primary" th:onclick="|location.href= '@{/post/regist}'|">학습 등록</button>
     </div>
+    <br>
+    <br>
 </div>
+<!--    <script th:inline="javascript">-->
+<!--        document.addEventListener("DOMContentLoaded", function () {-->
+<!--            const displayAt = document.getElementById("displayAt");-->
+<!--            const displayEnd = document.getElementById("displayEnd");-->
+
+<!--            // 오늘 날짜 및 1주일 전 날짜 계산-->
+<!--            const today = new Date();-->
+<!--            const oneWeekAgo = new Date();-->
+<!--            oneWeekAgo.setDate(today.getDate() - 7);-->
+
+<!--            // 날짜를 'YYYY-MM-DD' 형식으로 변환-->
+<!--            // const todayString = today.toISOString().split("T")[0];-->
+<!--            // const oneWeekAgoString = oneWeekAgo.toISOString().split("T")[0];-->
+<!--            function formatDateForDatetimeLocal(date) {-->
+<!--                const year = date.getFullYear();-->
+<!--                const month = String(date.getMonth() + 1).padStart(2, "0");-->
+<!--                const day = String(date.getDate()).padStart(2, "0");-->
+<!--                const hours = String(date.getHours()).padStart(2, "0");-->
+<!--                const minutes = String(date.getMinutes()).padStart(2, "0");-->
+
+<!--                return `${year}-${month}-${day}T${hours}:${minutes}`;-->
+<!--            }-->
+
+<!--            // 기본값 설정-->
+<!--            if (displayAt){-->
+<!--                displayAt.value = formatDateForDatetimeLocal(oneWeekAgoString);-->
+<!--            }-->
+<!--            if (displayEnd){-->
+<!--                displayEnd.value = formatDateForDatetimeLocal(todayString);-->
+<!--            }-->
+
+<!--            // 최소 선택값 설정-->
+<!--            if (displayAt){-->
+<!--                displayAt.min = oneWeekAgoString;-->
+<!--            }-->
+<!--            if (displayEnd){-->
+<!--                displayEnd.min = oneWeekAgoString;-->
+<!--            }-->
+
+
+<!--            console.log("시작 날짜:", oneWeekAgoString);-->
+<!--            console.log("종료 날짜:", todayString);-->
+<!--        });-->
+<!--    </script>-->
+
 </div>
