@@ -3,6 +3,7 @@ package net.fullstack7.studyShare.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.FriendDTO;
+import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.mapper.FriendMapper;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +69,11 @@ public class FriendServiceImpl implements FriendService {
     @Override
     public List<String> sentList(String userId) {
         return friendMapper.sentList(userId);
+    }
+
+    @Override
+    public boolean isSharedByUser(String userId, String postId) {
+        return friendMapper.isSharedByUser(userId, postId);
     }
 
 

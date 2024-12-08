@@ -147,7 +147,7 @@
 
             clearTimeout(debounceTimer); // 이전 요청을 취소
             debounceTimer = setTimeout(() => {
-                fetch(`/friend/searchUserIdById?searchId=${searchId}`)
+                fetch(`/friend/searchUserIdById?searchId=${encodeURIComponent(searchId)}`)
                     .then(response => response.json())
                     .then(data => {
                         let suggestionsHtml = `
@@ -169,17 +169,10 @@
                             <tr>
                                 <td>${user.userId}</td>
                                 <td>
-                                    <button class="btn ${user.isFriend === 1 ? 'btn-secondary' :
-                                    (user.sent === 1 ? `cancelRequest('${user.userId}')` :
-                                        (user.received === 1 ? `acceptRequest('${user.userId}')` : `sendRequest('${user.userId}')`))}">
-                                        ${user.isFriend === 1 ? '이미 친구입니다' :
-                                    (user.sent === 1 ? '친구 신청 취소' :
-                                        (user.received === 1 ? '친구 신청 수락' : '신청'))}
-                                    </button>
-                                    <!-- 친구 신청 수락 버튼 -->
-                                    ${user.received === 1 ? `
-                                        <button class="btn btn-dark" onclick="rejectRequest('${user.userId}')">거절</button>
-                                    ` : ''}
+                         <button class="btn ${user.isShared === 1 ? 'btn-success' : 'btn-primary'}"
+                            onclick="${user.isShared === 1 ? `cancelRequest('${user.userId}')` : `sendRequest('${user.userId}')`}">
+                            ${user.isShared === 1 ? '공유 취소' : '공유'}
+                        </button>
                                 </td>
                             </tr>
                         `;

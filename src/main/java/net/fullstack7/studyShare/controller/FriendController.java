@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.FriendCheckDTO;
 import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.member.MemberDTO;
+import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.service.FriendService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,7 +13,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -33,19 +37,38 @@ public class FriendController {
 
     @GetMapping("/searchUserIdById")
     @ResponseBody
-    public List<FriendCheckDTO> searchUserIdById(@RequestParam String searchId){
+    public List<PostShareDTO> searchUserIdById(@RequestParam String searchId){
         String userId = "user1"; //세션아이디
+        String postId = "18";
         log.info("searchId: {}", searchId);
         List<String> friendList = friendService.list(userId);
+        List<String> searchList = friendService.searchUsersById(userId, searchId);
         System.out.println("friendListSize" + friendList.size());
-        List<FriendCheckDTO> friendCheckedList = new ArrayList<>();
-        for(String id : friendList){
-            FriendCheckDTO dto = new FriendCheckDTO();
-            dto.setUserId(id);
-            dto.setIsFriend(1);
-            friendCheckedList.add(dto);
-        }
 
+        // 3. 검색된 사용자 중에서 내 친구인 항목만 필터링
+        List<PostShareDTO> friendCheckedList = new ArrayList<>();
+
+        for (String search : searchList) {
+            PostShareDTO dto = new PostShareDTO();
+            System.out.println("friend: " + search);
+            if(search == null){
+                continue;
+            }
+            if (!friendList.contains(search)) {
+                continue; // 친구가 아니면 건너뜀
+            }
+
+            for (String friend : friendList) {
+                if (search != null && search.equals(friend)) {
+                    boolean isShared =  friendService.isSharedByUser(search, postId);
+                    dto.setIsShared(isShared ? 1 : 0);
+                    if(search.equals(friend)){
+                        dto.setUserId(friend); // 사용자 ID 설정
+                    }
+                }
+            }
+            friendCheckedList.add(dto);  // 결과 리스트에 추가
+        }
         return friendCheckedList;
     }
 

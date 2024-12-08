@@ -2,6 +2,7 @@ package net.fullstack7.studyShare.service;
 
 import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.member.MemberDTO;
+import net.fullstack7.studyShare.dto.post.PostShareDTO;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface FriendService {
     Boolean rejectFriendRequest(FriendDTO friendDTO);
     List<String> receivedList(String userId);
     List<String> sentList(String userId);
+
+    boolean isSharedByUser(String userId, String postId);
 }
