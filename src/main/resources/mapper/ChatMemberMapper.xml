@@ -7,9 +7,23 @@
         from ChatMember
         where chatRoomId = #{chatRoomId}
     </select>
-<!--    <select id="findChatRoomListByUserId" resultType="">-->
-<!--        select-->
-<!--    </select>-->
+    <select id="findChatRoomListByUserId" resultType="net.fullstack7.studyShare.dto.chat.ChatRoomDTO">
+        select cr.id as roomId, cms.message as lastMessage, cms.createdAt as lastMessageTime
+        from ChatRoom as cr
+        inner join ChatMember as cmb on cr.id = cmb.chatRoomId
+        left outer join ChatMessage as cms on cmb.chatRoomId = cms.chatRoomId
+        <choose>
+            <when test="leaveAt == null">
+                and cms.createAt > now()
+            </when>
+            <otherwise>
+                and cms.createdAt > cmb.leaveAt
+            </otherwise>
+        </choose>
+        where cr.id in (select chatRoomId from ChatMember where userId=#{userId})
+--         group by cmb.chatRoomId
+        order by createdAt desc;
+    </select>
     <update id="updateLeaveAt">
         update ChatMember set leaveAt=#{leaveAt} where userId=#{userId} and chatRoomId=#{chatRoomId}
     </update>
