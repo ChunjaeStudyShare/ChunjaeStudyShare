@@ -32,5 +32,4 @@ public class Share {
     @ManyToOne
     @JoinColumn(name = "postId")
     private Post post;
-
 }

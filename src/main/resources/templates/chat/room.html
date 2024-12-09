@@ -216,6 +216,7 @@
     });
 
     window.addEventListener("beforeunload", function (event) {
+        leave(roomId);
         if (isConnected) disconnect();
         event.preventDefault();
     });
@@ -246,6 +247,18 @@
 
 
         return response.text();
+    }
+
+    async function leave(roomId) {
+        const url = "/api/chat/room/leave";
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({leaveAt: new Date().toISOString(), roomId: roomId})
+        });
+        return response.ok;
     }
 </script>
 </body>

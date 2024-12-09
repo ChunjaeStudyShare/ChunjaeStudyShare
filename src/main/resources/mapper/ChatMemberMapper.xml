@@ -8,6 +8,9 @@
         where chatRoomId = #{chatRoomId}
     </select>
 <!--    <select id="findChatRoomListByUserId" resultType="">-->
-
+<!--        select-->
 <!--    </select>-->
+    <update id="updateLeaveAt">
+        update ChatMember set leaveAt=#{leaveAt} where userId=#{userId} and chatRoomId=#{chatRoomId}
+    </update>
 </mapper>

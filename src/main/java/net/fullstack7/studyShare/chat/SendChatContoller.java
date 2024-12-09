@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.ChatMessage;
 import net.fullstack7.studyShare.service.chat.ChatService;
 import org.springframework.messaging.handler.annotation.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Controller;
 @Log4j2
 public class SendChatContoller {
     private final ChatService chatService;
-//    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/{id}")
     @SendTo("/room/{id}")

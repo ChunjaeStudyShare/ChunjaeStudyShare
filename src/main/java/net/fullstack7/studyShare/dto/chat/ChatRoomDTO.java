@@ -5,11 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatInviteDTO {
-    private String invitedId;
+public class ChatRoomDTO {
     private Integer roomId;
+    private String lastMessage;
+    private LocalDateTime lastMessageTime;
+    private List<String> members;
+    private boolean hasNewMessages;
 }

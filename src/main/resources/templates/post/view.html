@@ -72,12 +72,14 @@
             <tr>
                 <th>공유한 사람</th>
                 <td colspan="3">
-<!--                    <div th:each="shared : ${post.share}">-->
-<!--                        <span th:text="|${shared.name} (${#dates.format(shared.sharedAt, 'yyyy-MM-dd HH:mm:ss')})|"></span>-->
-<!--                        <button class="btn-close-custom" data-shared-id="${shared.id}">&times;</button>-->
-<!--                        <br>-->
-<!--                    </div>-->
-<!--                    <span th:if="${post.share == null || post.share.isEmpty()}">공유 정보가 없습니다.</span>-->
+                    <div th:each="shared, status:${shareList}">
+                        <span th:text="${shared.user.userId}"></span>
+                        <button type="button" class="btn-close" aria-label="Close"
+                                th:onclick="cancelRequest('${shared.user.userId}')"> <!-- 변경하기 -->
+                        </button>
+                        <br>
+                    </div>
+                    <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
                     <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
                 </td>
             </tr>
