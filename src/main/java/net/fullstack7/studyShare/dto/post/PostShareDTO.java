@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 public class PostShareDTO {
     private String id;
     private Integer postId;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
+    //private LocalDateTime createAt;
+
     private String userId; // 공유 받은 사람
     private int isShared;
 }

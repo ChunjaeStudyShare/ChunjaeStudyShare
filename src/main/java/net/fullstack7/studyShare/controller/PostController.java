@@ -144,7 +144,6 @@ public class PostController {
         return null;
     }
 
-
     @PostMapping("/modify")
     public String modifyPost(
                              @Valid PostRegistDTO dto,
@@ -177,5 +176,26 @@ public class PostController {
             log.info("수정 실패" + e.getMessage());
             return "post/view";
         }
+    }
+
+    @GetMapping("/shareList")
+    public String shareList(Model model,
+                              HttpServletResponse response,
+                              @Valid PostPagingDTO dto){
+        LogUtil logUtil = new LogUtil();
+        logUtil.info("dto: " + dto);
+        response.setCharacterEncoding("utf-8");
+        String userId = "user1";
+
+        int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
+        log.info("totalCnt: " + totalCnt);
+        Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
+        List<PostDTO> posts =  postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
+
+        model.addAttribute("posts", posts);
+        model.addAttribute("paging", paging);
+        model.addAttribute("postPagingDTO", dto);
+        model.addAttribute("uri", "/post/shareList");
+        return "post/shareList";
     }
 }

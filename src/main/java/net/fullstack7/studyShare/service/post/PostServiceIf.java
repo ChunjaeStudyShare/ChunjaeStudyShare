@@ -2,10 +2,7 @@ package net.fullstack7.studyShare.service.post;
 
 import net.fullstack7.studyShare.domain.ChatMessage;
 import net.fullstack7.studyShare.domain.Post;
-import net.fullstack7.studyShare.dto.post.PostDTO;
-import net.fullstack7.studyShare.dto.post.PostRegistDTO;
-import net.fullstack7.studyShare.dto.post.PostShareDTO;
-import net.fullstack7.studyShare.dto.post.PostViewDTO;
+import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +18,9 @@ public interface PostServiceIf {
     int totalCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
     List<PostDTO> selectAllPost(int pageNo, int pageSize, String searchCategory, String searchValue,
                                 String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
+
+    List<PostGetInfoDTO> selectMyShare(int pageNo, int pageSize, String searchCategory, String searchValue,
+                                       String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
 
     PostViewDTO findPostWithFile(String id);
 
