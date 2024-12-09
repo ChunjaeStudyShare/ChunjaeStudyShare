@@ -32,6 +32,13 @@ public class TodayController {
         }
         List<TodayDTO> todayList = todayService.todayList(selectedDate);
         log.info("todayList: {}", todayList);
+        log.info("selectedDate: {}", selectedDate);
+        int year = selectedDate.getYear();
+        int month = selectedDate.getMonthValue();
+        int date = selectedDate.getDayOfMonth();
+        model.addAttribute("year", year);
+        model.addAttribute("month", month);
+        model.addAttribute("date", date);
         model.addAttribute("todayList", todayList);
         return "today/main";
     }

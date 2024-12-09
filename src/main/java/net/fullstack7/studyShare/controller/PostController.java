@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.fullstack7.studyShare.dto.MemberDTO;
 import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
 import net.fullstack7.studyShare.dto.post.PostViewDTO;
