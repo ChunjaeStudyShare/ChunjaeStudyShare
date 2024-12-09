@@ -10,6 +10,7 @@ import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
 import net.fullstack7.studyShare.dto.post.PostViewDTO;
 import net.fullstack7.studyShare.service.post.PostServiceIf;
+import net.fullstack7.studyShare.service.share.ShareServiceIf;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import net.fullstack7.studyShare.util.JSFunc;
 import net.fullstack7.studyShare.util.Paging;
@@ -39,6 +40,7 @@ import static java.awt.SystemColor.info;
 public class PostController {
 
     private final PostServiceIf postService;
+    private final ShareServiceIf shareService;
 
     @GetMapping("/myList")
     public String myStudyList(Model model,
@@ -76,6 +78,8 @@ public class PostController {
                              @RequestParam String id){
         response.setCharacterEncoding("utf-8");
         PostViewDTO post = postService.findPostWithFile(id);
+        //공유 목록 가져오기
+        //shareService.getShareListByPostId(Integer.parseInt(id));
         if(post != null){
             model.addAttribute("post", post);
             return "post/view";
@@ -84,6 +88,7 @@ public class PostController {
         }
         return null;
     }
+
 
     @GetMapping("/regist")
     public String registGet(){

@@ -1,8 +1,10 @@
 package net.fullstack7.studyShare.service.post;
 
+import net.fullstack7.studyShare.domain.ChatMessage;
 import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
+import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.dto.post.PostViewDTO;
 import net.fullstack7.studyShare.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,4 +27,6 @@ public interface PostServiceIf {
     boolean checkWriter(int id, String userId);
 
     PostRegistDTO modifyPost(PostRegistDTO dto, String userId);
+
+
 }

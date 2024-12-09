@@ -147,7 +147,7 @@
             const postId = [[${post.id}]]
             clearTimeout(debounceTimer); // 이전 요청을 취소
             debounceTimer = setTimeout(() => {
-                fetch(`/friend/searchUserIdById?postId=${encodeURIComponent(postId)}&searchId=${encodeURIComponent(searchId)}`)
+                fetch(`/share/searchUserIdById?postId=${encodeURIComponent(postId)}&searchId=${encodeURIComponent(searchId)}`)
                     .then(response => response.json())
                     .then(data => {
                         let suggestionsHtml = `
@@ -155,7 +155,7 @@
                     <thead>
                         <tr>
                             <th>아이디</th>
-                            <th>신청</th>
+                            <th>공유</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -189,7 +189,7 @@
             const postId = [[${post.id}]]
             let flag = confirm(userId + '에게 공유하시겠습니까?');
             if(flag) {
-                fetch('/friend/shareRequest', {
+                fetch('/share/shareRequest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -223,7 +223,7 @@
             const postId = [[${post.id}]]
             let flag = confirm(userId + '에게 공유 취소하시겠습니까?');
             if(flag) {
-                fetch('/friend/shareCancelRequest', {
+                fetch('/share/shareCancelRequest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
