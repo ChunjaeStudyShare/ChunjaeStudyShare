@@ -1,4 +1,4 @@
-package net.fullstack7.studyShare.dto;
+package net.fullstack7.studyShare.dto.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

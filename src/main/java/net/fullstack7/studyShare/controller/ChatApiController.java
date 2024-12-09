@@ -2,7 +2,7 @@ package net.fullstack7.studyShare.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.fullstack7.studyShare.dto.ChatInviteDTO;
+import net.fullstack7.studyShare.dto.chat.ChatInviteDTO;
 import net.fullstack7.studyShare.service.chat.ChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
