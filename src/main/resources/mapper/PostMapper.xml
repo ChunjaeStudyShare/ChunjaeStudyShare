@@ -99,6 +99,39 @@
         WHERE id = #{id} AND userId = #{userId}
     </select>
 
+    <select id="selectMyShare">
+        SELECT p.*, COUNT(t.id)
+        FROM Post p
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        p.userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null">
+                AND p.displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND p.displayEnd &lt;= #{displayEnd}
+            </if>
+            AND p.userId = #{userId}
+        </where>
+        GROUP BY p.id
+        <choose>
+            <otherwise>
+                ORDER BY p.createdAt DESC
+            </otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
 
     <!--인규-->
     <select id="hasShare" resultType="java.lang.Integer">
@@ -113,4 +146,5 @@
         DELETE FROM Share
         WHERE postId = #{id}
     </delete>
+
 </mapper>

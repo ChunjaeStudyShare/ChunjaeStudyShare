@@ -6,6 +6,7 @@ import net.fullstack7.studyShare.domain.File;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.dto.post.PostDTO;
+import net.fullstack7.studyShare.dto.post.PostGetInfoDTO;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
 import net.fullstack7.studyShare.dto.post.PostViewDTO;
 import net.fullstack7.studyShare.mapper.PostMapper;
@@ -174,6 +175,24 @@ public class PostServiceImpl implements PostServiceIf{
         List<Post> list = postMapper.selectAllPost(map);
         return list.stream()
                 .map(i -> modelMapper.map(i, PostDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PostGetInfoDTO> selectMyShare(int pageNo, int pageSize, String searchCategory, String searchValue,
+                                              String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("offset", (pageNo - 1) * pageSize);
+        map.put("limit", pageSize);
+        map.put("searchCategory", searchCategory);
+        map.put("searchValue", searchValue);
+        map.put("userId", userId);
+        map.put("sortType", sortType);
+        map.put("displayAt", displayAt);
+        map.put("displayEnd", displayEnd);
+
+        List<Post> list = postMapper.selectMyShare(map);
+        return list.stream()
+                .map(i -> modelMapper.map(i, PostGetInfoDTO.class)).collect(Collectors.toList());
     }
 
     @Override

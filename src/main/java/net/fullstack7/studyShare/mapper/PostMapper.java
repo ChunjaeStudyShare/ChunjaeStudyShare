@@ -15,6 +15,9 @@ public interface PostMapper {
     int totalCnt(@Param("searchCategory") String searchCategory, @Param("searchValue") String searchValue, @Param("userId") String userId,
                  @Param("sortType") String sortType, @Param("displayAt") LocalDateTime displayAt, @Param("displayEnd") LocalDateTime displayEnd);
     List<Post> selectAllPost(Map<String, Object> map);
+
+    List<Post> selectMyShare(Map<String, Object> map);
+
     PostViewDTO findPostWithFile(@Param("id") String id);
 
     boolean checkWriter(@Param("id") int id, @Param("userId") String userId);

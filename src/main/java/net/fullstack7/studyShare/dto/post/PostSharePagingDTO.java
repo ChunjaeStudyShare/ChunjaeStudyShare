@@ -1,17 +1,12 @@
 package net.fullstack7.studyShare.dto.post;
 
-import java.time.LocalDateTime;
-
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
-public class PostPagingDTO {
+public class PostSharePagingDTO {
     @Positive
     @Min(value = 1, message = "페이지 번호는 1 이상이어야 합니다.")
     private int pageNo = 1;
@@ -21,7 +16,7 @@ public class PostPagingDTO {
     @Max(value = 100, message = "페이지 크기는 100을 초과할 수 없습니다.")
     private int pageSize = 10;
 
-    @Pattern(regexp = "^(title|content)$", message = "허용되지 않은 검색 카테고리입니다")
+    @Pattern(regexp = "^(title|content|userId)$", message = "허용되지 않은 검색 카테고리입니다")
     private String searchCategory;
 
     @Size(max = 101, message = "검색 값은 100자를 초과할 수 없습니다.")
@@ -37,7 +32,7 @@ public class PostPagingDTO {
     @Min(value = 1, message = "블럭 크기는 1 이상이어야 합니다.")
     private int blockSize = 5;
 
-    public PostPagingDTO() {
+    public PostSharePagingDTO() {
         this.pageNo = 1;
         this.pageSize = 10;
         this.blockSize = 5;
