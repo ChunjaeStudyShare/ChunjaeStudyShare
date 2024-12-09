@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
     @Index(name = "idx_userId", columnList = "userId"),
     @Index(name = "idx_jti", columnList = "jti"),
     @Index(name = "idx_userId_jti", columnList = "userId,jti"),
-    @Index(name = "idx_expiresAt", columnList = "expiresAt")
+    @Index(name = "idx_expiresAt", columnList = "expiresAt"),
+    @Index(name = "idx_token_expiry", columnList = "jti, expiresAt")
 })
 public class ActiveTokens {
     @Id

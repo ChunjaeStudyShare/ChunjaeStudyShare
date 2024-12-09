@@ -78,7 +78,7 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-outline-dark">수정</button>
+                                <button type="button" class="btn btn-sm btn-outline-dark btn-modify" th:data-user-id="${member.userId}">수정</button>
                                 <button type="button" class="btn btn-sm btn-outline-dark">삭제</button>
                             </div>
                         </td>
@@ -126,15 +126,14 @@
             </small>
         </div>
     </div>
-</div>
-<script th:inline="javascript">
-    // 이전 페이지 url 저장
-    const url = document.URL;
-    document.querySelectorAll('.btn-modify').forEach(button => {
-        button.addEventListener('click', () => {
-            const userId = button.getAttribute('data-user-id');
-            window.location.href = `/admin/users/modify/?userId=${userId}&currentPage=${url}`;
+    <script>
+        document.querySelectorAll('.btn-modify').forEach(button => {
+            button.addEventListener('click', () => {
+                const userId = button.getAttribute('data-user-id');
+                const encodedCurrentPage = encodeURIComponent(document.URL);
+                window.location.href = `/admin/users/modify/?userId=${userId}&currentPage=${encodedCurrentPage}`;
+            });
         });
-    });
-</script>
+    </script>
+</div>
 </html>

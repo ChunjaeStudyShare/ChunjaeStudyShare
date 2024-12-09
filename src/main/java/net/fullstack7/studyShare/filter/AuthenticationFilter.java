@@ -40,25 +40,7 @@ public class AuthenticationFilter implements Filter {
         // 개발 모드일 경우 토큰 검증 생략 및 임시 사용자 ID ("user1") 설정
         if (IS_DEVELOPMENT) {
             log.info("개발 모드이므로 인증 제외 경로 체크 통과");
-            try {
-                String token = extractToken(httpRequest);
-                log.info("추출된 토큰: {}", token);
-    
-                if (token != null && tokenService.isTokenValid(token)) {
-                    String userId = jwtUtil.getUserId(token);
-                    log.info("유효한 토큰, 사용자 ID: {}", userId);
-                    
-                    // 요청 속성에 인증 정보 저장
-                    httpRequest.setAttribute("userId", userId);
-                    chain.doFilter(request, response);
-                } else {
-                    log.info("개발 모드 토큰 검증 실패");
-                    httpRequest.setAttribute("userId", "user1");
-                }
-            } catch (Exception e) {
-                log.error("개발 모드 토큰 검증 중 예외 발생", e);
-                httpRequest.setAttribute("userId", "user1");
-            }
+            httpRequest.setAttribute("userId", "user1");
             chain.doFilter(request, response);
             return;
         }
