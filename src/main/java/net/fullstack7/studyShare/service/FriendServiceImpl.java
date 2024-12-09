@@ -13,6 +13,7 @@ import net.fullstack7.studyShare.repository.PostRepository;
 import net.fullstack7.studyShare.repository.ShareRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +88,9 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public Boolean shareRequest(PostShareDTO postShareDTO, String userId) {
-        Member member = memberRepository.findById(userId)
+        System.out.println(postShareDTO.getUserId());
+        // 공유 받는 자
+        Member member = memberRepository.findById(postShareDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
 
         Post post = postRepository.findById(postShareDTO.getPostId())
@@ -95,11 +98,9 @@ public class FriendServiceImpl implements FriendService {
         if(postShareDTO != null){
             try{
                 Share share = Share.builder()
-                        //.title(dto.getTitle())
-                        .id(Integer.valueOf(postShareDTO.getId()))
-                        .createdAt(postShareDTO.getCreateAt())
-                        .requestId(postShareDTO.getRequestId())
-                        .user(member)
+                        .createdAt(LocalDateTime.now())
+                        .requestId(userId) //공유 한 사람
+                        .user(member) //공유 받는 사람, 객체로 들어와야함
                         .post(post)
                         .build();
                 shareRepository.save(share);

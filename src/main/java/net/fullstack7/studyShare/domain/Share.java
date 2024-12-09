@@ -25,6 +25,9 @@ public class Share {
     @Column(columnDefinition = "DATETIME COMMENT '공유 일'")
     private LocalDateTime createdAt;
 
+    @Column(columnDefinition = "COMMENT '공유 받은 사람'")
+    private String requestId;
+
     @ManyToOne
     @JoinColumn(name = "userId")
     private Member user;
@@ -32,8 +35,5 @@ public class Share {
     @ManyToOne
     @JoinColumn(name = "postId")
     private Post post;
-
-    @Column(columnDefinition = "String COMMENT '공유 받은 사람'")
-    private String requestId;
 
 }

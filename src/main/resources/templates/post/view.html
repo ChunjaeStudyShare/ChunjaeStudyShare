@@ -170,7 +170,7 @@
                                 <td>${user.userId}</td>
                                 <td>
                          <button class="btn ${user.isShared === 1 ? 'btn-success' : 'btn-primary'}"
-                            onclick="${user.isShared === 1 ? `cancelRequest('${user.userId}')` : `sendRequest('${user.userId}')`}">
+                            onclick="${user.isShared === 1 ? `cancelRequest('${user.userId}')` : `shareRequest('${user.userId}')`}">
                             ${user.isShared === 1 ? '공유 취소' : '공유'}
                         </button>
                                 </td>
@@ -193,11 +193,11 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ friendId: userId })
+                    body: JSON.stringify({ userId: userId, postId: "18"})
                 })
                     .then(response => {
                         if (response.ok) {
-                            alert('공유되었습니다!');
+                            alert('공유되었습니다.');
                             refreshModal();
                         } else {
                             alert('공유 실패');

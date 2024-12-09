@@ -75,6 +75,7 @@ public class FriendController {
     @PostMapping("/shareRequest")
     @ResponseBody
     public ResponseEntity<?> shareRequest(@RequestBody PostShareDTO postShareDTO) {
+        System.out.println(postShareDTO.getUserId());
         String userId = "user1"; //세션아이디
         postShareDTO.setRequestId(userId);
         boolean result = friendService.shareRequest(postShareDTO, userId);
