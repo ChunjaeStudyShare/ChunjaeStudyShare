@@ -5,6 +5,8 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
+// const testRoutes = require('./routes/test.routes'); // 테스트 라우트
+const { responseTime } = require('./middleware/performance.middleware');
 
 const app = express();
 
@@ -30,6 +32,9 @@ app.use(cookieParser());
 // 라우트   
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+// app.use('/api/test', testRoutes); // 테스트 라우트
+
+app.use(responseTime);
 
 // 기본 에러 핸들러
 app.use((err, req, res, next) => {

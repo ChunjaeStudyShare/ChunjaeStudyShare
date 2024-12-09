@@ -19,14 +19,37 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// 연결 테스트
-pool.getConnection()
-    .then(connection => {
-        console.log('Database connected successfully');
-        connection.release();
-    })
-    .catch(err => {
-        console.error('Error connecting to the database:', err);
-    });
+// 쿼리 실행 시간 측정을 위한 래퍼 함수
+const executeQuery = async (query, values) => {
+    const start = process.hrtime();
+    
+    // 개발 환경에서만 쿼리 로깅
+    // if (process.env.NODE_ENV === 'development') {
+    //     console.log('Starting query:', query);
+    // }
+    
+    try {
+        const result = await pool.query(query, values);
+        const diff = process.hrtime(start);
+        const time = diff[0] * 1e3 + diff[1] * 1e-6;
+        
+        // 개발 환경에서만 실행 시간 로깅
+        // if (process.env.NODE_ENV === 'development') {
+        //     console.log(`Query completed in ${time.toFixed(2)}ms`);
+        // }
+        
+        return result;
+    } catch (error) {
+        console.error('Database error occurred');
+        console.error('Query failed:', error);
+        throw error;
+    }
+};
 
-module.exports = pool;
+// pool 객체를 확장하여 실행 시간 측정 기능 추가
+const poolWithTiming = {
+    ...pool,
+    query: executeQuery
+};
+
+module.exports = poolWithTiming;
