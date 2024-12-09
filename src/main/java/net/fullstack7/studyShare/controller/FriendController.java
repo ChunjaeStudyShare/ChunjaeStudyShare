@@ -1,5 +1,6 @@
 package net.fullstack7.studyShare.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.FriendCheckDTO;
@@ -27,8 +28,8 @@ public class FriendController {
     private final FriendService friendService;
 
     @GetMapping("/list")
-    public String list(Model model) {
-        String userId = "testuser2"; //세션아이디
+    public String list(Model model, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         List<String> friendList = friendService.list(userId);
         log.info("friendList: {}", friendList);
         model.addAttribute("friendList", friendList);
@@ -37,8 +38,8 @@ public class FriendController {
 
     @GetMapping("/searchUserById")
     @ResponseBody
-    public List<FriendCheckDTO> searchUserById(@RequestParam String searchId) { // 여기에서 검색된 아이디가 있는지 없는지 여부를 확인하려면 ? 만약 null이 나오면 어떤 에러가 뜨는지?
-        String userId = "testuser2"; //세션아이디
+    public List<FriendCheckDTO> searchUserById(@RequestParam String searchId, HttpServletRequest request) { // 여기에서 검색된 아이디가 있는지 없는지 여부를 확인하려면 ? 만약 null이 나오면 어떤 에러가 뜨는지?
+        String userId = (String) request.getAttribute("userId");
         log.info("searchId: {}", searchId);
         List<String> friendList = friendService.list(userId);
         List<String> searchList = friendService.searchUsersById(userId, searchId);
@@ -65,8 +66,8 @@ public class FriendController {
 
     @PostMapping("/sendRequest")
     @ResponseBody  // 응답을 JSON으로 반환하도록 설정
-    public ResponseEntity<?> sendRequest(@RequestBody FriendDTO friendDTO) {
-        String userId = "testuser2"; //세션아이디
+    public ResponseEntity<?> sendRequest(@RequestBody FriendDTO friendDTO, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         friendDTO.setRequesterId(userId);
         friendDTO.setStatus(0);
         boolean success = friendService.sendFriendRequest(friendDTO);
@@ -79,8 +80,8 @@ public class FriendController {
 
     @PostMapping("/cancelRequest")
     @ResponseBody  // 응답을 JSON으로 반환하도록 설정
-    public ResponseEntity<?> cancelRequest(@RequestBody FriendDTO friendDTO) {
-        String userId = "testuser2"; //세션아이디
+    public ResponseEntity<?> cancelRequest(@RequestBody FriendDTO friendDTO, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         friendDTO.setRequesterId(userId);
 
         boolean success = friendService.cancelFriendRequest(friendDTO);
@@ -93,9 +94,9 @@ public class FriendController {
 
     @PostMapping("/acceptRequest")
     @ResponseBody  // 응답을 JSON으로 반환하도록 설정
-    public ResponseEntity<?> acceptRequest(@RequestBody FriendDTO friendDTO) {
+    public ResponseEntity<?> acceptRequest(@RequestBody FriendDTO friendDTO, HttpServletRequest request) {
         log.info("friendDTO:{}", friendDTO);
-        String userId = "testuser2"; //세션아이디
+        String userId = (String) request.getAttribute("userId");
         friendDTO.setFriendId(userId);
 
         boolean success = friendService.acceptFriendRequest(friendDTO);
@@ -108,9 +109,9 @@ public class FriendController {
 
     @PostMapping("/rejectRequest")
     @ResponseBody
-    public ResponseEntity<?> rejectRequest(@RequestBody FriendDTO friendDTO) {
+    public ResponseEntity<?> rejectRequest(@RequestBody FriendDTO friendDTO, HttpServletRequest request) {
         log.info("friendDTO:{}", friendDTO);
-        String userId = "testuser2"; //세션아이디
+        String userId = (String) request.getAttribute("userId");
         friendDTO.setFriendId(userId);
 
         boolean success = friendService.rejectFriendRequest(friendDTO);
@@ -122,8 +123,8 @@ public class FriendController {
     }
 
     @GetMapping("/received")
-    public String received(Model model) {
-        String userId = "testuser2"; //세션아이디
+    public String received(Model model, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         List<String> receivedList = friendService.receivedList(userId);
         log.info("receivedList: {}", receivedList);
         model.addAttribute("receivedList", receivedList);
@@ -131,19 +132,13 @@ public class FriendController {
     }
 
     @GetMapping("/sent")
-    public String sent(Model model) {
-        String userId = "testuser2"; //세션아이디
+    public String sent(Model model, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         List<String> sentList = friendService.sentList(userId);
         log.info("sentList: {}", sentList);
         model.addAttribute("sentList", sentList);
         return "friend/sent";
     }
-
-    @GetMapping("/today")
-    public String today(Model model) {
-        return "today/main";
-    }
-
 
 
 
