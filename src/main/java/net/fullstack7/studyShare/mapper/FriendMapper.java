@@ -1,6 +1,7 @@
 package net.fullstack7.studyShare.mapper;
 
 import net.fullstack7.studyShare.dto.FriendDTO;
+import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 
@@ -19,5 +20,7 @@ public interface FriendMapper {
     Boolean rejectFriendRequest(FriendDTO friendDTO);
     List<String> receivedList(String userId);
     List<String> sentList(String userId);
+
+    Boolean isSharedByUser(String userId, String postId);
 
 }

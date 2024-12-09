@@ -7,10 +7,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import lombok.Getter;
+
+import lombok.*;
 import jakarta.persistence.Column;
+
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class Share {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,4 +32,8 @@ public class Share {
     @ManyToOne
     @JoinColumn(name = "postId")
     private Post post;
+
+    @Column(columnDefinition = "String COMMENT '공유 받은 사람'")
+    private String requestId;
+
 }
