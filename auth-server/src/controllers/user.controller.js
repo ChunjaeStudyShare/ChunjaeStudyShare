@@ -158,7 +158,7 @@ class UserController {
                 });
             }
             const { userId, token, newPassword } = req.body;
-            
+            console.log(userId, token, newPassword);
             // 토큰 검증 및 비밀번호 재설정
             await UserService.resetPassword(userId, token, newPassword);
             
