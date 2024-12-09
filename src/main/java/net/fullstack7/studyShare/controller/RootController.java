@@ -28,6 +28,7 @@ public class RootController {
             }
         } catch (Exception e) {
             log.info("로그인되지 않은 사용자");
+            return "redirect:/today/main";
         }
         return "main/index";
     }

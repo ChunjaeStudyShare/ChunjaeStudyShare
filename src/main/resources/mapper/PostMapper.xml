@@ -3,54 +3,74 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.fullstack7.studyShare.mapper.PostMapper">
     <select id="totalCnt">
-        SELECT COUNT(*)
-        FROM Post
+        SELECT COUNT(DISTINCT p.id)
+        FROM Post p
+        LEFT JOIN ThumbsUp t ON p.id = t.postId
         <where>
             <if test="searchCategory != null and searchValue != null">
                 <choose>
                     <when test="searchCategory == 'title'">
-                        title LIKE CONCAT('%', #{searchValue}, '%')
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                     <when test="searchCategory == 'content'">
-                        content LIKE CONCAT('%', #{searchValue}, '%')
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'domain'">
+                        p.domain = #{searchValue}
+                    </when>
+                    <when test="searchCategory == 'hashtag'">
+                        p.hashtag LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                 </choose>
             </if>
             <if test="displayAt != null">
-                AND displayAt &gt;= #{displayAt}
+                AND p.displayAt &gt;= #{displayAt}
             </if>
             <if test="displayEnd != null">
-                AND displayEnd &lt;= #{displayEnd}
+                AND p.displayEnd &lt;= #{displayEnd}
             </if>
-            AND userId = #{userId}
+            AND p.userId = #{userId}
         </where>
     </select>
 
     <select id="selectAllPost">
-        SELECT *    
-        FROM Post
+        SELECT p.*, COUNT(t.id) as thumbsUpCount    
+        FROM Post p
+        LEFT JOIN ThumbsUp t ON p.id = t.postId
         <where>
             <if test="searchCategory != null and searchValue != null">
                 <choose>
                     <when test="searchCategory == 'title'">
-                        title LIKE CONCAT('%', #{searchValue}, '%')
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                     <when test="searchCategory == 'content'">
-                        content LIKE CONCAT('%', #{searchValue}, '%')
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'domain'">
+                        p.domain = #{searchValue}
+                    </when>
+                    <when test="searchCategory == 'hashtag'">
+                        p.hashtag LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                 </choose>
             </if>
-            AND userId = #{userId}
             <if test="displayAt != null">
-                AND displayAt &gt;= #{displayAt}
+                AND p.displayAt &gt;= #{displayAt}
             </if>
             <if test="displayEnd != null">
-                AND displayEnd &lt;= #{displayEnd}
+                AND p.displayEnd &lt;= #{displayEnd}
             </if>
+            AND p.userId = #{userId}
         </where>
-        <if test="sortType != null">
-            ORDER BY ${sortType} DESC
-        </if>
+        GROUP BY p.id
+        <choose>
+            <when test="sortType == 'likes'">
+                ORDER BY thumbsUpCount DESC, p.createdAt DESC
+            </when>
+            <otherwise>
+                ORDER BY p.createdAt DESC
+            </otherwise>
+        </choose>
         LIMIT #{offset}, #{limit}
     </select>
 

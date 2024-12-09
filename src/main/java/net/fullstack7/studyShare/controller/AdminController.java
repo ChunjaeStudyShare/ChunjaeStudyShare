@@ -92,4 +92,17 @@ public class AdminController {
         }
         return "admin/users-modify";
     }
+    @PostMapping("/users/modify")
+    public String modify(MemberDTO memberDTO, @RequestParam("currentPage") String currentPage,RedirectAttributes redirectAttributes) {
+        try{
+            String url[] = currentPage.split("currentPage=");
+            System.out.println("url[1]: " + url[1]);
+            memberService.updateMember(memberDTO);
+            redirectAttributes.addFlashAttribute("message", "회원 정보가 수정되었습니다.");
+            return "redirect:/admin/users?page=" + url[1];
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/admin/users";
+        }
+    }
 }

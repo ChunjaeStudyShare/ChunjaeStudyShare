@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
 import net.fullstack7.studyShare.dto.post.PostViewDTO;
+import net.fullstack7.studyShare.dto.post.PostPagingDTO;
 import net.fullstack7.studyShare.service.post.PostServiceIf;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import net.fullstack7.studyShare.util.JSFunc;
@@ -28,8 +29,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
 import static java.awt.SystemColor.info;
+import net.fullstack7.studyShare.util.LogUtil;
 
 
 @Controller
@@ -40,31 +41,30 @@ public class PostController {
 
     private final PostServiceIf postService;
 
-    @GetMapping("myList")
+    @GetMapping("/myList")
     public String myStudyList(Model model,
                               HttpServletResponse response,
-                              @RequestParam(defaultValue = "1") int pageNo,
-                              @RequestParam(defaultValue = "10") int pageSize,
-                              @RequestParam(required = false) String searchCategory,
-                              @RequestParam(required = false) String searchValue,
-                              @RequestParam(required = false) String sortType
-                              //@RequestParam(required = false) LocalDateTime displayAt,
-                              //@RequestParam(required = false) LocalDateTime displayEnd
-                              ){
+                              @Valid PostPagingDTO dto){
+        LogUtil logUtil = new LogUtil();
+        logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
         String userId = "user1";
-        if (!ValidateList.validateMyListParameters(pageNo, searchCategory, searchValue,  response)) {
-            return null;
-        }
-        int totalCnt = postService.totalCnt(searchCategory, searchValue, userId, "createdAt", null, null);
+        // if (!ValidateList.validateMyListParameters(pageNo, searchCategory, searchValue, displayAt, displayEnd, sortType, response)) {
+        //     return null;
+        // }
+        int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         log.info("totalCnt: " + totalCnt);
-        Paging paging = new Paging(pageNo, pageSize, 5, totalCnt);
-        List<PostDTO> posts =  postService.selectAllPost(pageNo, pageSize, searchCategory, searchValue, userId, "createdAt", null, null);
+        Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
+        List<PostDTO> posts =  postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
 
         model.addAttribute("posts", posts);
         model.addAttribute("paging", paging);
-        model.addAttribute("searchCategory", searchCategory);
-        model.addAttribute("searchValue", searchValue);
+        model.addAttribute("postPagingDTO", dto);
+        // model.addAttribute("searchCategory", dto.getSearchCategory());
+        // model.addAttribute("searchValue", dto.getSearchValue());
+        // model.addAttribute("sortType", dto.getSortType());
+        // model.addAttribute("displayAt", dto.getDisplayAt());
+        // model.addAttribute("displayEnd", dto.getDisplayEnd());
         model.addAttribute("uri", "/post/myList");
         return "post/list";
     }
