@@ -1,5 +1,6 @@
 package net.fullstack7.studyShare.service.share;
 
+import net.fullstack7.studyShare.domain.Share;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 
 import java.util.List;
@@ -10,5 +11,5 @@ public interface ShareServiceIf {
 
     Boolean shareCancelRequest(PostShareDTO postShareDTO, String userId);
 
-    List<PostShareDTO> getShareListByPostId(int postId);
+    List<Share> getShareListByPostId(int postId);
 }

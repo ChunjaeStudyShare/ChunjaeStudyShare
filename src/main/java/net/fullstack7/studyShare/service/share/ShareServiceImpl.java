@@ -7,6 +7,7 @@ import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.domain.Share;
+import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.mapper.FriendMapper;
 import net.fullstack7.studyShare.repository.MemberRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,14 +92,13 @@ public class ShareServiceImpl implements ShareServiceIf{
         }
     }
 
-    @Override
-    public List<PostShareDTO> getShareListByPostId(int postId) {
-        return null;
-    }
-
 //    @Override
 //    public List<PostShareDTO> getShareListByPostId(int postId) {
-//        Optional<Share> list = shareRepository.findById(postId);
-//        return list.map(shareRepository::findByPostId).orElse(null);
+//        return null;
 //    }
+    @Override
+    public List<Share> getShareListByPostId(int postId) {
+        List<Share> list = shareRepository.findByPost(Post.builder().id(postId).build());
+        return list;
+    }
 }

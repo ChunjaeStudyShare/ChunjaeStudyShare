@@ -27,6 +27,8 @@ public class PostViewDTO {
     private String domain;
     private String hashtag;
     private Member member;
+    private String thumbnailName;
+    private String thumbnailPath;
 
     // File 테이블 필드
     private Integer postId;

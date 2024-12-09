@@ -6,8 +6,10 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.fullstack7.studyShare.domain.Share;
 import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostRegistDTO;
+import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.dto.post.PostViewDTO;
 import net.fullstack7.studyShare.service.post.PostServiceIf;
 import net.fullstack7.studyShare.service.share.ShareServiceIf;
@@ -79,7 +81,9 @@ public class PostController {
         response.setCharacterEncoding("utf-8");
         PostViewDTO post = postService.findPostWithFile(id);
         //공유 목록 가져오기
-        //shareService.getShareListByPostId(Integer.parseInt(id));
+        List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
+        log.info("aaaaaaa" + shareList.toString());
+        model.addAttribute("shareList", shareList);
         if(post != null){
             model.addAttribute("post", post);
             return "post/view";
@@ -88,7 +92,6 @@ public class PostController {
         }
         return null;
     }
-
 
     @GetMapping("/regist")
     public String registGet(){

@@ -1,6 +1,5 @@
 package net.fullstack7.studyShare.domain;
 
-import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -8,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import lombok.*;
 import jakarta.persistence.Column;
