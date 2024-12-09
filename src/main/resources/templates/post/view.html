@@ -122,7 +122,10 @@
             <button class="btn btn-primary" th:onclick="|location.href='@{/post/list}'|">목록</button>
             <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
-            <button class="btn btn-danger" onclick="confirmDelete(${post.id})">삭제</button>
+            <button class="btn btn-danger" th:data-post-id="${post.id}"
+                    onclick="confirmDelete(this)">
+                삭제
+            </button>
         </div>
         <br>
         <br>
@@ -254,5 +257,16 @@
                 });
             }
         });
+
+        function confirmDelete(button) {
+            const postId = button.getAttribute("data-post-id")
+            // 사용자에게 확인 메시지 표시
+            const userConfirmed = confirm("정말로 삭제하시겠습니까?");
+            if (userConfirmed) {
+                // 사용자가 확인을 누르면 페이지 이동
+                location.href = `/post/delete?id=${postId}`;
+            }
+            // 취소하면 아무 동작도 하지 않음
+        }
     </script>
 </div>

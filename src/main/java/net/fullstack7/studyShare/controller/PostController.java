@@ -178,4 +178,19 @@ public class PostController {
             return "post/view";
         }
     }
+
+
+    //인규가 작업함
+    @GetMapping("/delete")
+    public String delete(@RequestParam int id, HttpServletResponse response){
+        response.setCharacterEncoding("utf-8");
+        boolean result = postService.delete(id);
+        if (result) {
+            JSFunc.alertLocation("삭제 성공","/post/myList",response);
+            return null;
+        } else {
+            JSFunc.alertBack("삭제 실패",response);
+            return null;
+        }
+    }
 }

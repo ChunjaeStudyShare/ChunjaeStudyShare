@@ -3,7 +3,7 @@
 <div layout:fragment="content" class="container mt-4">
     <!-- 상단 검색/정렬 영역 -->
     <div class="mb-3">
-        이 영역은 위에 검색이나 정렬, 필요한 기능들이 들어갈 예정입니다.
+        <input type="text" id="searchFriend" class="form-control w-25" placeholder="목록에서 검색" onkeyup="searchFriend()" >
         <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">친구 찾기</button>
     </div>
 
@@ -312,5 +312,53 @@
                 });
             }
         });
+        function searchFriend() {
+            const searchQuery = document.getElementById('searchFriend').value.toLowerCase();
+            const tableRows = document.querySelectorAll('tbody tr:not(.no-data-message)');
+            const noDataRow = document.querySelector('.no-data-message');
+            let hasVisibleRow = false;
+
+            if (searchQuery.length === 0) {
+
+                tableRows.forEach(row => {
+                    row.style.display = '';
+                });
+                if (noDataRow) {
+                    noDataRow.style.display = 'none';
+                }
+                return;
+            }
+
+            tableRows.forEach(row => {
+                const userIdCell = row.querySelector('td:nth-child(2)');
+                if (userIdCell) {
+                    const userId = userIdCell.textContent.toLowerCase();
+                    if (userId.includes(searchQuery)) {
+                        row.style.display = '';
+                        hasVisibleRow = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+
+
+            if (!hasVisibleRow) {
+                if (!noDataRow) {
+                    const noDataMessage = `
+                <tr class="no-data-message">
+                    <td colspan="3" class="text-center">검색 결과가 없습니다.</td>
+                </tr>
+            `;
+                    document.querySelector('tbody').insertAdjacentHTML('beforeend', noDataMessage);
+                } else {
+                    noDataRow.style.display = '';
+                }
+            } else {
+                if (noDataRow) {
+                    noDataRow.style.display = 'none';
+                }
+            }
+        }
     </script>
 </div>
