@@ -6,8 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.Member;
+import net.fullstack7.studyShare.dto.post.PostShareDTO;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -26,7 +28,7 @@ public class TodayDTO {
     private LocalDateTime createdAt;
     private String domain;
     private String hashtag;
-    private String shareId;
+    private List<PostShareDTO> sharedList;
     private String thumbnailPath;
     private String thumbnailName;
 }
