@@ -7,8 +7,7 @@ import net.fullstack7.studyShare.domain.ChatMember;
 import net.fullstack7.studyShare.domain.ChatMessage;
 import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
-import net.fullstack7.studyShare.dto.ChatMessageDTO;
-import net.fullstack7.studyShare.mapper.ChatMessageMapper;
+
 import net.fullstack7.studyShare.repository.ChatMemberRepository;
 import net.fullstack7.studyShare.repository.ChatMessageRepository;
 import net.fullstack7.studyShare.repository.ChatRoomRepository;
@@ -105,7 +104,7 @@ public class ChatServiceImpl implements ChatService {
                 if(chatMemberRepository.existsByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build())){
                     return "이미 참여 중인 회원입니다.";
                 }
-                ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).build();
+                ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).joinAt(LocalDateTime.now()).build();
                 chatMemberRepository.save(chatMember);
                 if(chatMember.getId() == 0) {
                     return "다시 시도해주세요.";
@@ -118,7 +117,9 @@ public class ChatServiceImpl implements ChatService {
                         .chatRoom(chatRoom)
                         .build();
 
-                messagingTemplate.convertAndSend(inviteMessage);
+                chatMessageRepository.save(inviteMessage);
+
+                messagingTemplate.convertAndSend("/room/"+roomId, inviteMessage);
                 return userId + "님을 초대했습니다.";
             }
             return "존재하지 않는 채팅방입니다.";
