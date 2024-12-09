@@ -40,7 +40,7 @@ public class PostController {
 
     private final PostServiceIf postService;
 
-    @GetMapping("myList")
+    @GetMapping("/myList")
     public String myStudyList(Model model,
                               HttpServletResponse response,
                               @RequestParam(defaultValue = "1") int pageNo,

@@ -88,7 +88,8 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public Boolean shareRequest(PostShareDTO postShareDTO, String userId) {
-        System.out.println(postShareDTO.getUserId());
+        // 이미 공유되었는지 확인
+
         // 공유 받는 자
         Member member = memberRepository.findById(postShareDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
@@ -99,8 +100,8 @@ public class FriendServiceImpl implements FriendService {
             try{
                 Share share = Share.builder()
                         .createdAt(LocalDateTime.now())
-                        .requestId(userId) //공유 한 사람
-                        .user(member) //공유 받는 사람, 객체로 들어와야함
+//                        .requestId(userId) //공유 한 사람
+                        .user(Member.builder().userId(postShareDTO.getUserId()).build()) //공유 받는 사람, 객체로 들어와야함
                         .post(post)
                         .build();
                 shareRepository.save(share);
