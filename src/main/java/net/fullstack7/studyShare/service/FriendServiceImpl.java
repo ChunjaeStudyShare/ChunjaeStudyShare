@@ -2,9 +2,15 @@ package net.fullstack7.studyShare.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.fullstack7.studyShare.domain.Member;
+import net.fullstack7.studyShare.domain.Post;
+import net.fullstack7.studyShare.domain.Share;
 import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.mapper.FriendMapper;
+import net.fullstack7.studyShare.repository.MemberRepository;
+import net.fullstack7.studyShare.repository.PostRepository;
+import net.fullstack7.studyShare.repository.ShareRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,6 +22,9 @@ import java.util.List;
 public class FriendServiceImpl implements FriendService {
 
     private final FriendMapper friendMapper;
+    private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
+    private final ShareRepository shareRepository;
 
     @Override
     public List<String> list(String userId) {
@@ -72,8 +81,35 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public boolean isSharedByUser(String userId, String postId) {
+    public Boolean isSharedByUser(String userId, String postId) {
         return friendMapper.isSharedByUser(userId, postId);
+    }
+
+    @Override
+    public Boolean shareRequest(PostShareDTO postShareDTO, String userId) {
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
+
+        Post post = postRepository.findById(postShareDTO.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다."));
+        if(postShareDTO != null){
+            try{
+                Share share = Share.builder()
+                        //.title(dto.getTitle())
+                        .id(Integer.valueOf(postShareDTO.getId()))
+                        .createdAt(postShareDTO.getCreateAt())
+                        .requestId(postShareDTO.getRequestId())
+                        .user(member)
+                        .post(post)
+                        .build();
+                shareRepository.save(share);
+                log.info(" 성공  ID: {}", share.getId());
+            }catch(Exception e){
+                log.error("저장 실패: {}", e.getMessage(), e);
+            }
+
+        }
+        return false;
     }
 
 

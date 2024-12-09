@@ -38,7 +38,7 @@ public class FriendController {
     @GetMapping("/searchUserIdById")
     @ResponseBody
     public List<PostShareDTO> searchUserIdById(@RequestParam String searchId){
-        String userId = "user1"; //세션아이디
+        String userId = "user1"; //세션 아이디
         String postId = "18";
         log.info("searchId: {}", searchId);
         List<String> friendList = friendService.list(userId);
@@ -63,14 +63,44 @@ public class FriendController {
                     boolean isShared =  friendService.isSharedByUser(search, postId);
                     dto.setIsShared(isShared ? 1 : 0);
                     if(search.equals(friend)){
-                        dto.setUserId(friend); // 사용자 ID 설정
+                        dto.setUserId(friend);
                     }
                 }
             }
-            friendCheckedList.add(dto);  // 결과 리스트에 추가
+            friendCheckedList.add(dto);
         }
         return friendCheckedList;
     }
+
+    @PostMapping("/shareRequest")
+    @ResponseBody
+    public ResponseEntity<?> shareRequest(@RequestBody PostShareDTO postShareDTO) {
+        String userId = "user1"; //세션아이디
+        postShareDTO.setRequestId(userId);
+        boolean result = friendService.shareRequest(postShareDTO, userId);
+        if(result){
+            log.info("share에 추가됨");
+            return ResponseEntity.ok().build();
+        }else{
+            return ResponseEntity.status(400).build();
+        }
+
+    }
+
+
+//    @PostMapping("/sendRequest")
+//    @ResponseBody  // 응답을 JSON으로 반환하도록 설정
+//    public ResponseEntity<?> sendRequest(@RequestBody FriendDTO friendDTO) {
+//        String userId = "testuser2"; //세션아이디
+//        friendDTO.setRequesterId(userId);
+//        friendDTO.setStatus(0);
+//        boolean success = friendService.sendFriendRequest(friendDTO);
+//        if(success) {
+//            return ResponseEntity.ok().build();
+//        } else {
+//            return ResponseEntity.status(400).build();
+//        }
+//    }
 
     @GetMapping("/searchUserById")
     @ResponseBody

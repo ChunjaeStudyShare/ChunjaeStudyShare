@@ -185,10 +185,10 @@
             }, 30);
         }
 
-        function sendRequest(userId) {
+        function shareRequest(userId) {
             let flag = confirm(userId + '에게 공유하시겠습니까?');
             if(flag) {
-                fetch('/friend/sendRequest', {
+                fetch('/friend/shareRequest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

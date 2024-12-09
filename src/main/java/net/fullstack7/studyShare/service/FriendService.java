@@ -19,5 +19,7 @@ public interface FriendService {
     List<String> receivedList(String userId);
     List<String> sentList(String userId);
 
-    boolean isSharedByUser(String userId, String postId);
+    Boolean isSharedByUser(String userId, String postId);
+    Boolean shareRequest(PostShareDTO postShareDTO, String userId);
+
 }
