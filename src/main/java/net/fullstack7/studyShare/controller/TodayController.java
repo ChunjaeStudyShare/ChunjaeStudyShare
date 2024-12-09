@@ -1,9 +1,11 @@
 package net.fullstack7.studyShare.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.FriendCheckDTO;
 import net.fullstack7.studyShare.dto.FriendDTO;
+import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.today.TodayDTO;
 import net.fullstack7.studyShare.service.FriendService;
 import net.fullstack7.studyShare.service.TodayService;
@@ -26,13 +28,22 @@ public class TodayController {
     private final TodayService todayService;
 
     @GetMapping("/main")
-    public String mainPage(Model model, @RequestParam(required = false) LocalDateTime selectedDate) {
+    public String mainPage(Model model, @RequestParam(required = false) LocalDateTime selectedDate, HttpServletRequest request) {
         if (selectedDate == null) {
-            selectedDate = LocalDateTime.now(); // 초기 진입 시 현재 시간으로 설정
+            selectedDate = LocalDateTime.now(); // 초기 진입 시 현재 시간으로 설정함
         }
-        List<TodayDTO> todayList = todayService.todayList(selectedDate);
+        String userId = (String) request.getAttribute("userId");
+        List<TodayDTO> todayList = todayService.todayList(selectedDate, userId);
+        List<TodayDTO> sharedPosts = todayService.sharedPosts(userId);
+
+
         log.info("todayList: {}", todayList);
         log.info("selectedDate: {}", selectedDate);
+        log.info("sharedPosts: {}", sharedPosts);
+
+
+
+
         int year = selectedDate.getYear();
         int month = selectedDate.getMonthValue();
         int date = selectedDate.getDayOfMonth();
@@ -40,11 +51,14 @@ public class TodayController {
         model.addAttribute("month", month);
         model.addAttribute("date", date);
         model.addAttribute("todayList", todayList);
+        model.addAttribute("sharedPosts", sharedPosts);
         return "today/main";
     }
 
     @PostMapping("/list")
-    public ResponseEntity<List<TodayDTO>> list(@RequestBody Map<String, Integer> params) {
+    @ResponseBody
+    public ResponseEntity<List<TodayDTO>> list(@RequestBody Map<String, Integer> params, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         Integer year = params.get("year");
         Integer month = params.get("month");
         Integer date = params.get("date");
@@ -53,7 +67,7 @@ public class TodayController {
         if (year != null && month != null && date != null) {
             selectedDate = LocalDateTime.of(year, month, date, 0, 0);
         }
-        List<TodayDTO> todayList = todayService.todayList(selectedDate);
+        List<TodayDTO> todayList = todayService.todayList(selectedDate, userId);
         log.info("todayList: {}", todayList);
         return ResponseEntity.ok(todayList);
     }
