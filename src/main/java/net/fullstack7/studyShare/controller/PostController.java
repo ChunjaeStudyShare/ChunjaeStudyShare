@@ -181,7 +181,7 @@ public class PostController {
     @GetMapping("/shareList")
     public String shareList(Model model,
                               HttpServletResponse response,
-                              @Valid PostPagingDTO dto){
+                              @Valid PostPagingDTO dto) {
         LogUtil logUtil = new LogUtil();
         logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
@@ -190,7 +190,7 @@ public class PostController {
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         log.info("totalCnt: " + totalCnt);
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
-        List<PostDTO> posts =  postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
+        List<PostDTO> posts = postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
 
         model.addAttribute("posts", posts);
         model.addAttribute("paging", paging);
@@ -198,7 +198,7 @@ public class PostController {
         model.addAttribute("uri", "/post/shareList");
         return "post/shareList";
 
-
+    }
     //인규가 작업함
     @GetMapping("/delete")
     public String delete(@RequestParam int id, HttpServletResponse response){
