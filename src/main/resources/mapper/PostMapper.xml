@@ -4,7 +4,7 @@
 <mapper namespace="net.fullstack7.studyShare.mapper.PostMapper">
     <select id="totalCnt">
         SELECT COUNT(*)
-        FROM post
+        FROM Post
         <where>
             <if test="searchCategory != null and searchValue != null">
                 <choose>
@@ -27,8 +27,8 @@
     </select>
 
     <select id="selectAllPost">
-        SELECT *
-        FROM post
+        SELECT *    
+        FROM Post
         <where>
             <if test="searchCategory != null and searchValue != null">
                 <choose>
@@ -68,14 +68,14 @@
             p.hashtag,
             f.fileName,
             f.path
-        FROM post p
-                 LEFT JOIN file f ON p.id = f.postId
+        FROM Post p
+                 LEFT JOIN File f ON p.id = f.postId
         WHERE p.id = #{id}
     </select>
 
     <select id="checkWriter" resultType="boolean">
         SELECT COUNT(*)
-        FROM post
+        FROM Post
         WHERE id = #{id} AND userId = #{userId}
     </select>
 
