@@ -187,5 +187,19 @@ public class ChatServiceImpl implements ChatService {
         return false;
     }
 
+    @Override
+    public boolean leaveChatRoom(int roomId, String userId, LocalDateTime leaveAt) {
+        ChatMember chatMember = enterChatRoom(roomId, userId);
+        if (chatMember == null) {
+            return false;
+        }
+        int result = chatMemberMapper.updateLeaveAt(leaveAt, roomId, userId);
+
+        if(result > 0) {
+            return true;
+        }
+        return false;
+    }
+
 
 }
