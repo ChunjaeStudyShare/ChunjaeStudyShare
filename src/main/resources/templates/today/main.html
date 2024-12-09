@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout.html}">
-<div layout:fragment="content" style="padding-top:90px; min-width:1024px; min-height:768px;" class="container mt-4">
+<div layout:fragment="content" style="padding-top:70px; min-width:1024px; min-height:768px;" class="container mt-4">
     <style>
         .carousel-control-prev,
         .carousel-control-next {
@@ -18,7 +18,6 @@
             opacity: 0.2; /* 기본적으로 숨김 */
             transition: opacity 0.3s ease, visibility 0.3s ease; /* 부드러운 전환 효과 */
         }
-
         /* 왼쪽 버튼 */
         .carousel-control-prev {
             left: 10px;
@@ -142,11 +141,54 @@
         /*.list-group-item::-webkit-scrollbar {*/
         /*    display: none;  !* 웹킷 기반 브라우저(크롬, 사파리 등)에서 스크롤 바를 숨김 *!*/
         /*}*/
+        .list-group-flush::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .list-group-flush::-webkit-scrollbar-thumb {
+            background-color: #595656;
+            border-radius: 4px;
+        }
+        .sharedPosts {
+            display: block;
+            text-decoration: none;
+            color: black; /* 기존 텍스트 색상 유지 */
+            transition: background-color 0.3s ease, transform 0.3s ease; /* 부드러운 전환 효과 */
+            position: relative; /* 가상 요소를 현재 요소 기준으로 위치시키기 위해 */
+        }
+        .sharedPosts .card {
+            position: relative; /* ::before 요소가 이 카드 위에 배치될 수 있도록 */
+            z-index: 1; /* 내용이 가상 요소 위에 표시되도록 */
+        }
+        .sharedPosts:hover {
+            text-decoration: none; /* 링크 밑줄 제거 */
+            color: black; /* 링크 텍스트 색상 */
+        }
+        .sharedPosts:hover .card::before {
+            content: ""; /* 가상 요소 추가 */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2); /* 검은 투명 막 */
+            z-index: 2; /* 카드 내용보다 위에 위치 */
+            transition: background-color 0.3s ease; /* 부드러운 전환 효과 */
+        }
+        .sharedPosts:hover .card {
+            transform: scale(1.03); /* 약간 확대 효과 (선택사항) */
+            transition: transform 0.3s ease; /* 부드러운 확대 전환 */
+        }
+
+
+
 
     </style>
 
     <!-- 메인 컨테이너 -->
+    <h1 class="text-center">오늘의 학습</h1>
     <div class="d-flex" style="height: 75vh;">
+
         <!-- 좌측 달력 영역 -->
         <div class="h-100 w-25" style="width: 15%;">
             <div th:replace="today/calender :: calender"></div>
@@ -227,23 +269,30 @@
         </div>
 
         <!-- 우측 서브 콘텐츠 영역 -->
-        <div class="h-100 w-25 px-3" >
+        <div class="h-100 w-25 px-2">
             <div class="d-flex flex-column h-100" style="padding-top: 20px;">
                 <h5 class="text-center">공유학습</h5>
-                <ul class="list-group list-group-flush overflow-auto" style="flex-grow: 1;">
-                    <li th:each="item : ${sharedPosts}" class="list-group-item">
-                        <div class="d-flex">
-                            <div style="width: 60px; height: 60px; margin-right: 10px;">
-                                <img th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                <ul class="list-group list-group-flush overflow-auto" style="flex-grow: 1; gap: 15px; padding: 0;">
+                    <!-- 반복 요소 -->
+                    <li th:each="item : ${sharedPosts}" class="list-group-item border-0 p-0" style="background: none;">
+                        <a th:href="@{/post/view(id=${item.id})}" class="sharedPosts">
+                            <div class="card mx-auto position-relative" style="width: 90%; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; margin-top:10px;">
+                                <!-- 썸네일 (가로 2 : 세로 3 비율 유지) -->
+                                <div style="position: relative; width: 100%; aspect-ratio: 2 / 3; background-color: #f9f9f9;">
+                                    <img th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                                    <!-- 텍스트 -->
+                                    <div class="position-absolute bottom-0 start-0 end-0 text-center p-2" style="background-color: rgba(0, 0, 0, 0.6); color: white;">
+                                        <p class="mb-0" th:text="${item.userId}" style="font-weight: bold;">Username</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="short-description">
-                                <p class="mb-0" th:text="${item.userId}"></p>
-                            </div>
-                        </div>
+                        </a>
                     </li>
                 </ul>
             </div>
         </div>
+
+
 
     </div>
 
