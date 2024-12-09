@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatInviteDTO {
     private String invitedId;
+    private Integer roomId;
 }
