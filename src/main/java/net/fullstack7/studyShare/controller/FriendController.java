@@ -37,10 +37,10 @@ public class FriendController {
 
     @GetMapping("/searchUserIdById")
     @ResponseBody
-    public List<PostShareDTO> searchUserIdById(@RequestParam String searchId){
+    public List<PostShareDTO> searchUserIdById(@RequestParam String searchId, @RequestParam String postId){
         String userId = "user1"; //세션 아이디
-        String postId = "18";
         log.info("searchId: {}", searchId);
+        log.info("postId: {}",  postId);
         List<String> friendList = friendService.list(userId);
         List<String> searchList = friendService.searchUsersById(userId, searchId);
         System.out.println("friendListSize" + friendList.size());
@@ -77,7 +77,6 @@ public class FriendController {
     public ResponseEntity<?> shareRequest(@RequestBody PostShareDTO postShareDTO) {
         System.out.println(postShareDTO.getUserId());
         String userId = "user1"; //세션아이디
-        postShareDTO.setRequestId(userId);
         boolean result = friendService.shareRequest(postShareDTO, userId);
         if(result){
             log.info("share에 추가됨");
@@ -88,20 +87,18 @@ public class FriendController {
 
     }
 
-
-//    @PostMapping("/sendRequest")
-//    @ResponseBody  // 응답을 JSON으로 반환하도록 설정
-//    public ResponseEntity<?> sendRequest(@RequestBody FriendDTO friendDTO) {
-//        String userId = "testuser2"; //세션아이디
-//        friendDTO.setRequesterId(userId);
-//        friendDTO.setStatus(0);
-//        boolean success = friendService.sendFriendRequest(friendDTO);
-//        if(success) {
-//            return ResponseEntity.ok().build();
-//        } else {
-//            return ResponseEntity.status(400).build();
-//        }
-//    }
+    @PostMapping("/shareCancelRequest")
+    @ResponseBody  // 응답을 JSON으로 반환하도록 설정
+    public ResponseEntity<?> shareCancelRequest(@RequestBody PostShareDTO postShareDTO) {
+        String userId = "user1"; //세션아이디
+        boolean result = friendService.shareCancelRequest(postShareDTO, userId);
+        if(result) {
+            log.info("share에서 삭제됨");
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
 
     @GetMapping("/searchUserById")
     @ResponseBody

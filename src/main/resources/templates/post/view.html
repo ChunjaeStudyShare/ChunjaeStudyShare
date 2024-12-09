@@ -144,10 +144,10 @@
             }
 
             lastSearchId = searchId; // 최신 검색어로 갱신
-
+            const postId = [[${post.id}]]
             clearTimeout(debounceTimer); // 이전 요청을 취소
             debounceTimer = setTimeout(() => {
-                fetch(`/friend/searchUserIdById?searchId=${encodeURIComponent(searchId)}`)
+                fetch(`/friend/searchUserIdById?postId=${encodeURIComponent(postId)}&searchId=${encodeURIComponent(searchId)}`)
                     .then(response => response.json())
                     .then(data => {
                         let suggestionsHtml = `
@@ -186,6 +186,7 @@
         }
 
         function shareRequest(userId) {
+            const postId = [[${post.id}]]
             let flag = confirm(userId + '에게 공유하시겠습니까?');
             if(flag) {
                 fetch('/friend/shareRequest', {
@@ -193,7 +194,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ userId: userId, postId: "18"})
+                    body: JSON.stringify({ userId: userId, postId: postId})
                 })
                     .then(response => {
                         if (response.ok) {
@@ -219,14 +220,15 @@
             }
         }
         function cancelRequest(userId) {
+            const postId = [[${post.id}]]
             let flag = confirm(userId + '에게 공유 취소하시겠습니까?');
             if(flag) {
-                fetch('/friend/cancelRequest', {
+                fetch('/friend/shareCancelRequest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ friendId: userId })
+                    body: JSON.stringify({ userId: userId, postId: postId })
                 })
                     .then(response => {
                         if (response.ok) {

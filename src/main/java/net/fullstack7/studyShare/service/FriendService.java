@@ -22,4 +22,6 @@ public interface FriendService {
     Boolean isSharedByUser(String userId, String postId);
     Boolean shareRequest(PostShareDTO postShareDTO, String userId);
 
+    Boolean shareCancelRequest(PostShareDTO postShareDTO, String userId);
+
 }

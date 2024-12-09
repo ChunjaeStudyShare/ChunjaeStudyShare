@@ -1,5 +1,6 @@
 package net.fullstack7.studyShare.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.Member;
@@ -89,10 +90,7 @@ public class FriendServiceImpl implements FriendService {
     @Override
     public Boolean shareRequest(PostShareDTO postShareDTO, String userId) {
         // 이미 공유되었는지 확인
-        boolean result = shareRepository.existsByPostIdAndUserId(postShareDTO.getPostId(), userId);
-        if(result){
-            log.info("이미 공유되었습니다");
-        }else{
+        //boolean result = shareRepository.existsByPostAndUser(postShareDTO.getPostId(), userId);
             // 공유 받는 자
             Member member = memberRepository.findById(postShareDTO.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
@@ -113,12 +111,40 @@ public class FriendServiceImpl implements FriendService {
                 }
 
             }
-        }
-
-
 
         return false;
     }
 
+//    @Override
+//    public Boolean shareCancelRequest(PostShareDTO postShareDTO, String userId) {
+//        return null;
+//    }
 
+    @Override
+    @Transactional
+    public Boolean shareCancelRequest(PostShareDTO postShareDTO, String userId) {
+        log.info("dto" + postShareDTO.toString());
+        log.info("userId" + userId);
+        try {
+            // userId로 Member 객체 조회
+            Member user = memberRepository.findByUserId(postShareDTO.getUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+
+            // postId로 Post 객체 조회
+            Post post = postRepository.findById(postShareDTO.getPostId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+            // 데이터 삭제
+            int result = shareRepository.deleteByUserIdAndPostId(user, post);
+            if(result > 0) {
+                log.info("삭제 성공");
+                return true;
+            }else {
+                log.info("삭제 실패");
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // 삭제 실패
+        }
+    }
 }
