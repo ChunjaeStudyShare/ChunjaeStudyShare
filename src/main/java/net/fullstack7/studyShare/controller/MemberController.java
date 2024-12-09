@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
 import org.springframework.ui.Model;
@@ -16,7 +19,6 @@ import net.fullstack7.studyShare.dto.member.PasswordResetRequestDTO;
 import net.fullstack7.studyShare.service.member.PasswordResetService;
 import net.fullstack7.studyShare.service.member.MemberService;
 import net.fullstack7.studyShare.dto.member.MemberResponseDTO;
-import net.fullstack7.studyShare.util.SecurityUtil;
 
 /* 리다이렉트용 회원 관련 컨트롤러
  * 회원관련 요청은 api 서버에서 처리 /api/auth/ 또는 /api/user/ 로 요청
@@ -30,7 +32,6 @@ import net.fullstack7.studyShare.util.SecurityUtil;
 @RequestMapping("/member")
 public class MemberController {
     private final PasswordResetService passwordResetService;
-    private final SecurityUtil securityUtil;
     private final MemberService memberService;
     @GetMapping("/login")
     public String login() {
@@ -78,8 +79,9 @@ public class MemberController {
     }
 
     @GetMapping("/update-user")
-    public String updateUser(Model model) {
-        String userId = securityUtil.getCurrentUserId();
+    public String updateUser(HttpServletRequest request, Model model) {
+        String userId = (String) request.getAttribute("userId");
+        log.info("userId: {}", userId);
         MemberResponseDTO member = memberService.findByUserId(userId);
         model.addAttribute("member", member);
         return "member/update-user";

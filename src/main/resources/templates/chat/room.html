@@ -43,7 +43,6 @@
         .chat-box {
             max-width: 900px;
             margin: 0 auto;
-            background-color: #f7f7f7;
         }
 
         .chat-input-box {
@@ -75,14 +74,20 @@
 <body>
 
 <div layout:fragment="content">
+    <div>채팅방</div>
+    <div>
+        <button data-invited-id="user3" class="btn-invite">초대</button>
+    </div>
     <div class="row chat-box" id="messages">
         <div class="row" th:each="item, status:${messages}">
-            <div class="col-2"><span class="chat-id" th:text="${item.sender.userId}"></span></div>
-            <div class="col-10">
-                                <span th:class="${item.sender.userId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}"
-                                      th:text="${item.message}"></span>
-                <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
-            </div>
+            <div class="chat-bubble-manager" th:if="${item.sender.userId == 'chatmanager'}" th:text="${item.message}"></div>
+            <th:block th:unless="${item.sender.userId == 'chatmanager'}">
+                <div class="col-2"><span class="chat-id" th:if="${item.sender.userId != 'chatmanager'}" th:text="${item.sender.userId}"></span></div>
+                <div class="col-10">
+                    <span th:class="${item.sender.userId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}" th:text="${item.message}"></span>
+                    <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </div>
+            </th:block>
         </div>
     </div>
     <div class="row chat-input-box fixed-bottom">
@@ -115,7 +120,6 @@
     function scrollToBottom() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-
 
     const host = window.location.hostname; // 현재 호스트 이름 가져오기
     const port = window.location.port; // 포트 설정
@@ -185,20 +189,19 @@
 
     function showMessageContent(message) {
 
-
-        let content = "<div class=\"row\"><div class=\"col-2\">";
-        if(message.sender.userId !== 'chatmanager') content += "<span class=\"chat-id\">"+message.sender.userId+"</span>";
-        content += "</div><div class=\"col-10\">";
-        if(message.sender.userId === 'chatmanager')
-            content += "<span class=\"chat-bubble-manager\">"+message.message+"</span>";
+        let content = `<div class="row">`;
+        if (message.sender.userId === 'chatmanager')
+            content += `<div class="chat-bubble-manager">${message.message}</div>`
         else {
-            if(message.sender.userId === userId)
-                content += "<span class=\"chat-bubble-my\">"+message.message+"</span> ";
-            else
-                content += "<span class=\"chat-bubble\">"+message.message+"</span> ";
-            content += "<span class=\"chat-date\">"+formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')+"</span>"
+            let classname = (message.sender.userId === userId) ? 'chat-bubble-my' :'chat-bubble';
+            content += `
+            <div class="col-2"><span class="chat-id">${message.sender.userId}</span></div>
+            <div class="col-10">
+                <span class="${classname}">${message.message}</span>
+                <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
+            </div>`
         }
-        content += "</div></div>"
+        content += `</div>`
 
         $("#messages").append(content);
 
@@ -213,7 +216,7 @@
     });
 
     window.addEventListener("beforeunload", function (event) {
-        if(isConnected) disconnect();
+        if (isConnected) disconnect();
         event.preventDefault();
     });
 
@@ -222,26 +225,27 @@
     //     disconnect();
     // });
 
-    document.querySelectorAll(".btn-invite").forEach(value => {
-        value.addEventListener("click", evt => {
-           const url = "/api/chat/room/"+roomId+"/invite";
-           let invitedId = value.dataset.invitedId;
-
-           let response = invite(url, invitedId);
-
-           alert(response);
-
+    document.querySelectorAll(".btn-invite").forEach(button => {
+        button.addEventListener("click", evt => {
+            let invitedId = button.dataset.invitedId;
+            let response = invite(invitedId, roomId).then((data) => {
+                alert(data);
+           });
         });
     })
 
-    async function invite(url, invitedId) {
+    async function invite(invitedId, roomId) {
+        const url = "/api/chat/room/invite";
         const response = await fetch(url, {
             method: 'POST',
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({ "invitedId": invitedId })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({invitedId: invitedId , roomId: roomId})
         });
-        console.log(response.body);
-        return response.json();
+
+
+        return response.text();
     }
 </script>
 </body>

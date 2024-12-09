@@ -57,4 +57,12 @@
         WHERE requesterId = #{userId}
         AND status = 0
     </select>
+
+    <select id="isSharedByUser" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM Share
+            WHERE userId = #{userId} AND postId = #{postId}
+        )
+    </select>
 </mapper>
