@@ -3,7 +3,7 @@
 <div layout:fragment="content" class="container mt-4">
     <!-- 상단 검색/정렬 영역 -->
     <div class="mb-3">
-        <input type="text" id="searchFriend" class="form-control" placeholder="아이디로 검색" onkeyup="searchFriend()" style="display:inline">
+        <input type="text" id="searchFriend" class="form-control w-25" placeholder="친구 목록에서 검색" onkeyup="searchFriend()" >
         <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">친구 찾기</button>
     </div>
 
@@ -259,7 +259,6 @@
 
 
 
-        const friendList = [[${friendList}]]
 
         function searchFriend() {
             const searchQuery = document.getElementById('searchFriend').value.toLowerCase();
@@ -296,7 +295,7 @@
                 if (!noDataRow) {
                     const noDataMessage = `
                 <tr class="no-data-message">
-                    <td colspan="4" class="text-center">검색된 친구가 없습니다.</td>
+                    <td colspan="4" class="text-center">검색 결과가 없습니다.</td>
                 </tr>
             `;
                     document.querySelector('tbody').insertAdjacentHTML('beforeend', noDataMessage); // 새 메시지 추가

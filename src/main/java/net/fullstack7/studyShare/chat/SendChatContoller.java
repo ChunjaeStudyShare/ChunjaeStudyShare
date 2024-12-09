@@ -18,7 +18,7 @@ public class SendChatContoller {
     @SendTo("/room/{id}")
     public ChatMessage messageContent(@DestinationVariable int id, @Payload MessageContent messageContent) {
 
-        if(chatService.enterChatRoom(id, messageContent.getSender()) == null) {
+        if(chatService.chatMemberInfo(id, messageContent.getSender()) == null) {
             throw new IllegalArgumentException("채팅방 멤버가 아닙니다.");
         }
         if (messageContent.getContent().length() > 300) {

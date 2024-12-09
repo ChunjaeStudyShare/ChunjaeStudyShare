@@ -46,5 +46,16 @@ module.exports = {
         }),
     }),
 
+    resetPassword: Joi.object({
+        userId: Joi.string().required(),
+        token: Joi.string().required(),
+        newPassword: Joi.string()
+            .min(8)
+            .pattern(new RegExp('^[A-Za-z0-9!@#$%^&*(),.?":{}|<>]+$'))
+            .required()
+            .messages({
+                'string.pattern.base': errorMessage.INVALID_PASSWORD_FORMAT
+            })
+    }),
     
 }

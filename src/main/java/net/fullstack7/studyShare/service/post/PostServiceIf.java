@@ -16,6 +16,7 @@ public interface PostServiceIf {
     boolean regist(PostRegistDTO postRegistDTO, String memberId) throws IOException;
 
     int totalCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
+
     List<PostDTO> selectAllPost(int pageNo, int pageSize, String searchCategory, String searchValue,
                                 String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
 
@@ -28,5 +29,5 @@ public interface PostServiceIf {
 
     PostRegistDTO modifyPost(PostRegistDTO dto, String userId);
 
-
+    boolean delete(int id);
 }

@@ -18,4 +18,5 @@ public class ChatRoomDTO {
     private LocalDateTime lastMessageTime;
     private List<String> members;
     private boolean hasNewMessages;
+    private int newMessagesCount;
 }

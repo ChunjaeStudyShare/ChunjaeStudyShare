@@ -21,4 +21,8 @@ public interface PostMapper {
     PostViewDTO findPostWithFile(@Param("id") String id);
 
     boolean checkWriter(@Param("id") int id, @Param("userId") String userId);
+
+    boolean deletePost(int id);
+    boolean deleteShare(int id);
+    Integer hasShare(int id);
 }

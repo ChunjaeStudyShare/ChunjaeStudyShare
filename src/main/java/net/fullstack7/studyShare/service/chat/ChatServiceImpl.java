@@ -41,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<ChatMessage> getChatMessageListByRoomId(int roomId, String userId) throws IllegalAccessException {
-        ChatMember chatMember = enterChatRoom(roomId, userId);
+        ChatMember chatMember = chatMemberInfo(roomId, userId);
         if (chatMember == null) {
             throw new IllegalAccessException("채팅방 멤버가 아닙니다.");
         }
@@ -102,7 +102,7 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     @Override
     public String exitRoom(int roomId, String userId) {
-        ChatMember chatMember = enterChatRoom(roomId, userId);
+        ChatMember chatMember = chatMemberInfo(roomId, userId);
         if (chatMember == null) {
             return "채팅방 멤버가 아닙니다.";
         }
@@ -170,7 +170,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatMember enterChatRoom(int roomId, String userId) {
+    public ChatMember chatMemberInfo(int roomId, String userId) {
         return chatMemberRepository.findByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build()).orElse(null);
     }
 
@@ -189,7 +189,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public boolean leaveChatRoom(int roomId, String userId, LocalDateTime leaveAt) {
-        ChatMember chatMember = enterChatRoom(roomId, userId);
+        ChatMember chatMember = chatMemberInfo(roomId, userId);
         if (chatMember == null) {
             return false;
         }
@@ -199,6 +199,11 @@ public class ChatServiceImpl implements ChatService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean enterChatRoom(int roomId, String userId) {
+        return chatMemberMapper.updateLeaveAt(null, roomId, userId) > 0;
     }
 
 

@@ -133,4 +133,18 @@
         LIMIT #{offset}, #{limit}
     </select>
 
+    <!--인규-->
+    <select id="hasShare" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM Share
+        WHERE postId = #{id}
+    </select>
+    <delete id="deletePost">
+        DELETE FROM Post
+        WHERE id = #{id}
+    </delete>
+    <delete id="deleteShare">
+        DELETE FROM Share
+        WHERE postId = #{id}
+    </delete>
+
 </mapper>
