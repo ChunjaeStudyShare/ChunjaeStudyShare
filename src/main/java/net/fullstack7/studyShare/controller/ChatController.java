@@ -1,15 +1,9 @@
 package net.fullstack7.studyShare.controller;
 
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.fullstack7.studyShare.chat.MessageContent;
-import net.fullstack7.studyShare.domain.ChatMessage;
-import net.fullstack7.studyShare.dto.ChatMessageDTO;
 import net.fullstack7.studyShare.service.chat.ChatService;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,44 +17,49 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("/list")
-    public String chatList(HttpSession session, Model model) {
-        String userId ="user1";
+    public String chatList(HttpServletRequest request, Model model) {
+        String userId = (String) request.getAttribute("userId");
 
         model.addAttribute("chatlist", chatService.getChatRoomList(userId));
+
         return "chat/list";
     }
 
     @PostMapping("/create")
-    public String create(HttpSession session, String[] invited, Model model) {
-        String userId = "user1";
+    public String create(HttpServletRequest request, @RequestParam String[] invited, Model model, RedirectAttributes redirectAttributes) {
+        String userId = (String) request.getAttribute("userId");
+        if(invited.length == 0) {
+            redirectAttributes.addFlashAttribute("alertMessage", "채팅방 멤버를 선택하세요");
+            return "redirect:/chat/list";
+        }
 
-        chatService.createChatRoom(userId, invited);
+        int roomId = chatService.createChatRoom(userId, invited);
 
-        return "redirect:/chat/room";
+        return "redirect:/chat/room/"+roomId;
     }
 
     @GetMapping("/room/{id}")
-    public String room(HttpSession session, @PathVariable int id, Model model) {
-        String userId = "user1";
-        model.addAttribute("roomId", id);
-        model.addAttribute("userId", userId);
-        model.addAttribute("messages", chatService.getChatMessageListByRoomId(id));
-        return "chat/room";
+    public String room(HttpServletRequest request, @PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
+        String userId = (String) request.getAttribute("userId");
+
+        try {
+            model.addAttribute("messages", chatService.getChatMessageListByRoomId(id, userId));
+            model.addAttribute("roomId", id);
+            model.addAttribute("userId", userId);
+            return "chat/room";
+        }
+        catch (Exception e) {
+            redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
+            return "redirect:/chat/list";
+        }
     }
 
     @GetMapping("/room/{id}/exit")
-    public String exit(HttpSession session, @PathVariable int id, RedirectAttributes redirectAttributes) {
-        String userId = "user1";
-        chatService.exitRoom(id, userId);
-        redirectAttributes.addFlashAttribute("errors", "채팅방에서 퇴장하셨습니다.");
+    public String exit(HttpServletRequest request, @PathVariable int id, RedirectAttributes redirectAttributes) {
+        String userId = (String) request.getAttribute("userId");
+
+        redirectAttributes.addFlashAttribute("alertMessage", chatService.exitRoom(id, userId));
         return "redirect:/chat/list";
     }
 
-    @GetMapping("/room/{id}/invite")
-    public String invite(HttpSession session, @PathVariable int id, Model model, String invitedId) {
-
-        String inviteResult = chatService.inviteUserToChatRoom(id, invitedId);
-
-        return "redirect:/chat/room/";
-    }
 }

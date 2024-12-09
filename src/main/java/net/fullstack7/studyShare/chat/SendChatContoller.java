@@ -20,6 +20,9 @@ public class SendChatContoller {
     @SendTo("/room/{id}")
     public ChatMessage messageContent(@DestinationVariable int id, @Payload MessageContent messageContent) {
 
+        if(chatService.enterChatRoom(id, messageContent.getSender()) == null) {
+            throw new IllegalArgumentException("채팅방 멤버가 아닙니다.");
+        }
         if (messageContent.getContent().length() > 300) {
             throw new IllegalArgumentException("300자 이내 전송 가능합니다.");
         }

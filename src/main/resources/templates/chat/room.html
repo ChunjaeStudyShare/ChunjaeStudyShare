@@ -80,11 +80,11 @@
     </div>
     <div class="row chat-box" id="messages">
         <div class="row" th:each="item, status:${messages}">
-            <div class="chat-bubble-manager" th:if="${item.sender.userId == 'chatmanager'}" th:text="${item.message}"></div>
-            <th:block th:unless="${item.sender.userId == 'chatmanager'}">
-                <div class="col-2"><span class="chat-id" th:if="${item.sender.userId != 'chatmanager'}" th:text="${item.sender.userId}"></span></div>
+            <div class="chat-bubble-manager" th:if="${item.senderId == 'chatmanager'}" th:text="${item.message}"></div>
+            <th:block th:unless="${item.senderId == 'chatmanager'}">
+                <div class="col-2"><span class="chat-id" th:if="${item.senderId != 'chatmanager'}" th:text="${item.senderId}"></span></div>
                 <div class="col-10">
-                    <span th:class="${item.sender.userId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}" th:text="${item.message}"></span>
+                    <span th:class="${item.senderId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}" th:text="${item.message}"></span>
                     <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
                 </div>
             </th:block>
@@ -190,12 +190,12 @@
     function showMessageContent(message) {
 
         let content = `<div class="row">`;
-        if (message.sender.userId === 'chatmanager')
+        if (message.senderId === 'chatmanager')
             content += `<div class="chat-bubble-manager">${message.message}</div>`
         else {
-            let classname = (message.sender.userId === userId) ? 'chat-bubble-my' :'chat-bubble';
+            let classname = (message.senderId === userId) ? 'chat-bubble-my' :'chat-bubble';
             content += `
-            <div class="col-2"><span class="chat-id">${message.sender.userId}</span></div>
+            <div class="col-2"><span class="chat-id">${message.senderId}</span></div>
             <div class="col-10">
                 <span class="${classname}">${message.message}</span>
                 <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
