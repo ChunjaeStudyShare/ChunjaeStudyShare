@@ -342,4 +342,13 @@ public class PostServiceImpl implements PostServiceIf{
         }
         return null;
     }
+
+    @Override
+    public boolean delete(int id) {
+        int hasShare = postMapper.hasShare(id); //공유 있는지
+        boolean share = hasShare != 0 && postMapper.deleteShare(id); //있을때만 삭제
+        boolean post = postMapper.deletePost(id); // 게시글 삭제
+
+        return post && (hasShare == 0 || share); // 세 가지 경우
+    }
 }
