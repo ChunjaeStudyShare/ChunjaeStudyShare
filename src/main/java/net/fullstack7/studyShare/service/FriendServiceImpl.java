@@ -89,28 +89,34 @@ public class FriendServiceImpl implements FriendService {
     @Override
     public Boolean shareRequest(PostShareDTO postShareDTO, String userId) {
         // 이미 공유되었는지 확인
+        boolean result = shareRepository.existsByPostIdAndUserId(postShareDTO.getPostId(), userId);
+        if(result){
+            log.info("이미 공유되었습니다");
+        }else{
+            // 공유 받는 자
+            Member member = memberRepository.findById(postShareDTO.getUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
 
-        // 공유 받는 자
-        Member member = memberRepository.findById(postShareDTO.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
+            Post post = postRepository.findById(postShareDTO.getPostId())
+                    .orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다."));
+            if(postShareDTO != null){
+                try{
+                    Share share = Share.builder()
+                            .createdAt(LocalDateTime.now())
+                            .user(Member.builder().userId(postShareDTO.getUserId()).build()) //공유 받는 사람, 객체로 들어와야함
+                            .post(post)
+                            .build();
+                    shareRepository.save(share);
+                    log.info(" 성공  ID: {}", share.getId());
+                }catch(Exception e){
+                    log.error("저장 실패: {}", e.getMessage(), e);
+                }
 
-        Post post = postRepository.findById(postShareDTO.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException("게시글 정보가 없습니다."));
-        if(postShareDTO != null){
-            try{
-                Share share = Share.builder()
-                        .createdAt(LocalDateTime.now())
-//                        .requestId(userId) //공유 한 사람
-                        .user(Member.builder().userId(postShareDTO.getUserId()).build()) //공유 받는 사람, 객체로 들어와야함
-                        .post(post)
-                        .build();
-                shareRepository.save(share);
-                log.info(" 성공  ID: {}", share.getId());
-            }catch(Exception e){
-                log.error("저장 실패: {}", e.getMessage(), e);
             }
-
         }
+
+
+
         return false;
     }
 
