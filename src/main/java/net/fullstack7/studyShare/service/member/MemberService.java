@@ -94,6 +94,13 @@ public class MemberService {
                 .build();
     }
 
+    public void updateMember(MemberDTO memberDTO) {
+        Member member = memberRepository.findByUserId(memberDTO.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        member = convertToEntity(memberDTO);
+        memberRepository.save(member);
+    }
+
     private MemberDTO convertToDTO(Member member) {
         return MemberDTO.builder()
                 .userId(member.getUserId())
@@ -102,6 +109,16 @@ public class MemberService {
                 .phone(member.getPhone())
                 .status(member.getStatus())
                 .lastLogin(member.getLastLogin())
+                .build();
+    }
+
+    private Member convertToEntity(MemberDTO memberDTO) {
+        return Member.builder()
+                .userId(memberDTO.getUserId())
+                .name(memberDTO.getName())
+                .email(memberDTO.getEmail())
+                .phone(memberDTO.getPhone())
+                .status(memberDTO.getStatus())
                 .build();
     }
 }

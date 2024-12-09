@@ -43,7 +43,7 @@
     <div layout:fragment="content" style="padding-top: 120px">
       <!-- 각 페이지가 여기에 콘텐츠를 삽입합니다 -->
     </div>
-    <script layout:fragment="script">
+    <script>
       function renderNavbar() {
         const token = localStorage.getItem("token");
         const cookie = document.cookie.split('; ').find(row => row.startsWith('Authorization='));

@@ -18,7 +18,7 @@ class AuthService {
         const user = await UserModel.findById(userId);
         console.log('Found user:', user);
         if (!user) {
-            throw new Error(errorMessage.INVALID_USER);
+            throw new Error(errorMessage.INVALID_CREDENTIALS);
         }
         //'0: 활동 중, 1: 휴면, 2: 탈퇴(강퇴), 3: 미인증, 4: 잠금'
         // 계정 상태 확인
