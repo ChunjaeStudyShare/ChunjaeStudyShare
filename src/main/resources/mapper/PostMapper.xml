@@ -64,7 +64,7 @@
         </where>
         GROUP BY p.id
         <choose>
-            <when test="sortType == 'likes'">
+            <when test="sortType == 'thumbUp'">
                 ORDER BY thumbsUpCount DESC, p.createdAt DESC
             </when>
             <otherwise>
