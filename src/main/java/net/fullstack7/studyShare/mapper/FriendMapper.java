@@ -22,5 +22,7 @@ public interface FriendMapper {
     List<String> sentList(String userId);
 
     Boolean isSharedByUser(String userId, String postId);
+    Boolean deleteFriend1(FriendDTO friendDTO);
+    Boolean deleteFriend2(FriendDTO friendDTO);
 
 }

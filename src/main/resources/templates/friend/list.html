@@ -3,7 +3,7 @@
 <div layout:fragment="content" class="container mt-4">
     <!-- 상단 검색/정렬 영역 -->
     <div class="mb-3">
-        이 영역은 위에 검색이나 정렬, 필요한 기능들이 들어갈 예정입니다.
+        <input type="text" id="searchFriend" class="form-control" placeholder="아이디로 검색" onkeyup="searchFriend()" style="display:inline">
         <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">친구 찾기</button>
     </div>
 
@@ -68,10 +68,11 @@
                 <td th:text="${status.index + 1}"></td>
                 <td th:text="${userId}"></td>
                 <td><a href="#" class="btn btn-secondary">채팅</a></td>
-                <td><button class="btn btn-dark">삭제</button></td>
+                <td><button class="btn btn-dark" th:data-user-id="${userId}"
+                            onclick="deleteFriend(this)">삭제</button></td>
             </tr>
             <tr>
-                <td colspan="4" class="text-center">
+                <td colspan="4" class="text-center" th:if="${friendList == null || friendList.isEmpty()}">
                     "친구 찾기"에서 친구를 추가해보세요.
                 </td>
             </tr>
@@ -255,5 +256,85 @@
                 });
             }
         });
+
+
+
+        const friendList = [[${friendList}]]
+
+        function searchFriend() {
+            const searchQuery = document.getElementById('searchFriend').value.toLowerCase();
+            const tableRows = document.querySelectorAll('tbody tr:not(.no-data-message)'); // 실제 데이터 행
+            const noDataRow = document.querySelector('.no-data-message'); // "검색된 친구가 없습니다." 행
+            let hasVisibleRow = false; // 검색 결과 유무 확인
+
+            if (searchQuery.length === 0) {
+                // 검색어가 없으면 모든 행을 표시하고 "검색된 친구가 없습니다." 메시지 제거
+                tableRows.forEach(row => {
+                    row.style.display = ''; // 기본값으로 복구
+                });
+                if (noDataRow) {
+                    noDataRow.style.display = 'none'; // 메시지 숨기기
+                }
+                return;
+            }
+
+            tableRows.forEach(row => {
+                const userIdCell = row.querySelector('td:nth-child(2)'); // 2번째 셀(아이디)
+                if (userIdCell) {
+                    const userId = userIdCell.textContent.toLowerCase();
+                    if (userId.includes(searchQuery)) {
+                        row.style.display = ''; // 일치하면 보이기
+                        hasVisibleRow = true; // 표시된 행이 있음
+                    } else {
+                        row.style.display = 'none'; // 일치하지 않으면 숨기기
+                    }
+                }
+            });
+
+            // 검색된 데이터가 없으면 메시지 표시
+            if (!hasVisibleRow) {
+                if (!noDataRow) {
+                    const noDataMessage = `
+                <tr class="no-data-message">
+                    <td colspan="4" class="text-center">검색된 친구가 없습니다.</td>
+                </tr>
+            `;
+                    document.querySelector('tbody').insertAdjacentHTML('beforeend', noDataMessage); // 새 메시지 추가
+                } else {
+                    noDataRow.style.display = ''; // 기존 메시지 표시
+                }
+            } else {
+                if (noDataRow) {
+                    noDataRow.style.display = 'none'; // 검색 결과가 있을 때 메시지 숨기기
+                }
+            }
+        }
+
+
+
+
+        function deleteFriend(button) {
+            const userId = button.getAttribute('data-user-id');
+            const confirmation = confirm(`${userId}를 친구 목록에서 삭제하시겠습니까?`);
+            if (confirmation) {
+                fetch('/friend/deleteFriend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requesterId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('성공적으로 삭제했습니다.');
+                            location.reload();
+                        } else {
+                            alert('삭제 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+
     </script>
 </div>

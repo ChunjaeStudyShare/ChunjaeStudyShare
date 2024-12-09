@@ -19,7 +19,7 @@
     <select id="sharedPosts" resultType="net.fullstack7.studyShare.dto.today.TodayDTO">
         SELECT p.*
         FROM Post AS p
-        INNER JOIN `Share` AS s ON s.postId = p.id AND s.userId = #{userId}
+        INNER JOIN Share AS s ON s.postId = p.id AND s.userId = #{userId}
         ORDER BY s.createdAt DESC
     </select>
 </mapper>
