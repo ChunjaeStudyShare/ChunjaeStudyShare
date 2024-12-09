@@ -52,11 +52,11 @@ public class AuthenticationFilter implements Filter {
                     httpRequest.setAttribute("userId", userId);
                     chain.doFilter(request, response);
                 } else {
-                    log.info("토큰이 유효하지 않거나 null입니다.");
+                    log.info("개발 모드 토큰 검증 실패");
                     httpRequest.setAttribute("userId", "user1");
                 }
             } catch (Exception e) {
-                log.error("토큰 검증 중 예외 발생", e);
+                log.error("개발 모드 토큰 검증 중 예외 발생", e);
                 httpRequest.setAttribute("userId", "user1");
             }
             chain.doFilter(request, response);
