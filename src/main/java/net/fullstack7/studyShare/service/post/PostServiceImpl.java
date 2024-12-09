@@ -5,10 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.File;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
-import net.fullstack7.studyShare.dto.post.PostDTO;
-import net.fullstack7.studyShare.dto.post.PostGetInfoDTO;
-import net.fullstack7.studyShare.dto.post.PostRegistDTO;
-import net.fullstack7.studyShare.dto.post.PostViewDTO;
+import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.mapper.PostMapper;
 import net.fullstack7.studyShare.repository.FileRepository;
 import net.fullstack7.studyShare.repository.MemberRepository;
@@ -177,23 +174,6 @@ public class PostServiceImpl implements PostServiceIf{
                 .map(i -> modelMapper.map(i, PostDTO.class)).collect(Collectors.toList());
     }
 
-    @Override
-    public List<PostGetInfoDTO> selectMyShare(int pageNo, int pageSize, String searchCategory, String searchValue,
-                                              String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("offset", (pageNo - 1) * pageSize);
-        map.put("limit", pageSize);
-        map.put("searchCategory", searchCategory);
-        map.put("searchValue", searchValue);
-        map.put("userId", userId);
-        map.put("sortType", sortType);
-        map.put("displayAt", displayAt);
-        map.put("displayEnd", displayEnd);
-
-        List<Post> list = postMapper.selectMyShare(map);
-        return list.stream()
-                .map(i -> modelMapper.map(i, PostGetInfoDTO.class)).collect(Collectors.toList());
-    }
 
     @Override
     public PostViewDTO findPostWithFile(String id) {
@@ -369,5 +349,23 @@ public class PostServiceImpl implements PostServiceIf{
         boolean post = postMapper.deletePost(id); // 게시글 삭제
 
         return post && (hasShare == 0 || share); // 세 가지 경우
+    }
+
+    @Override
+    public List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("offset", (dto.getPageNo() - 1) * dto.getPageSize());
+        map.put("limit", dto.getPageSize());
+        map.put("searchCategory", dto.getSearchCategory());
+        map.put("searchValue", dto.getSearchValue());
+        map.put("userId", userId);
+        map.put("sortType", dto.getSortType());
+        map.put("displayAt", dto.getDisplayAt());
+        map.put("displayEnd", dto.getDisplayEnd());
+
+        List<PostShareDTO> list = postMapper.selectMyShare(map);
+        return list.stream()
+                .map(i -> modelMapper.map(i, PostShareDTO.class)).collect(Collectors.toList());
+
     }
 }

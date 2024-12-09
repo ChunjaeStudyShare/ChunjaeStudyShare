@@ -7,11 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.Share;
-import net.fullstack7.studyShare.dto.post.PostDTO;
-import net.fullstack7.studyShare.dto.post.PostRegistDTO;
-import net.fullstack7.studyShare.dto.post.PostShareDTO;
-import net.fullstack7.studyShare.dto.post.PostViewDTO;
-import net.fullstack7.studyShare.dto.post.PostPagingDTO;
+import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.service.post.PostServiceIf;
 import net.fullstack7.studyShare.service.share.ShareServiceIf;
 import net.fullstack7.studyShare.util.CommonFileUtil;
@@ -181,7 +177,7 @@ public class PostController {
     @GetMapping("/shareList")
     public String shareList(Model model,
                               HttpServletResponse response,
-                              @Valid PostPagingDTO dto) {
+                              @Valid PostSharePagingDTO dto) {
         LogUtil logUtil = new LogUtil();
         logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
@@ -189,10 +185,11 @@ public class PostController {
 
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         log.info("totalCnt: " + totalCnt);
+        List<PostShareDTO> sharePosts = postService.getSharedPosts(dto, userId);
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
-        List<PostDTO> posts = postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
-
-        model.addAttribute("posts", posts);
+        System.out.println("sharePosts: " + sharePosts.size());
+        log.info(sharePosts.toString());
+        model.addAttribute("posts", sharePosts);
         model.addAttribute("paging", paging);
         model.addAttribute("postPagingDTO", dto);
         model.addAttribute("uri", "/post/shareList");

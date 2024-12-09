@@ -20,14 +20,13 @@ public interface PostServiceIf {
     List<PostDTO> selectAllPost(int pageNo, int pageSize, String searchCategory, String searchValue,
                                 String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
 
-    List<PostGetInfoDTO> selectMyShare(int pageNo, int pageSize, String searchCategory, String searchValue,
-                                       String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
-
     PostViewDTO findPostWithFile(String id);
 
     boolean checkWriter(int id, String userId);
 
     PostRegistDTO modifyPost(PostRegistDTO dto, String userId);
+
+    List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId);
 
     boolean delete(int id);
 }

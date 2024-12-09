@@ -115,7 +115,6 @@
         <tbody id="dataTable">
             <tr th:each="post, status : ${posts}">
                 <td th:text="${status.index + 1}"></td>
-<!--                <td th:text="${post.title}"></td>-->
                 <td>
                     <a th:href="@{/post/view(id=${post.id})}">[[${post.title}]]</a>
                 </td>

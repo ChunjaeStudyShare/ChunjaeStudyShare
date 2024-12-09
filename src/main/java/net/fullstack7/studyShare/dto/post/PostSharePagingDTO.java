@@ -28,6 +28,8 @@ public class PostSharePagingDTO {
     private LocalDateTime displayAt;
     private LocalDateTime displayEnd;
 
+    private String userId;
+
     @Positive
     @Min(value = 1, message = "블럭 크기는 1 이상이어야 합니다.")
     private int blockSize = 5;

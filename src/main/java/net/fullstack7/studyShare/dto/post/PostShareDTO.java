@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class PostShareDTO {
     private String id;
     private Integer postId;
+    private String title;
     private LocalDateTime createdAt;
     //private LocalDateTime createAt;
 
