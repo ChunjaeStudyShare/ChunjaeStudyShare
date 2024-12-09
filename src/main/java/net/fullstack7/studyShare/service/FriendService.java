@@ -18,6 +18,7 @@ public interface FriendService {
     Boolean rejectFriendRequest(FriendDTO friendDTO);
     List<String> receivedList(String userId);
     List<String> sentList(String userId);
+    boolean deleteFriend(FriendDTO friendDTO);
 
 
 }

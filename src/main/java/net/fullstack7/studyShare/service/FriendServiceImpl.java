@@ -82,4 +82,15 @@ public class FriendServiceImpl implements FriendService {
         return friendMapper.sentList(userId);
     }
 
+    @Override
+    public boolean deleteFriend(FriendDTO friendDTO) {
+        boolean first = friendMapper.deleteFriend1(friendDTO);
+        if(first){
+            return true;
+        } else {
+            return friendMapper.deleteFriend2(friendDTO);
+        }
+    }
+
+
 }

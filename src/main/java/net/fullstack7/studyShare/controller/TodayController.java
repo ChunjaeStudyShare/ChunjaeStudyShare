@@ -36,14 +36,6 @@ public class TodayController {
         List<TodayDTO> todayList = todayService.todayList(selectedDate, userId);
         List<TodayDTO> sharedPosts = todayService.sharedPosts(userId);
 
-
-        log.info("todayList: {}", todayList);
-        log.info("selectedDate: {}", selectedDate);
-        log.info("sharedPosts: {}", sharedPosts);
-
-
-
-
         int year = selectedDate.getYear();
         int month = selectedDate.getMonthValue();
         int date = selectedDate.getDayOfMonth();
@@ -68,7 +60,6 @@ public class TodayController {
             selectedDate = LocalDateTime.of(year, month, date, 0, 0);
         }
         List<TodayDTO> todayList = todayService.todayList(selectedDate, userId);
-        log.info("todayList: {}", todayList);
         return ResponseEntity.ok(todayList);
     }
 }

@@ -1,6 +1,7 @@
 package net.fullstack7.studyShare.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.FriendCheckDTO;
@@ -8,6 +9,8 @@ import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.member.MemberDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.service.FriendService;
+import net.fullstack7.studyShare.util.JSFunc;
+import net.fullstack7.studyShare.util.Paging;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,10 +31,11 @@ public class FriendController {
     private final FriendService friendService;
 
     @GetMapping("/list")
-    public String list(Model model, HttpServletRequest request) {
+    public String list(Model model, HttpServletRequest request,
+                       HttpServletResponse response,
+                       @RequestParam(required = false) String searchValue) {
         String userId = (String) request.getAttribute("userId");
         List<String> friendList = friendService.list(userId);
-        log.info("friendList: {}", friendList);
         model.addAttribute("friendList", friendList);
         return "friend/list";
     }
@@ -115,6 +119,21 @@ public class FriendController {
         friendDTO.setFriendId(userId);
 
         boolean success = friendService.rejectFriendRequest(friendDTO);
+        if(success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+    @PostMapping("/deleteFriend")
+    @ResponseBody
+    public ResponseEntity<?> deleteFriend(@RequestBody FriendDTO friendDTO, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        friendDTO.setFriendId(userId);
+        //requesterId가 상대, userId가 나임
+        //친구 관계가 어떻게 되어있는 지 몰라서 두 번 삭제를 해보든가, 아니면 올바른 정보를 가져와서 그걸 삭제하든가 이긴 한데
+        //기냥 서비스에서 두 번 삭제해봄
+        boolean success = friendService.deleteFriend(friendDTO);
         if(success) {
             return ResponseEntity.ok().build();
         } else {

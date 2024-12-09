@@ -65,4 +65,12 @@
             WHERE userId = #{userId} AND postId = #{postId}
         )
     </select>
+    <delete id="deleteFriend1">
+        DELETE FROM Friend
+        WHERE friendId = #{friendId} AND requesterId = #{requesterId}
+    </delete>
+    <delete id="deleteFriend2">
+        DELETE FROM Friend
+        WHERE friendId = #{requesterId} AND requesterId = #{friendId}
+    </delete>
 </mapper>
