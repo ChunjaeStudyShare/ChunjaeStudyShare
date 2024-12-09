@@ -33,7 +33,4 @@ public class Share {
     @JoinColumn(name = "postId")
     private Post post;
 
-    @Column(columnDefinition = "String COMMENT '공유 받은 사람'")
-    private String requestId;
-
 }

@@ -33,7 +33,6 @@ public class ChatMessage {
     @JoinColumn(name = "chatRoomId")
     private ChatRoom chatRoom;
 
-    @ManyToOne
-    @JoinColumn(name = "senderId")
-    private Member sender;
+    @Column(columnDefinition = "VARCHAR(20) not null comment '보낸사람 아이디'")
+    private String senderId;
 }
