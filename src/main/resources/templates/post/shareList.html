@@ -117,16 +117,17 @@
             <tr th:each="post, status : ${posts}">
                 <td th:text="${status.index + 1}"></td>
                 <td>
-                    <a th:href="@{/post/view(id=${post.id})}">[[${post.title}]]</a>
+                    <a th:href="@{/post/view(id=${post.postId})}">[[${post.title}]]</a>
                 </td>
-                <td th:if="${param.sortType == null || param.sortType == 'share'}">
+                <td th:if="${sortType == 'share'}">
                     <span th:each="share, status : ${post.shares}">
-                        [[${share.sharedUserId}]]([[${share.sharedAt}]])
+                        [[${share.sharedUserId}]]([[${share.sharedAt}]])<br>
                     </span>
                 </td>
-                <td th:if="${param.sortType != null || param.sortType != 'share'}">
+                <td th:if="${sortType == 'receiveShare'}">
                     [[${post.userId}]]([[${post.sharedCreatedAt}]])
                 </td>
+
                 <td th:text="${post.createdAt}"></td>
             </tr>
             <tr th:if="${posts == null or posts.isEmpty()}">

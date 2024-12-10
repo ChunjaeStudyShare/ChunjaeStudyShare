@@ -190,9 +190,11 @@ public class PostController {
         if("share".equals(dto.getSortType()) || dto.getSortType().isEmpty()){
             sharePosts = postService.selectPostsByUserId(dto, userId); // 공유 한 것
             model.addAttribute("posts", sharePosts);
+            model.addAttribute("sortType", "share");
         }else{
             getSharePosts = postService.getSharedPosts(dto, userId); // 공유 받은 것
             model.addAttribute("posts", getSharePosts);
+            model.addAttribute("sortType", "receiveShare");
         }
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
         model.addAttribute("paging", paging);
@@ -201,29 +203,6 @@ public class PostController {
         return "post/shareList";
     }
 
-
-
-//    @GetMapping("/shareList_1")
-//    public String shareList_1(Model model,
-//                            HttpServletResponse response,
-//                            @Valid PostSharePagingDTO dto) {
-//        LogUtil logUtil = new LogUtil();
-//        logUtil.info("dto: " + dto);
-//        response.setCharacterEncoding("utf-8");
-//        String userId = "user1";
-//
-//        int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
-//        log.info("totalCnt: " + totalCnt);
-//
-//        Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
-//        System.out.println("sharePosts: " + sharePosts.size());
-//
-//        model.addAttribute("paging", paging);
-//        model.addAttribute("postPagingDTO", dto);
-//        model.addAttribute("uri", "/post/shareList_1");
-//        return "post/shareList_1";
-//
-//    }
 
     //인규가 작업함
     @GetMapping("/delete")
