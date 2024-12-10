@@ -22,8 +22,8 @@ public class PostSharePagingDTO {
     @Size(max = 101, message = "검색 값은 100자를 초과할 수 없습니다.")
     private String searchValue;
 
-    @Pattern(regexp = "^(createdAt|thumbUp)$", message = "정렬 기준은 생성일 순 또는 좋아요 순 이어야 합니다.")
-    private String sortType = "createdAt";
+    @Pattern(regexp = "^(share|receiveShare)$", message = "정렬 기준은 내가 한 공유 또는 내가 받은 공유이어야 합니다.")
+    private String sortType = "share";
 
     private LocalDateTime displayAt;
     private LocalDateTime displayEnd;
@@ -38,7 +38,7 @@ public class PostSharePagingDTO {
         this.pageNo = 1;
         this.pageSize = 10;
         this.blockSize = 5;
-        this.sortType = "createdAt";
+        this.sortType = "share";
     }
 
     @AssertTrue(message = "시작일은 종료일 이전이어야 합니다.")

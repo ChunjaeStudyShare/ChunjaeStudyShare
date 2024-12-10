@@ -80,9 +80,10 @@
                     <div class="row g-2 align-items-center">
                         <div class="col-auto">
                             <select class="form-select" id="sortType" name="sortType">
-                                <option value="createdAt" th:selected="${param.sortType == 'share'}">내가 한 공유</option>
-                                <option value="thumbUp" th:selected="${param.sortType == 'receiveShare'}">내가 받은 공유</option>
+                                <option value="share" th:selected="${param.sortType == null || param.sortType == 'share'}">내가 한 공유</option>
+                                <option value="receiveShare" th:selected="${param.sortType == 'receiveShare'}">내가 받은 공유</option>
                             </select>
+
                         </div>
                         <div class="col-auto">
                             <select class="form-select" id="pageSize" name="pageSize">
@@ -118,12 +119,15 @@
                 <td>
                     <a th:href="@{/post/view(id=${post.id})}">[[${post.title}]]</a>
                 </td>
-                <td >[[${post.userId}]]([[${post.sharedCreatedAt}]])</td>
+                <td th:if="${param.sortType == null || param.sortType == 'share'}">
+                    <span th:each="share, status : ${post.shares}">
+                        [[${share.sharedUserId}]]([[${share.sharedAt}]])
+                    </span>
+                </td>
+                <td th:if="${param.sortType != null || param.sortType != 'share'}">
+                    [[${post.userId}]]([[${post.sharedCreatedAt}]])
+                </td>
                 <td th:text="${post.createdAt}"></td>
-<!--                <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd-->
-<!--               : (post.displayAt != null ? post.displayAt + ' ~'-->
-<!--               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">-->
-<!--                </td>-->
             </tr>
             <tr th:if="${posts == null or posts.isEmpty()}">
                 <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>

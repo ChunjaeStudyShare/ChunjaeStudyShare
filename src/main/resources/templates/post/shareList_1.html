@@ -118,18 +118,12 @@
                 <td>
                     <a th:href="@{/post/view(id=${post.id})}">[[${post.title}]]</a>
                 </td>
-<!--                <td th:text="${post.userId}"></td>-->
                 <td>
                     <span th:each="share, status : ${post.shares}">
                         [[${share.sharedUserId}]]([[${share.sharedAt}]])
                     </span>
                 </td>
                 <td th:text="${post.createdAt}"></td>
-
-<!--                <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd-->
-<!--               : (post.displayAt != null ? post.displayAt + ' ~'-->
-<!--               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">-->
-<!--                </td>-->
             </tr>
             <tr th:if="${posts == null or posts.isEmpty()}">
                 <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>
