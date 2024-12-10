@@ -176,8 +176,8 @@ public class PostController {
 
     @GetMapping("/shareList")
     public String shareList(Model model,
-                              HttpServletResponse response,
-                              @Valid PostSharePagingDTO dto) {
+                            HttpServletResponse response,
+                            @Valid PostSharePagingDTO dto) {
         LogUtil logUtil = new LogUtil();
         logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
@@ -194,6 +194,29 @@ public class PostController {
         model.addAttribute("postPagingDTO", dto);
         model.addAttribute("uri", "/post/shareList");
         return "post/shareList";
+
+    }
+    @GetMapping("/shareList_1")
+    public String shareList_1(Model model,
+                            HttpServletResponse response,
+                            @Valid PostSharePagingDTO dto) {
+        LogUtil logUtil = new LogUtil();
+        logUtil.info("dto: " + dto);
+        response.setCharacterEncoding("utf-8");
+        String userId = "user1";
+
+        int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
+        log.info("totalCnt: " + totalCnt);
+        List<PostMyShareDTO> sharePosts = postService.selectPostsByUserId(dto, userId);
+        Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
+        System.out.println("sharePosts: " + sharePosts.size());
+        log.info(sharePosts.toString());
+
+        model.addAttribute("posts", sharePosts);
+        model.addAttribute("paging", paging);
+        model.addAttribute("postSharePagingDTO", dto);
+        model.addAttribute("uri", "/post/shareList_1");
+        return "post/shareList_1";
 
     }
     //인규가 작업함

@@ -368,4 +368,67 @@ public class PostServiceImpl implements PostServiceIf{
                 .map(i -> modelMapper.map(i, PostShareDTO.class)).collect(Collectors.toList());
 
     }
+
+    @Override
+    public List<PostMyShareDTO> selectPostsByUserId(PostSharePagingDTO dto, String userId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("offset", (dto.getPageNo() - 1) * dto.getPageSize());
+        map.put("limit", dto.getPageSize());
+        map.put("searchCategory", dto.getSearchCategory());
+        map.put("searchValue", dto.getSearchValue());
+        map.put("userId", userId);
+        map.put("sortType", dto.getSortType());
+        map.put("displayAt", dto.getDisplayAt());
+        map.put("displayEnd", dto.getDisplayEnd());
+
+        // 게시글 조회
+        List<PostMyShareDTO> list = postMapper.selectPostsByUserId(map);
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 게시글 ID 추출
+        List<Integer> postIds = list.stream()
+                .map(PostMyShareDTO::getPostId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (postIds.isEmpty()) {
+            return list;
+        }
+
+        // 공유 정보 조회 및 DTO 변환
+        List<ShareInfoDTO> shares = postMapper.selectSharesByPostId(postIds);
+
+        // 공유자 정보를 게시글 ID별로 그룹화
+        Map<Integer, List<ShareInfoDTO>> sharesByPostId = shares.stream()
+                .filter(share -> share.getPostId() != null)
+                .collect(Collectors.groupingBy(ShareInfoDTO::getPostId));
+
+        // 게시글에 공유자 정보 매핑
+        list.forEach(post -> {
+            // `ShareInfoDTO` 리스트를 `PostShareDTO` 리스트로 변환
+            List<PostShareDTO> postShares = sharesByPostId.getOrDefault(post.getPostId(), new ArrayList<>())
+                    .stream()
+                    .map(shareInfo -> {
+                        PostShareDTO postShareDTO = new PostShareDTO();
+                        postShareDTO.setUserId(shareInfo.getSharedUserId());
+                        postShareDTO.setCreatedAt(shareInfo.getSharedAt());
+                        return postShareDTO;
+                    })
+                    .collect(Collectors.toList());
+
+            // 변환된 리스트를 설정
+            post.setShares(postShares);
+        });
+
+        return list;
+    }
+
+
+
+    @Override
+    public List<ShareInfoDTO> selectSharesByPostId(List<Integer> postId) {
+        return postMapper.selectSharesByPostId(postId);
+    }
 }

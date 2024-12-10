@@ -28,5 +28,9 @@ public interface PostServiceIf {
 
     List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId);
 
+    List<PostMyShareDTO> selectPostsByUserId(PostSharePagingDTO dto, String userId);
+
+    List<ShareInfoDTO> selectSharesByPostId(List<Integer> postId);
+
     boolean delete(int id);
 }

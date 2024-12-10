@@ -105,7 +105,8 @@
         p.id,
         p.title,
         p.createdAt,
-        s.userId
+        p.userId,
+        s.createdAt AS sharedCreatedAt
         FROM
         Share s
         JOIN
@@ -136,6 +137,61 @@
         LIMIT #{offset}, #{limit}
     </select>
 
+    <!-- 게시글 조회 -->
+<!--    <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">-->
+<!--        SELECT id, title, createdAt-->
+<!--        FROM Post-->
+<!--        WHERE userId = #{userId} AND share = 1-->
+<!--        ORDER BY createdAt DESC-->
+<!--    </select>-->
+
+    <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
+        SELECT id, title, createdAt
+        FROM Post
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null">
+                AND p.displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND p.displayEnd &lt;= #{displayEnd}
+            </if>
+            AND userId = #{userId} AND share = 1 <!-- 공유 받은 사용자 ID -->
+        </where>
+        ORDER BY createdAt DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+
+
+
+
+    <!-- 공유자 조회 -->
+    <select id="selectSharesByPostId" resultType="net.fullstack7.studyShare.dto.post.ShareInfoDTO">
+        SELECT
+            userId AS sharedUserId,
+            createdAt AS sharedAt,
+            postId
+        FROM Share
+        WHERE
+            postId IN (
+                SELECT id
+                FROM Post
+                WHERE userId = #{userId}
+            )
+    </select>
 
     <!--인규-->
     <select id="hasShare" resultType="java.lang.Integer">

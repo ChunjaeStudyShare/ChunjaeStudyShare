@@ -7,9 +7,7 @@ import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.domain.Share;
-import net.fullstack7.studyShare.dto.post.PostDTO;
-import net.fullstack7.studyShare.dto.post.PostShareDTO;
-import net.fullstack7.studyShare.dto.post.PostSharePagingDTO;
+import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.mapper.FriendMapper;
 import net.fullstack7.studyShare.mapper.ShareMapper;
 import net.fullstack7.studyShare.repository.MemberRepository;
@@ -108,6 +106,7 @@ public class ShareServiceImpl implements ShareServiceIf{
         List<Share> list = shareRepository.findByPost(Post.builder().id(postId).build());
         return list;
     }
+
 
 
 }

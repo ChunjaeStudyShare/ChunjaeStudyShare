@@ -7,19 +7,19 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @Log4j2
-public class PostShareDTO {
+public class PostMyShareDTO {
     private String id;
     private Integer postId;
     private String title;
-    private LocalDateTime createdAt;
-    //private LocalDateTime createAt;
-    private LocalDateTime sharedCreatedAt;
-    private String userId; // 공유 받은 사람
+    private LocalDateTime createdAt; //게시글 등록 시간
+    private String userId; //로그인된 사용자 이름
     private int isShared;
+    private List<PostShareDTO> shares; //공유자 목록
 }
