@@ -78,6 +78,7 @@ public class ChatServiceImpl implements ChatService {
                 .member(Member.builder().userId(userId).build())
                 .chatRoom(newChatRoom)
                 .joinAt(joinDate)
+                .leaveAt(joinDate)
                 .build()
         );
 
@@ -87,6 +88,7 @@ public class ChatServiceImpl implements ChatService {
                         .member(Member.builder().userId(id).build())
                         .chatRoom(newChatRoom)
                         .joinAt(joinDate)
+                        .leaveAt(joinDate)
                         .build()
                 );
             }
