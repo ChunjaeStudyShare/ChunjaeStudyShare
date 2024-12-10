@@ -17,7 +17,4 @@ public interface ShareServiceIf {
     Boolean shareCancelRequest(PostShareDTO postShareDTO, String userId);
 
     List<Share> getShareListByPostId(int postId);
-
-
-
 }

@@ -30,4 +30,7 @@ public interface PostServiceIf {
 
     boolean delete(int id);
     Optional<Post> findPostById(int id);
+
+    //boolean isSharedWithUser(int id, String userId);
+    boolean isOwnerOrSharedWithUser(int id, String userId);
 }

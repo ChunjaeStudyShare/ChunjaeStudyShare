@@ -70,24 +70,84 @@ public class PostController {
         return "post/list";
     }
 
+//    @GetMapping("/view")
+//    public String view(Model model,
+//                             HttpServletResponse response,
+//                             @RequestParam(defaultValue = "") String type,
+//                             @RequestParam String id,
+//                             RedirectAttributes redirectAttributes){
+//        response.setCharacterEncoding("utf-8");
+//        String userId = "user1";
+//
+//        // 공유 받은 게시글인지 확인
+//        boolean isShared = postService.isSharedWithUser(Integer.parseInt(id), userId);
+//        if(!isShared){
+//            redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
+//            return "redirect:/post/shareList";
+//        }
+//
+//        // 목록 가져오기
+//        PostViewDTO post = postService.findPostWithFile(id);
+//
+//        //공유 목록 가져오기
+//        List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
+//        model.addAttribute("shareList", shareList);
+//        if(post != null){
+//            //나의 게시글 여부 확인
+//            boolean isOwner = post.getUserId().equals(userId);
+//            if(!isOwner){
+//                redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
+//            }
+//            if("share".equals(type)){
+//                model.addAttribute("post", post);
+//                return "post/shareView";
+//            }else{
+//                model.addAttribute("post", post);
+//                return "post/view";
+//            }
+//        }else {
+//            redirectAttributes.addFlashAttribute("alertMessage", "게시글 정보가 없습니다.");
+//            return null;
+//        }
+//    }
+
     @GetMapping("/view")
     public String view(Model model,
                              HttpServletResponse response,
-                             HttpServletRequest request,
-                             @RequestParam String id){
-        response.setCharacterEncoding("utf-8");
-        PostViewDTO post = postService.findPostWithFile(id);
-        //공유 목록 가져오기
-        List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
-        model.addAttribute("shareList", shareList);
-        if(post != null){
-            model.addAttribute("post", post);
-            return "post/view";
-        }else {
-            JSFunc.alertBack("일치하는 ID 정보가 없습니다.",response);
+                             @RequestParam(defaultValue = "") String type,
+                             @RequestParam String id,
+                             RedirectAttributes redirectAttributes) {
+            response.setCharacterEncoding("utf-8");
+            String userId = "user1"; //세션 아아디
+            try{
+                //게시글 조회
+                PostViewDTO post = postService.findPostWithFile(id);
+                if(post != null){
+                    //권한 확인(작성자인지, 공유받은 사람인지)
+                    boolean hasAccess = postService.isOwnerOrSharedWithUser(Integer.parseInt(id), userId);
+                    if (!hasAccess) {
+                        redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
+                        return "redirect:/post/shareList";
+                    }
+
+                    //공유 목록 조회
+                    List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
+                    model.addAttribute("shareList", shareList);
+                    model.addAttribute("post", post);
+                    if("share".equals(type)){
+                        return "post/shareView";
+                    }else{
+                        return "post/view";
+                    }
+                }else {
+                    redirectAttributes.addFlashAttribute("alertMessage", "게시글 정보가 없습니다.");
+                    return "redirect:/post/myList";
+                }
+            }catch(Exception e){
+                redirectAttributes.addFlashAttribute("alertMessage",  e.getMessage());
+                return "redirect:/post/shareList";
+            }
         }
-        return null;
-    }
 
     @GetMapping("/regist")
     public String registGet(){
@@ -202,7 +262,6 @@ public class PostController {
         model.addAttribute("uri", "/post/shareList");
         return "post/shareList";
     }
-
 
     //인규가 작업함
     //2024-12-10 수미 수정

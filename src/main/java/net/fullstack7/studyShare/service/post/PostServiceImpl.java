@@ -10,6 +10,7 @@ import net.fullstack7.studyShare.mapper.PostMapper;
 import net.fullstack7.studyShare.repository.FileRepository;
 import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.repository.PostRepository;
+import net.fullstack7.studyShare.repository.ShareRepository;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostServiceIf{
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
+    private final ShareRepository shareRepository;
     private final MemberRepository memberRepository;
     private final PostMapper postMapper;
     private final ModelMapper modelMapper;
@@ -353,6 +355,29 @@ public class PostServiceImpl implements PostServiceIf{
     public Optional<Post> findPostById(int id) {
         return postRepository.findById(id);
     }
+
+    @Override
+    public boolean isOwnerOrSharedWithUser(int id, String userId) {
+//        // 멤버 객체 생성
+//        Member member = memberRepository.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+//        //글 객체 생성
+//        Post post = postRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+
+        //작성자 확인
+        boolean isOwner = postRepository.existsByMember_UserIdAndId(userId, id);
+
+        //공유 받았는지 확인
+        boolean isShared = shareRepository.existsByUser_UserIdAndPost_Id(userId, id);
+        return isShared || isOwner;
+    }
+
+//    @Override
+//    public boolean isSharedWithUser(int id, String userId) {
+
+//        return result > 0;
+//    }
 
     @Override
     public List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId) {

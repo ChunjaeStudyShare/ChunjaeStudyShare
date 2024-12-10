@@ -89,11 +89,11 @@
             </tr>
             <!-- 이미지와 내용 -->
             <tr>
-                <td colspan="2" style="text-align: center;">
+                <td colspan="1" style="text-align: center;">
                     <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}">
                     <span th:if="${post.path == null}">이미지가 없습니다.</span>
                 </td>
-                <td colspan="4">
+                <td colspan="5">
                     <div class="scroll-box" th:text="${post.content}"></div>
                 </td>
             </tr>
@@ -151,8 +151,9 @@
         <br>
         <!-- 하단 버튼 -->
         <div class="button-end text-end">
+            <!-- 공유 받은 글인 경우 -->
             <button class="btn btn-success" th:onclick="|location.href='@{/post/list}'|">좋아요</button>
-            <button class="btn btn-primary" th:onclick="|location.href='@{/post/list}'|">목록</button>
+            <button class="btn btn-primary btn-list" th:data-user-id="${post.id}" >목록</button>
             <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
             <button class="btn btn-danger" th:data-post-id="${post.id}"
@@ -300,5 +301,12 @@
             }
             // 취소하면 아무 동작도 하지 않음
         }
+
+        document.querySelector('.btn-list').forEach(button =>{
+            button.addEventListener('click', () =>{
+                const postId = button.getAttribute(document.URL);
+                window.location.href = '/post/list/' //currentPage 추가하기
+            })
+        })
     </script>
 </div>

@@ -24,4 +24,11 @@ public interface ShareRepository extends JpaRepository<Share, Integer> {
     int deleteByUserIdAndPostId(@Param("user") Member member , @Param("post") Post post);
     List<Share> findByPost(@Param("post") Post post);
 
+    //int existsByIdAndUserId(@Param("userId") String userId, @Param("postId") Integer postId);
+
+    boolean existsByUser_UserIdAndPost_Id(String userId, Integer postId);
+
+
+
+
 }
