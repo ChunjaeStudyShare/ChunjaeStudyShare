@@ -14,4 +14,3 @@ public class AdminDTO {
     private String salt;
     private String password;
 }
-    

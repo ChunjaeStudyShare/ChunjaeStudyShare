@@ -21,6 +21,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import net.fullstack7.studyShare.util.PageUrlBuilder;
 import org.springframework.web.bind.annotation.RequestParam;
+import net.fullstack7.studyShare.service.token.TokenService;
+
 @Controller
 @RequiredArgsConstructor
 @Log4j2
@@ -30,6 +32,7 @@ public class AdminController {
     private final AdminService adminService;
     private final MemberService memberService;
     private final PageUrlBuilder pageUrlBuilder;
+    private final TokenService tokenService;
 
     @GetMapping("/login")
     public String goLogin() {
@@ -98,6 +101,8 @@ public class AdminController {
             String url[] = currentPage.split("currentPage=");
             System.out.println("url[1]: " + url[1]);
             memberService.updateMember(memberDTO);
+            // 회원정보 수정시 토큰 삭제
+            tokenService.invalidateAllTokens(memberDTO.getUserId());
             redirectAttributes.addFlashAttribute("message", "회원 정보가 수정되었습니다.");
             return "redirect:/admin/users?page=" + url[1];
         } catch (Exception e) {

@@ -71,4 +71,11 @@ public class TokenService {
     public void cleanupExpiredTokens() {
         activeTokensRepository.deleteByExpiresAtBefore(LocalDateTime.now());
     }
+
+    @Transactional
+    public void invalidateAllTokens(String userId) {
+        Member member = memberRepository.findByUserId(userId)
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        activeTokensRepository.deleteByMember(member);
+    }
 }
