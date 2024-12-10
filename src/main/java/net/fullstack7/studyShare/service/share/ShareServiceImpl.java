@@ -7,16 +7,19 @@ import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.domain.Share;
-import net.fullstack7.studyShare.dto.post.PostDTO;
-import net.fullstack7.studyShare.dto.post.PostShareDTO;
+import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.mapper.FriendMapper;
+import net.fullstack7.studyShare.mapper.ShareMapper;
 import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.repository.PostRepository;
 import net.fullstack7.studyShare.repository.ShareRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,8 @@ public class ShareServiceImpl implements ShareServiceIf{
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final ShareRepository shareRepository;
+    private final ShareMapper shareMapper;
+    private final ModelMapper modelMapper;
 
     @Override
     public Boolean isSharedByUser(String userId, String postId) {
@@ -101,4 +106,7 @@ public class ShareServiceImpl implements ShareServiceIf{
         List<Share> list = shareRepository.findByPost(Post.builder().id(postId).build());
         return list;
     }
+
+
+
 }

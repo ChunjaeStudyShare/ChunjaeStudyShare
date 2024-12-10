@@ -10,9 +10,8 @@ import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.exception.TokenException;
 import lombok.extern.log4j.Log4j2;
 import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 
 @Log4j2
@@ -22,31 +21,16 @@ public class TokenService {
     private final ActiveTokensRepository activeTokensRepository;
     private final JwtUtil jwtUtil;
     private final MemberRepository memberRepository;
-    private final Cache<String, Boolean> tokenCache;
-
-    public TokenService() {
-        this.activeTokensRepository = null;
-        this.jwtUtil = null;
-        this.memberRepository = null;
-        this.tokenCache = null;
-    }
-
-    public TokenService(
-            ActiveTokensRepository activeTokensRepository,
-            JwtUtil jwtUtil,
-            MemberRepository memberRepository) {
-        this.activeTokensRepository = activeTokensRepository;
-        this.jwtUtil = jwtUtil;
-        this.memberRepository = memberRepository;
-        this.tokenCache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .maximumSize(10000)
-            .build();
-    }
 
     @Transactional(readOnly = true)
     public boolean isTokenValid(String token) {
-        return tokenCache.get(token, k -> validateToken(k));
+        try {
+            Claims claims = jwtUtil.parseClaims(token);
+            return validateToken(token);
+        } catch (Exception e) {
+            log.error("Token validation failed", e);
+            return false;
+        }
     }
 
     private boolean validateToken(String token) {
