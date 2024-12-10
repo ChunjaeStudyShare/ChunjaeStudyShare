@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .scroll-box {
-            max-height: 300px; /* 필요 시 조정 */
+            max-height: 300px; /* 내용이 많을 경우 스크롤 */
             overflow-y: auto;
             border: 1px solid #ddd;
             padding: 10px;
@@ -14,68 +14,98 @@
         }
 
         .image-box {
-            max-width: 100%;
-            height: auto;
+            width: 100%;
+            max-width: 400px; /* 가로 최대 크기 */
+            aspect-ratio: 2 / 3; /* 2:3 비율 유지 */
+            object-fit: cover; /* 비율 유지하면서 채우기 */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+
+        .table-custom {
+            width: 100%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            align-content: center;
+
         }
 
         .table-custom th, .table-custom td {
-            vertical-align: middle;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .table-custom th {
+            background-color: #f2f2f2;
+            font-weight: bold;
         }
 
         .btn-close-custom {
             background: none;
             border: none;
             color: red;
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
+
+        .modal-content {
+            border-radius: 10px;
+        }
+
+        .button-end {
+            /*border: 1px solid red;*/
+            text-align: right;
+            padding: 10px;
+        }
+
+        .button-end button {
+            margin-left: 5px;
+        }
+
     </style>
     <div class="container mt-5">
         <h4 class="mb-4">학습 정보</h4>
-        <table class="table table-bordered table-custom">
+        <table class="table table-bordered table-custom" >
             <tbody>
-            <!-- 제목, 좋아요 -->
             <tr>
                 <th style="width: 20%;">제목</th>
-                <td style="width: 50%;" th:text="${post.title}">제목</td>
-                <th style="width: 15%;">좋아요</th>
-                <td style="width: 15%;" th:text="${post.share}">0</td>
+                <td style="width: 50%;" colspan="3" th:text="${post.title}">제목</td>
+                <th style="width: 10%;">좋아요</th>
+                <td style="width: 10%;" th:text="${post.share}">0</td>
             </tr>
-            <!-- 등록일, 노출 여부 -->
             <tr>
-                <th>등록일</th>
+                <th style="width: 25%;">등록일</th>
+                <th style="width: 25%;">오늘의 학습 노출 여부</th>
+                <th style="width: 50%;" colspan="4">오늘의 학습 노출 기간</th>
+            </tr>
+            <tr>
                 <td th:text="${post.createdAt}">등록일</td>
-                <th>오늘의 학습 노출 여부</th>
                 <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
-            </tr>
-            <!-- 노출 기간 -->
-            <tr>
-                <th>오늘의 학습 노출 기간</th>
                 <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
                : (post.displayAt != null ? post.displayAt + ' ~'
-               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">
+               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}" colspan="4">
                 </td>
             </tr>
+            <!-- 이미지와 내용 -->
             <tr>
-                <td colspan="2">
-                    <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}"
-                         style="object-fit: cover; width: 400px; height: 600px;">
+                <td colspan="2" style="text-align: center;">
+                    <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}">
                     <span th:if="${post.path == null}">이미지가 없습니다.</span>
                 </td>
-                <td colspan="2">
-                    <div class="card">
-                        <div class="card-header">오늘의 학습 내용</div>
-                        <div class="card-body scroll-box" th:text="${post.content}"></div>
-                    </div>
+                <td colspan="4">
+                    <div class="scroll-box" th:text="${post.content}"></div>
                 </td>
             </tr>
             <!-- 공유 정보 -->
             <tr>
                 <th>공유한 사람</th>
-                <td colspan="3">
+                <td colspan="5">
                     <div th:each="shared, status:${shareList}">
                         <span th:text="${shared.user.userId}"></span>
-                        <button type="button" class="btn-close" aria-label="Close"
-                                th:onclick="cancelRequest('${shared.user.userId}')"> <!-- 변경하기 -->
+                        <button type="button" class="btn-close-custom" aria-label="Close"
+                                th:data-user-id="${shared.user.userId}"
+                                th:onclick="'cancelRequest(this)'">X
                         </button>
                         <br>
                     </div>
@@ -112,13 +142,16 @@
             <tr>
                 <th>분야</th>
                 <td th:text="${post.domain != null ? post.domain : '없음'}">분야</td>
-                <th>해시태그</th>
-                <td th:text="${post.hashtag != null ? post.hashtag : '없음'}">해시태그</td>
+                <th style="width: 20%;">해시태그</th>
+                <td th:text="${post.hashtag != null ? post.hashtag : '없음'}" colspan="3">해시태그</td>
             </tr>
             </tbody>
         </table>
+        <br>
+        <br>
         <!-- 하단 버튼 -->
-        <div class="text-end">
+        <div class="button-end text-end">
+            <button class="btn btn-success" th:onclick="|location.href='@{/post/list}'|">좋아요</button>
             <button class="btn btn-primary" th:onclick="|location.href='@{/post/list}'|">목록</button>
             <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
@@ -127,8 +160,6 @@
                 삭제
             </button>
         </div>
-        <br>
-        <br>
     </div>
     <script th:inline="javascript">
         let debounceTimer;
@@ -224,8 +255,9 @@
                 modal.style.display = 'block';  // 만약 모달이 닫혀있다면 다시 열기
             }
         }
-        function cancelRequest(userId) {
+        function cancelRequest(userIdElement) {
             const postId = [[${post.id}]]
+            const userId = userIdElement.getAttribute("data-user-id");
             let flag = confirm(userId + '에게 공유 취소하시겠습니까?');
             if(flag) {
                 fetch('/share/shareCancelRequest', {

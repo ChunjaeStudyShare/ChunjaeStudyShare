@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.domain.Share;
 import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.service.post.PostServiceIf;
@@ -78,7 +79,6 @@ public class PostController {
         PostViewDTO post = postService.findPostWithFile(id);
         //공유 목록 가져오기
         List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
-        log.info("aaaaaaa" + shareList.toString());
         model.addAttribute("shareList", shareList);
         if(post != null){
             model.addAttribute("post", post);
@@ -205,17 +205,30 @@ public class PostController {
 
 
     //인규가 작업함
+    //2024-12-10 수미 수정
     @GetMapping("/delete")
-    public String delete(@RequestParam int id, HttpServletResponse response){
+    public String delete(@RequestParam int id, HttpServletResponse response, RedirectAttributes redirectAttributes){
         response.setCharacterEncoding("utf-8");
-        boolean result = postService.delete(id);
-        if (result) {
-            JSFunc.alertLocation("삭제 성공","/post/myList",response);
-            return null;
-        } else {
-            JSFunc.alertBack("삭제 실패",response);
-            return null;
+        String userId = "user1"; //세션 아이디
+        //로그인한 회원이 작성한 글인지 확인
+        if (!postService.checkWriter(id, userId)) {
+            redirectAttributes.addFlashAttribute("alertMessage", "삭제 권한이 없습니다.");
+            return "redirect:/post/myList";
         }
-
+        //게시글이 존재하는지 확인
+        Optional<Post> isPost = postService.findPostById(id);
+        if(isPost.isEmpty()){
+            redirectAttributes.addFlashAttribute("alertMessage", "게시글이 존재하지 않습니다.");
+            return "redirect:/post/myList";
+        }else{
+            boolean result = postService.delete(id);
+            if (result) {
+                redirectAttributes.addFlashAttribute("alertMessage", "게시글이 삭제되었습니다");
+                return "redirect:/post/myList";
+            } else {
+                redirectAttributes.addFlashAttribute("alertMessage", "게시글 삭제 실패. 다시 시도하세요");
+                return null;
+            }
+        }
     }
 }

@@ -174,10 +174,6 @@
         LIMIT #{offset}, #{limit}
     </select>
 
-
-
-
-
     <!-- 공유자 조회 -->
     <select id="selectSharesByPostId" resultType="net.fullstack7.studyShare.dto.post.ShareInfoDTO">
         SELECT
@@ -191,6 +187,10 @@
                     #{post}
                 </foreach>
     </select>
+    <delete id="deleteFile">
+        DELETE FROM File
+        WHERE postId = #{id}
+    </delete>
 
     <!--인규-->
     <select id="hasShare" resultType="java.lang.Integer">
@@ -205,5 +205,4 @@
         DELETE FROM Share
         WHERE postId = #{id}
     </delete>
-
 </mapper>
