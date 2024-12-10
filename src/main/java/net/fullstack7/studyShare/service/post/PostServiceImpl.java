@@ -382,48 +382,69 @@ public class PostServiceImpl implements PostServiceIf{
         map.put("displayEnd", dto.getDisplayEnd());
 
         // 게시글 조회
-        List<PostMyShareDTO> list = postMapper.selectPostsByUserId(map);
-        if (list == null || list.isEmpty()) {
+        List<PostMyShareDTO> posts = postMapper.selectPostsByUserId(map);
+        if (posts == null || posts.isEmpty()) {
             return Collections.emptyList();
         }
 
+        log.info("posts, {}", posts);
+
         // 게시글 ID 추출
-        List<Integer> postIds = list.stream()
+        List<Integer> postIds = posts.stream()
                 .map(PostMyShareDTO::getPostId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
+        log.info("postIds, {}", postIds);
+
         if (postIds.isEmpty()) {
-            return list;
+            return posts; // 게시글은 있으나 postId가 없는 경우 그대로 반환
         }
 
-        // 공유 정보 조회 및 DTO 변환
+        // 공유자 정보 조회
         List<ShareInfoDTO> shares = postMapper.selectSharesByPostId(postIds);
+
+        log.info("shares, {}", shares);
+
+
+        if (shares == null || shares.isEmpty()) {
+            return posts; // 공유 정보가 없는 경우 그대로 반환
+        }
 
         // 공유자 정보를 게시글 ID별로 그룹화
         Map<Integer, List<ShareInfoDTO>> sharesByPostId = shares.stream()
                 .filter(share -> share.getPostId() != null)
                 .collect(Collectors.groupingBy(ShareInfoDTO::getPostId));
 
-        // 게시글에 공유자 정보 매핑
-        list.forEach(post -> {
-            // `ShareInfoDTO` 리스트를 `PostShareDTO` 리스트로 변환
-            List<PostShareDTO> postShares = sharesByPostId.getOrDefault(post.getPostId(), new ArrayList<>())
-                    .stream()
-                    .map(shareInfo -> {
-                        PostShareDTO postShareDTO = new PostShareDTO();
-                        postShareDTO.setUserId(shareInfo.getSharedUserId());
-                        postShareDTO.setCreatedAt(shareInfo.getSharedAt());
-                        return postShareDTO;
-                    })
-                    .collect(Collectors.toList());
+        log.info("sharesByPostId, {}", sharesByPostId);
+
+        // 게시글 리스트에 공유자 정보 매핑
+        posts.forEach(post -> {
+            // `sharesByPostId`에서 공유자 리스트 가져오기
+//            List<ShareInfoDTO> shareInfos = sharesByPostId.getOrDefault(post.getPostId(), new ArrayList<>());
+
+            // `ShareInfoDTO` -> `PostShareDTO` 변환
+//            List<PostShareDTO> postShares = shareInfos.stream()
+//                    .map(shareInfo -> {
+//                        PostShareDTO postShareDTO = new PostShareDTO();
+//                        postShareDTO.setPostId(shareInfo.getPostId());
+//                        postShareDTO.setUserId(shareInfo.getSharedUserId());
+//                        postShareDTO.setSharedCreatedAt(shareInfo.getSharedAt());
+//                        postShareDTO.setTitle(post.getTitle()); // 게시글 제목 복사
+//                        postShareDTO.setCreatedAt(post.getCreatedAt()); // 게시글 생성 시간 복사
+//                        return postShareDTO;
+//                    })
+//                    .collect(Collectors.toList());
 
             // 변환된 리스트를 설정
-            post.setShares(postShares);
+            post.setShares(sharesByPostId.get(post.getPostId()));
+            log.info("post, {}", post);
         });
 
-        return list;
+        return posts;
     }
+
+
 
 
 

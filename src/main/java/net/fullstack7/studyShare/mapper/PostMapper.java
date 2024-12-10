@@ -33,5 +33,5 @@ public interface PostMapper {
 
     List<PostMyShareDTO> selectPostsByUserId(Map<String, Object> map);
 
-    List<ShareInfoDTO> selectSharesByPostId(@Param("postId") List<Integer> postId);
+    List<ShareInfoDTO> selectSharesByPostId(@Param("postIds") List<Integer> postIds);
 }

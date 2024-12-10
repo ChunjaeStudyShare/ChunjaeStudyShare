@@ -18,7 +18,6 @@ public class PostShareDTO {
     private Integer postId;
     private String title;
     private LocalDateTime createdAt;
-    //private LocalDateTime createAt;
     private LocalDateTime sharedCreatedAt;
     private String userId; // 공유 받은 사람
     private int isShared;

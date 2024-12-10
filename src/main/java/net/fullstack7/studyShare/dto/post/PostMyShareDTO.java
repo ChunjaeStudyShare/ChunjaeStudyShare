@@ -19,7 +19,8 @@ public class PostMyShareDTO {
     private Integer postId;
     private String title;
     private LocalDateTime createdAt; //게시글 등록 시간
+    private LocalDateTime sharedCreatedAt; //게시글 등록 시간
     private String userId; //로그인된 사용자 이름
     private int isShared;
-    private List<PostShareDTO> shares; //공유자 목록
+    private List<ShareInfoDTO> shares; //공유자 목록
 }

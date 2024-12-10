@@ -194,8 +194,9 @@ public class PostController {
         model.addAttribute("postPagingDTO", dto);
         model.addAttribute("uri", "/post/shareList");
         return "post/shareList";
-
     }
+
+
     @GetMapping("/shareList_1")
     public String shareList_1(Model model,
                             HttpServletResponse response,
@@ -210,15 +211,14 @@ public class PostController {
         List<PostMyShareDTO> sharePosts = postService.selectPostsByUserId(dto, userId);
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
         System.out.println("sharePosts: " + sharePosts.size());
-        log.info(sharePosts.toString());
-
         model.addAttribute("posts", sharePosts);
         model.addAttribute("paging", paging);
-        model.addAttribute("postSharePagingDTO", dto);
+        model.addAttribute("postPagingDTO", dto);
         model.addAttribute("uri", "/post/shareList_1");
         return "post/shareList_1";
 
     }
+
     //인규가 작업함
     @GetMapping("/delete")
     public String delete(@RequestParam int id, HttpServletResponse response){
