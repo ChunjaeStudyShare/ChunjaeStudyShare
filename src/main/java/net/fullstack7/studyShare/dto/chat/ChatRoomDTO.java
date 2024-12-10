@@ -13,10 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatRoomDTO {
-    private Integer roomId;
+    private Integer chatRoomId;
     private String lastMessage;
     private LocalDateTime lastMessageTime;
     private List<String> members;
-    private boolean hasNewMessages;
     private int newMessagesCount;
 }

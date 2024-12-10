@@ -17,12 +17,18 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("/list")
-    public String chatList(HttpServletRequest request, Model model) {
+    public String chatList(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
         String userId = (String) request.getAttribute("userId");
 
-        model.addAttribute("chatlist", chatService.getChatRoomList(userId));
-
-        return "chat/list";
+        try {
+            model.addAttribute("chatlist", chatService.getChatRoomList(userId));
+            return "chat/list";
+        } catch (IllegalAccessException e) {
+            redirectAttributes.addFlashAttribute(e.getMessage());
+            return "redirect:/";
+        } catch (Exception e) {
+            return "redirect:/";
+        }
     }
 
     @PostMapping("/create")
@@ -46,6 +52,7 @@ public class ChatController {
             model.addAttribute("messages", chatService.getChatMessageListByRoomId(id, userId));
             model.addAttribute("roomId", id);
             model.addAttribute("userId", userId);
+            chatService.enterChatRoom(id, userId);
             return "chat/room";
         }
         catch (Exception e) {

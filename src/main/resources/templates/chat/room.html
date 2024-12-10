@@ -182,7 +182,7 @@
         //메시지 전송
         stompClient.publish({
             destination: "/send/" + roomId,
-            body: JSON.stringify({'content': $("#content").val(), 'sender': $("#sender").val() })
+            body: JSON.stringify({'content': $("#content").val(), 'sender': $("#sender").val() }) //sender -> userId로 바꿔야됨
         });
         inputContent.value = '';
     }

@@ -2,29 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="net.fullstack7.studyShare.mapper.ChatMemberMapper">
-    <select id="getChatRoomMembers" resultType="String">
+    <select id="findChatRoomMembers" resultType="String">
         select userId
         from ChatMember
         where chatRoomId = #{chatRoomId}
     </select>
     <select id="findChatRoomListByUserId" resultType="net.fullstack7.studyShare.dto.chat.ChatRoomDTO">
-        select cr.id as roomId, cms.message as lastMessage, cms.createdAt as lastMessageTime
-        from ChatRoom as cr
-        inner join ChatMember as cmb on cr.id = cmb.chatRoomId
-        left outer join ChatMessage as cms on cmb.chatRoomId = cms.chatRoomId
-        <choose>
-            <when test="leaveAt == null">
-                and cms.createAt > now()
-            </when>
-            <otherwise>
-                and cms.createdAt > cmb.leaveAt
-            </otherwise>
-        </choose>
-        where cr.id in (select chatRoomId from ChatMember where userId=#{userId})
---         group by cmb.chatRoomId
-        order by createdAt desc;
+        SELECT cr.id               AS chatRoomId,
+               SUM(CASE
+                       WHEN cm.createdAt > IFNULL(cmb.leaveAt, NOW()) AND cm.senderId != 'chatmanager' THEN 1
+                       ELSE 0 END) AS newMessagesCount,
+               CASE
+                   WHEN MAX(cm.createdAt) IS NOT NULL AND SUBSTRING_INDEX(
+                           GROUP_CONCAT(CASE WHEN cm.senderId != 'chatmanager' THEN cm.message ELSE NULL END ORDER BY cm.createdAt DESC),
+                           ',', 1) != '' THEN SUBSTRING_INDEX(
+                           GROUP_CONCAT(CASE WHEN cm.senderId != 'chatmanager' THEN cm.message ELSE NULL END ORDER BY cm.createdAt DESC),
+                           ',', 1)
+                   ELSE NULL END   AS lastMessage,
+               MAX(cm.createdAt)   AS lastMessageTime
+        FROM ChatMember cmb
+                 LEFT JOIN ChatRoom cr ON cmb.chatRoomId = cr.id AND cmb.userId = #{userId}
+                 INNER JOIN ChatMessage cm ON cm.chatRoomId = cr.id
+        GROUP BY cr.id
+        ORDER BY lastMessageTime DESC;
+    </select>
+    <select id="findMembersByChatRoomId">
+        select userId from ChatMember where chatRoomId = #{chatRoomId}
     </select>
     <update id="updateLeaveAt">
         update ChatMember set leaveAt=#{leaveAt} where userId=#{userId} and chatRoomId=#{chatRoomId}
     </update>
+    <select id="findMemberByUserId" resultType="net.fullstack7.studyShare.domain.ChatMember">
+        select chatRoomId, userId
+        from ChatMember
+        where chatRoomId in (select chatRoomId from ChatMember where userId = #{userId})
+    </select>
 </mapper>

@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.chat.ChatInviteDTO;
 import net.fullstack7.studyShare.dto.chat.ChatLeaveDTO;
+import net.fullstack7.studyShare.service.FriendService;
 import net.fullstack7.studyShare.service.chat.ChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @Log4j2
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/chat")
 public class ChatApiController {
     private final ChatService chatService;
+    private final FriendService friendService;
 
     @PostMapping("/room/invite")
     public ResponseEntity<String> invite(@RequestBody ChatInviteDTO chatInviteDTO) {
@@ -46,4 +49,14 @@ public class ChatApiController {
         }
     }
 
+    @GetMapping("/friends")
+    public ResponseEntity<?> getFriends(HttpServletRequest request) {
+        try {
+            String userId = (String) request.getAttribute("userId");
+            List<String> friends = friendService.list(userId);
+            return ResponseEntity.ok(friends);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
