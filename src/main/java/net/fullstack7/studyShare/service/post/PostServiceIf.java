@@ -1,11 +1,7 @@
 package net.fullstack7.studyShare.service.post;
 
-import net.fullstack7.studyShare.domain.ChatMessage;
 import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.dto.post.*;
-import net.fullstack7.studyShare.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -33,4 +29,5 @@ public interface PostServiceIf {
     List<ShareInfoDTO> selectSharesByPostId(List<Integer> postId);
 
     boolean delete(int id);
+    Optional<Post> findPostById(int id);
 }

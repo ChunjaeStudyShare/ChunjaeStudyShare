@@ -29,6 +29,8 @@ public interface PostMapper {
     boolean deleteShare(int id);
     Integer hasShare(int id);
 
+    boolean deleteFile(int id);
+
     List<PostShareDTO> selectMyShare(Map<String, Object> map);
 
     List<PostMyShareDTO> selectPostsByUserId(Map<String, Object> map);

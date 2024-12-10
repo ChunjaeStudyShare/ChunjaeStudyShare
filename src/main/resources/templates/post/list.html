@@ -31,6 +31,7 @@
             padding: 8px;
             text-align: center;
         }
+
     </style>
 <div class="container mt-5">
     <h4 class="mb-4">나의 학습 리스트</h4>
@@ -43,7 +44,7 @@
                 <th style="width: 15%;">기간</th>
                 <td style="width: 85%;">
                     <div class="input-group">
-                        <input type="datetime-local" class="form-control" id="displayAt" name="displayAt" 
+                        <input type="datetime-local" class="form-control" id="displayAt" name="displayAt"
                                th:value="${param.displayAt}">
                         <span class="input-group-text">~</span>
                         <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd" 
@@ -102,7 +103,7 @@
     </form>
 
     <!-- 리스트 테이블 -->
-    <table class="table list-table">
+    <table class="table list-table table-hover">
         <thead>
         <tr>
             <th>No</th>
@@ -113,13 +114,9 @@
         </tr>
         </thead>
         <tbody id="dataTable">
-            <tr th:each="post, status : ${posts}">
+            <tr th:each="post, status : ${posts}" th:onclick="|location.href = '@{/post/view(id= ${post.id})}'|" style="cursor: pointer;">
                 <td th:text="${status.index + 1}"></td>
-<!--                <td th:text="${post.title}"></td>-->
-                <td>
-                    <a th:href="@{/post/view(id=${post.id})}">[[${post.title}]]</a>
-                </td>
-
+                <td th:text="${post.title}"></td>
                 <td th:text="${post.createdAt}"></td>
                 <td>
                     <span th:if="${post.privacy == 1}" >Y</span>
@@ -127,7 +124,7 @@
                 </td>
                 <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
                : (post.displayAt != null ? post.displayAt + ' ~'
-               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">
+               : (post.displayEnd != null ? '~ ' + post.displayEnd : 'X'))}">
                 </td>
             </tr>
             <tr th:if="${posts == null or posts.isEmpty()}">

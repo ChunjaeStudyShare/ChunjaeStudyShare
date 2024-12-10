@@ -12,7 +12,6 @@ import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.repository.PostRepository;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +19,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static net.fullstack7.studyShare.domain.QMember.member;
 
 @Log4j2
 @Service
@@ -342,13 +339,19 @@ public class PostServiceImpl implements PostServiceIf{
         return null;
     }
 
+    //2024-12-10 수미 수정
     @Override
     public boolean delete(int id) {
+        boolean file = postMapper.deleteFile(id); //파일 삭제
         int hasShare = postMapper.hasShare(id); //공유 있는지
         boolean share = hasShare != 0 && postMapper.deleteShare(id); //있을때만 삭제
         boolean post = postMapper.deletePost(id); // 게시글 삭제
-
         return post && (hasShare == 0 || share); // 세 가지 경우
+    }
+
+    @Override
+    public Optional<Post> findPostById(int id) {
+        return postRepository.findById(id);
     }
 
     @Override
@@ -420,22 +423,6 @@ public class PostServiceImpl implements PostServiceIf{
 
         // 게시글 리스트에 공유자 정보 매핑
         posts.forEach(post -> {
-            // `sharesByPostId`에서 공유자 리스트 가져오기
-//            List<ShareInfoDTO> shareInfos = sharesByPostId.getOrDefault(post.getPostId(), new ArrayList<>());
-
-            // `ShareInfoDTO` -> `PostShareDTO` 변환
-//            List<PostShareDTO> postShares = shareInfos.stream()
-//                    .map(shareInfo -> {
-//                        PostShareDTO postShareDTO = new PostShareDTO();
-//                        postShareDTO.setPostId(shareInfo.getPostId());
-//                        postShareDTO.setUserId(shareInfo.getSharedUserId());
-//                        postShareDTO.setSharedCreatedAt(shareInfo.getSharedAt());
-//                        postShareDTO.setTitle(post.getTitle()); // 게시글 제목 복사
-//                        postShareDTO.setCreatedAt(post.getCreatedAt()); // 게시글 생성 시간 복사
-//                        return postShareDTO;
-//                    })
-//                    .collect(Collectors.toList());
-
             // 변환된 리스트를 설정
             post.setShares(sharesByPostId.get(post.getPostId()));
             log.info("post, {}", post);
@@ -443,10 +430,6 @@ public class PostServiceImpl implements PostServiceIf{
 
         return posts;
     }
-
-
-
-
 
     @Override
     public List<ShareInfoDTO> selectSharesByPostId(List<Integer> postId) {
