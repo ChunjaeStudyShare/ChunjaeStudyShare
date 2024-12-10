@@ -20,6 +20,7 @@
         }
 
         .chat-bubble-my {
+            text-align: left;
             display: inline-block;
             max-width: 70%; /* 말풍선의 최대 너비 */
             padding: 10px 15px; /* 내부 여백 */
@@ -33,11 +34,18 @@
 
         .chat-bubble-manager {
             text-align: center;
-            padding: 10px 15px; /* 내부 여백 */
+            padding: 10px 0; /* 내부 여백 */
             margin: 5px 0; /* 상하 간격 */
             color: #333; /* 글씨 색상 */
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
             font-size: 15px;
+        }
+
+        .chat-row-my {
+            text-align: right;
+        }
+        .chat-row {
+            text-align: left;
         }
 
         .chat-box {
@@ -57,40 +65,75 @@
         }
 
         .chat-id {
-            display: inline-block;
+            padding: 10px 0; /* 내부 여백 */
+            margin: 5px 0;
+            /*display: inline-block;*/
             text-align: center;
-            margin: 0 auto;
         }
 
         #messages {
             /*max-height: 550px; !* 최대 높이 600px로 제한 *!*/
             height: 75vh;
             overflow-y: auto; /* 세로 스크롤바 활성화 */
-            display: block; /* tbody에 block을 적용해 스크롤 가능하도록 설정 */
+            /*display: block; !* tbody에 block을 적용해 스크롤 가능하도록 설정 *!*/
+            box-sizing: border-box; /* 스크롤바를 포함하여 크기 계산 */
+            /*padding-right: 15px;*/
         }
 
+        .freind-info {
+            display: flex;
+            justify-content: space-between; /* 좌우 끝으로 배치 */
+            align-items: center; /* 세로 가운데 정렬 */
+            width: 100%; /* 필요시 부모 요소의 너비를 기준으로 확장 */
+        }
+        .chat-header {
+            max-width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            margin: 0;
+        }
+        .chat-header-item-center{
+            text-align: center;
+        }
+        .chat-header-item-right{
+            text-align: right;
+        }
+        .chat-header-item-left{
+            text-align: left;
+        }
     </style>
 </head>
 <body>
 
 <div layout:fragment="content">
-    <div>채팅방</div>
-    <div>
-        <button data-invited-id="user3" class="btn-invite">초대</button>
+    <div class="row chat-header">
+        <div class="col chat-header-item-left"></div>
+        <div class="col chat-header-item-center">채팅방</div>
+        <div class="col chat-header-item-right">
+            <button type="button" id="btn-invite" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">초대하기</button>
+        </div>
     </div>
     <div class="row chat-box" id="messages">
         <div class="row" th:each="item, status:${messages}">
-            <div class="chat-bubble-manager" th:if="${item.senderId == 'chatmanager'}" th:text="${item.message}"></div>
+            <div class="col chat-bubble-manager" th:if="${item.senderId == 'chatmanager'}" th:text="${item.message}"></div>
             <th:block th:unless="${item.senderId == 'chatmanager'}">
-                <div class="col-2"><span class="chat-id" th:if="${item.senderId != 'chatmanager'}" th:text="${item.senderId}"></span></div>
-                <div class="col-10">
-                    <span th:class="${item.senderId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}" th:text="${item.message}"></span>
+                <div class="col-2" th:if="${item.senderId != userId}"><div class="chat-id" th:text="${item.senderId}"></div></div>
+                <div class="col-10" th:unless="${item.senderId == userId}">
+                    <span class="chat-bubble" th:text="${item.message}"></span>
                     <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </div>
+                <div class="col-12 chat-row-my" th:if="${item.senderId == userId}">
+                    <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                    <span class="chat-bubble-my" th:text="${item.message}"></span>
                 </div>
             </th:block>
         </div>
     </div>
-    <div class="row chat-input-box fixed-bottom">
+    <div class="row chat-input-box">
         <div class="col-12">
             <form class="form-inline">
 
@@ -101,6 +144,25 @@
                 </div>
             </form>
 
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">친구 초대</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                    <div class="modal-body" id="friend-list">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    </div>
+
+            </div>
         </div>
     </div>
 </div>
@@ -191,15 +253,21 @@
 
         let content = `<div class="row">`;
         if (message.senderId === 'chatmanager')
-            content += `<div class="chat-bubble-manager">${message.message}</div>`
-        else {
-            let classname = (message.senderId === userId) ? 'chat-bubble-my' :'chat-bubble';
+            content += `<div class="col chat-bubble-manager">${message.message}</div>`
+        else if(message.senderId === userId) {
             content += `
-            <div class="col-2"><span class="chat-id">${message.senderId}</span></div>
-            <div class="col-10">
-                <span class="${classname}">${message.message}</span>
-                <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
-            </div>`
+                <div class="col-12 chat-row-my">
+                    <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
+                    <span class="chat-bubble-my">${message.message}</span>
+                </div>`
+        }
+        else {
+            content +=`
+            <div class="col-2"><div class="chat-id">${message.senderId}</div></div>
+                <div class="col-10">
+                    <span class="chat-bubble">${message.message}</span>
+                    <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
+                </div>`
         }
         content += `</div>`
 
@@ -226,14 +294,7 @@
     //     disconnect();
     // });
 
-    document.querySelectorAll(".btn-invite").forEach(button => {
-        button.addEventListener("click", evt => {
-            let invitedId = button.dataset.invitedId;
-            let response = invite(invitedId, roomId).then((data) => {
-                alert(data);
-           });
-        });
-    })
+
 
     async function invite(invitedId, roomId) {
         const url = "/api/chat/room/invite";
@@ -260,6 +321,45 @@
         });
         return response.ok;
     }
+
+    let friendFlag = false;
+    const friendList = document.getElementById("friend-list");
+    document.getElementById("btn-invite").addEventListener("click", async e => {
+        const url = "/api/chat/friends";
+
+        if(friendFlag)
+            return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET'
+            });
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const json = await response.json();
+            // console.log(json);
+
+            friendFlag = true;
+
+            for(let item of json) {
+                friendList.innerHTML += `<div class="freind-info"><span>${item}</span> <button type="button" class="btn btn-dark btn-invite" data-invited-id="${item}">초대하기</div><br>`
+            }
+
+            document.querySelectorAll(".btn-invite").forEach(button => {
+                button.addEventListener("click", evt => {
+                    let invitedId = button.dataset.invitedId;
+                    let response = invite(invitedId, roomId).then((data) => {
+                        alert(data);
+                    });
+                });
+            })
+
+        } catch (error) {
+            console.error(error.message);
+        }
+    });
 </script>
 </body>
 </html>
