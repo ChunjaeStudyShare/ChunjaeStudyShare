@@ -19,9 +19,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class ChatServiceImpl implements ChatService {
     public List<ChatRoomDTO> getChatRoomList(String userId) throws IllegalAccessException {
         Optional<Member> member = memberRepository.findById(userId);
 
-        if(member.isPresent()) {
+        if (member.isPresent()) {
             List<ChatRoomDTO> list = chatMemberMapper.findChatRoomListByUserId(userId);
 
             list.forEach(room -> {
@@ -48,8 +48,7 @@ public class ChatServiceImpl implements ChatService {
                 log.info(room);
             });
             return list;
-        }
-        else {
+        } else {
             throw new IllegalAccessException("존재하지 않는 회원입니다.");
         }
     }
@@ -192,16 +191,20 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public boolean isExistChatRoom(int roomId, String[] members) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
-        if (chatRoom == null) {
-            Set<String> chatMembers = chatMemberMapper.findChatRoomMembers(roomId);
-            for (String userId : members) {
-                chatMembers.remove(userId);
-            }
-            return chatMembers.isEmpty();
+    public int isExistChatRoom(List<String> members, String userId) {
+
+        List<ChatMember> chatMembers = chatMemberMapper.findMemberByUserId(userId);
+
+        List<ChatRoomDTO> list = new ArrayList<>();
+
+        chatMembers.remove(userId);
+        for (String member : members) {
+            chatMembers.remove(member);
         }
-        return false;
+
+//            return chatMembers.isEmpty();
+
+        return 0;
     }
 
     @Override
@@ -212,7 +215,7 @@ public class ChatServiceImpl implements ChatService {
         }
         int result = chatMemberMapper.updateLeaveAt(leaveAt, roomId, userId);
 
-        if(result > 0) {
+        if (result > 0) {
             return true;
         }
         return false;

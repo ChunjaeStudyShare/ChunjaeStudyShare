@@ -19,3 +19,5 @@ public class ChatRoomDTO {
     private List<String> members;
     private int newMessagesCount;
 }
+
+
