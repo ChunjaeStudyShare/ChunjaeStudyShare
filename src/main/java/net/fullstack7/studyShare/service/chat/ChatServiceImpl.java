@@ -2,12 +2,14 @@ package net.fullstack7.studyShare.service.chat;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.chat.MessageContent;
 import net.fullstack7.studyShare.domain.ChatMember;
 import net.fullstack7.studyShare.domain.ChatMessage;
 import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
 
+import net.fullstack7.studyShare.dto.chat.ChatRoomDTO;
 import net.fullstack7.studyShare.mapper.ChatMemberMapper;
 import net.fullstack7.studyShare.repository.ChatMemberRepository;
 import net.fullstack7.studyShare.repository.ChatMessageRepository;
@@ -23,6 +25,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -34,9 +37,21 @@ public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
-    public List<ChatRoom> getChatRoomList(String userId) {
+    public List<ChatRoomDTO> getChatRoomList(String userId) throws IllegalAccessException {
         Optional<Member> member = memberRepository.findById(userId);
-        return chatRoomRepository.findAll();
+
+        if(member.isPresent()) {
+            List<ChatRoomDTO> list = chatMemberMapper.findChatRoomListByUserId(userId);
+
+            list.forEach(room -> {
+                room.setMembers(chatMemberMapper.findMembersByChatRoomId(room.getChatRoomId()));
+                log.info(room);
+            });
+            return list;
+        }
+        else {
+            throw new IllegalAccessException("존재하지 않는 회원입니다.");
+        }
     }
 
     @Override
@@ -178,7 +193,7 @@ public class ChatServiceImpl implements ChatService {
     public boolean isExistChatRoom(int roomId, String[] members) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
         if (chatRoom == null) {
-            Set<String> chatMembers = chatMemberMapper.getChatRoomMembers(roomId);
+            Set<String> chatMembers = chatMemberMapper.findChatRoomMembers(roomId);
             for (String userId : members) {
                 chatMembers.remove(userId);
             }

@@ -21,7 +21,7 @@ public class PostPagingDTO {
     @Max(value = 100, message = "페이지 크기는 100을 초과할 수 없습니다.")
     private int pageSize = 10;
 
-    @Pattern(regexp = "^(title|content)$", message = "허용되지 않은 검색 카테고리입니다")
+    @Pattern(regexp = "^(title|content|)$", message = "허용되지 않은 검색 카테고리입니다")
     private String searchCategory;
 
     @Size(max = 101, message = "검색 값은 100자를 초과할 수 없습니다.")

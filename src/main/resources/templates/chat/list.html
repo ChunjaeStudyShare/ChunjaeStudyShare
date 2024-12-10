@@ -75,10 +75,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="/chat/create" method="post">
-                <div class="modal-body">
-
-<!--                        여기에 친구 리스트 - 선택하면 폼 전송-->
-                        <input type="checkbox" id="user2" value="user2" name="invited"><lable for="user2">친구1</lable>
+                <div class="modal-body" id="friend-list">
 
                 </div>
                 <div class="modal-footer">
@@ -91,38 +88,64 @@
     </div>
     <div class="row chat-box">
         <div class="btn-chat">
-            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <button type="button" id="create-chatroom" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 채팅방 만들기
             </button>
         </div>
         <div class="chat-list chat-box">
 
-            <div class="chat-item">
+            <div class="chat-item" th:each="item, status:${chatlist}" th:data-chat-room-id="${item.chatRoomId}">
                 <div class="chat-details">
-                    <div class="chat-title">Chat Room 1</div>
-                    <div class="chat-last-message">This is the last message...</div>
+                    <div class="chat-title"><span th:each="member, iterStat : ${item.members}"
+                                                   th:text="${member} + (${iterStat.last} ? '' : ',')"></span> </div>
+                    <div class="chat-last-message">
+                        <span class="badge rounded-pill text-bg-danger" th:text="${item.newMessagesCount}"></span>
+                        <span th:text="${item.lastMessage}"></span>
+                    </div>
                 </div>
-                <div class="chat-time">10:30 AM</div>
-            </div>
-            <div class="chat-item">
-                <div class="chat-details">
-                    <div class="chat-title">Chat Room 2</div>
-                    <div class="chat-last-message">Another recent message...</div>
-                </div>
-                <div class="chat-time">Yesterday</div>
-            </div>
-            <div class="chat-item">
-                <div class="chat-details">
-                    <div class="chat-title">Chat Room 3</div>
-                    <div class="chat-last-message">Hello, how are you?</div>
-                </div>
-                <div class="chat-time">2 days ago</div>
+                <div class="chat-time" th:text="${#temporals.format(item.lastMessageTime, 'yyyy-MM-dd HH:mm:ss')}">10:30 AM</div>
             </div>
         </div>
     </div>
 </div>
-<script layout:fragnent="script" th:inline="javascript">
+<script layout:fragment="script" th:inline="javascript">
+    document.querySelectorAll(".chat-item").forEach(value => {
+        value.addEventListener("click", e => {
+            location.href = "/chat/room/"+value.dataset.chatRoomId;
+        })
+    });
+
+    let friendFlag = false;
+    const friendList = document.getElementById("friend-list");
+    document.getElementById("create-chatroom").addEventListener("click", async e => {
+        const url = "/api/chat/friends";
+
+        if(friendFlag)
+            return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET'
+            });
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const json = await response.json();
+            // console.log(json);
+
+            friendFlag = true;
+
+            for(let item of json) {
+                friendList.innerHTML += `<input type="checkbox" id="${item}" value="${item}" name="invited"><lable for="user2">${item}</lable><br>`
+            }
+
+        } catch (error) {
+            console.error(error.message);
+        }
+    });
 
 </script>
+
 </body>
 </html>
