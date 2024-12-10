@@ -17,6 +17,7 @@ import net.fullstack7.studyShare.util.Paging;
 import net.fullstack7.studyShare.util.ValidateList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.repository.query.JSqlParserUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,9 +51,6 @@ public class PostController {
         logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
         String userId = "user1";
-        // if (!ValidateList.validateMyListParameters(pageNo, searchCategory, searchValue, displayAt, displayEnd, sortType, response)) {
-        //     return null;
-        // }
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         log.info("totalCnt: " + totalCnt);
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
@@ -61,63 +59,19 @@ public class PostController {
         model.addAttribute("posts", posts);
         model.addAttribute("paging", paging);
         model.addAttribute("postPagingDTO", dto);
-        // model.addAttribute("searchCategory", dto.getSearchCategory());
-        // model.addAttribute("searchValue", dto.getSearchValue());
-        // model.addAttribute("sortType", dto.getSortType());
-        // model.addAttribute("displayAt", dto.getDisplayAt());
-        // model.addAttribute("displayEnd", dto.getDisplayEnd());
         model.addAttribute("uri", "/post/myList");
         return "post/list";
     }
 
-//    @GetMapping("/view")
-//    public String view(Model model,
-//                             HttpServletResponse response,
-//                             @RequestParam(defaultValue = "") String type,
-//                             @RequestParam String id,
-//                             RedirectAttributes redirectAttributes){
-//        response.setCharacterEncoding("utf-8");
-//        String userId = "user1";
-//
-//        // 공유 받은 게시글인지 확인
-//        boolean isShared = postService.isSharedWithUser(Integer.parseInt(id), userId);
-//        if(!isShared){
-//            redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
-//            return "redirect:/post/shareList";
-//        }
-//
-//        // 목록 가져오기
-//        PostViewDTO post = postService.findPostWithFile(id);
-//
-//        //공유 목록 가져오기
-//        List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
-//        model.addAttribute("shareList", shareList);
-//        if(post != null){
-//            //나의 게시글 여부 확인
-//            boolean isOwner = post.getUserId().equals(userId);
-//            if(!isOwner){
-//                redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
-//            }
-//            if("share".equals(type)){
-//                model.addAttribute("post", post);
-//                return "post/shareView";
-//            }else{
-//                model.addAttribute("post", post);
-//                return "post/view";
-//            }
-//        }else {
-//            redirectAttributes.addFlashAttribute("alertMessage", "게시글 정보가 없습니다.");
-//            return null;
-//        }
-//    }
-
     @GetMapping("/view")
     public String view(Model model,
                              HttpServletResponse response,
+                             @RequestParam("currentPage") String currentPage,
                              @RequestParam(defaultValue = "") String type,
                              @RequestParam String id,
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
+        System.out.println("current: " + currentPage);
             String userId = "user1"; //세션 아아디
             try{
                 //게시글 조회
@@ -134,6 +88,7 @@ public class PostController {
                     List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
                     model.addAttribute("shareList", shareList);
                     model.addAttribute("post", post);
+                    model.addAttribute("currentPage", currentPage);
                     if("share".equals(type)){
                         return "post/shareView";
                     }else{
@@ -166,7 +121,7 @@ public class PostController {
         if (bindingResult.hasErrors()) {
             log.error("Validation errors: {}", bindingResult.getAllErrors());
             model.addAttribute("dto", dto);
-            redirectAttributes.addFlashAttribute("errors", bindingResult);
+            redirectAttributes.addFlashAttribute("alertMessage", bindingResult);
             return "post/regist";
         }
 
