@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<div layout:fragment="content">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .scroll-box {
+            max-height: 300px; /* 필요 시 조정 */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .image-box {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .table-custom th, .table-custom td {
+            vertical-align: middle;
+        }
+
+        .btn-close-custom {
+            background: none;
+            border: none;
+            color: red;
+            font-size: 1.2rem;
+        }
+    </style>
+    <div class="container mt-5">
+        <h4 class="mb-4">학습 정보</h4>
+        <table class="table table-bordered table-custom">
+            <tbody>
+            <!-- 제목, 좋아요 -->
+            <tr>
+                <th style="width: 20%;">제목</th>
+                <td style="width: 50%;" th:text="${post.title}">제목</td>
+                <th style="width: 15%;">좋아요</th>
+                <td style="width: 15%;" th:text="${post.share}">0</td>
+            </tr>
+            <!-- 등록일, 노출 여부 -->
+            <tr>
+                <th>등록일</th>
+                <td th:text="${post.createdAt}">등록일</td>
+                <th>오늘의 학습 노출 여부</th>
+                <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
+            </tr>
+            <!-- 노출 기간 -->
+            <tr>
+                <th>오늘의 학습 노출 기간</th>
+                <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
+               : (post.displayAt != null ? post.displayAt + ' ~'
+               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}"
+                         style="object-fit: cover; width: 400px; height: 600px;">
+                    <span th:if="${post.path == null}">이미지가 없습니다.</span>
+                </td>
+                <td colspan="2">
+                    <div class="card">
+                        <div class="card-header">오늘의 학습 내용</div>
+                        <div class="card-body scroll-box" th:text="${post.content}"></div>
+                    </div>
+                </td>
+            </tr>
+            <!-- 공유 정보 -->
+            <tr>
+                <th>공유한 사람</th>
+                <td colspan="3">
+                    <div th:each="shared, status:${shareList}">
+                        <span th:text="${shared.user.userId}"></span>
+                        <button type="button" class="btn-close" aria-label="Close"
+                                th:onclick="cancelRequest('${shared.user.userId}')"> <!-- 변경하기 -->
+                        </button>
+                        <br>
+                    </div>
+                    <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
+                    <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
+                </td>
+            </tr>
+            <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- 친구 검색 기능 -->
+                            <div class="container mt-3">
+                                <!-- 입력 필드 -->
+                                <div class="mb-3">
+                                    <label for="searchId" class="form-label">아이디 검색</label>
+                                    <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요" onkeyup="searchUserById()">
+                                </div>
+                                <!-- 친구 검색 결과 -->
+                                <div id="suggestions"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 분야와 해시태그 -->
+            <tr>
+                <th>분야</th>
+                <td th:text="${post.domain != null ? post.domain : '없음'}">분야</td>
+                <th>해시태그</th>
+                <td th:text="${post.hashtag != null ? post.hashtag : '없음'}">해시태그</td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- 하단 버튼 -->
+        <div class="text-end">
+            <button class="btn btn-primary" th:onclick="|location.href='@{/post/list}'|">목록</button>
+            <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
+            <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
+            <button class="btn btn-danger" th:data-post-id="${post.id}"
+                    onclick="confirmDelete(this)">
+                삭제
+            </button>
+        </div>
+        <br>
+        <br>
+    </div>
+    <script th:inline="javascript">
+        let debounceTimer;
+        let lastSearchId = '';
+
+        function searchUserById() {
+            const searchId = document.getElementById('searchId').value;
+
+            // 입력값이 비어있으면 검색 결과를 지우고 리턴
+            if (searchId.length === 0) {
+                document.getElementById('suggestions').innerHTML = '';
+                return;
+            }
+
+            // 동일한 검색어에 대해 새로운 요청을 보내지 않도록
+            if (lastSearchId === searchId) {
+                return;
+            }
+
+            lastSearchId = searchId; // 최신 검색어로 갱신
+            const postId = [[${post.id}]]
+            clearTimeout(debounceTimer); // 이전 요청을 취소
+            debounceTimer = setTimeout(() => {
+                fetch(`/share/searchUserIdById?postId=${encodeURIComponent(postId)}&searchId=${encodeURIComponent(searchId)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let suggestionsHtml = `
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>아이디</th>
+                            <th>공유</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+
+                        if (data.length === 0) {
+                            suggestionsHtml += '<tr><td colspan="2">검색된 유저가 없습니다.</td></tr>';
+                        } else {
+                            data.forEach(user => {
+                                suggestionsHtml += `
+                            <tr>
+                                <td>${user.userId}</td>
+                                <td>
+                         <button class="btn ${user.isShared === 1 ? 'btn-success' : 'btn-primary'}"
+                            onclick="${user.isShared === 1 ? `cancelRequest('${user.userId}')` : `shareRequest('${user.userId}')`}">
+                            ${user.isShared === 1 ? '공유 취소' : '공유'}
+                        </button>
+                                </td>
+                            </tr>
+                        `;
+                            });
+                        }
+                        suggestionsHtml += '</tbody></table>';
+                        document.getElementById('suggestions').innerHTML = suggestionsHtml;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }, 30);
+        }
+
+        function shareRequest(userId) {
+            const postId = [[${post.id}]]
+            let flag = confirm(userId + '에게 공유하시겠습니까?');
+            if(flag) {
+                fetch('/share/shareRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId: userId, postId: postId})
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('공유되었습니다.');
+                            refreshModal();
+                        } else {
+                            alert('공유 실패');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+        function refreshModal() {
+            lastSearchId = ''; //검색어 초기화 !!!!!이거였구나~~~~
+            // searchUserById()를 호출하여 데이터를 갱신
+            searchUserById();
+
+            // 모달 내용이 갱신된 후에는 모달을 다시 열지 않음
+            // 이미 열린 상태에서 갱신만 하므로 모달을 숨기거나 다시 열지 않습니다.
+            const modal = document.getElementById('friendSearchModal');
+            if (modal && modal.style.display !== 'block') {
+                modal.style.display = 'block';  // 만약 모달이 닫혀있다면 다시 열기
+            }
+        }
+        function cancelRequest(userId) {
+            const postId = [[${post.id}]]
+            let flag = confirm(userId + '에게 공유 취소하시겠습니까?');
+            if(flag) {
+                fetch('/share/shareCancelRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId: userId, postId: postId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('취소되었습니다.');
+                            refreshModal();
+                        } else {
+                            alert('취소 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // 모달 창이 닫힐 때 location.reload() 실행
+            const modal = document.getElementById('friendSearchModal');
+            if (modal) {
+                modal.addEventListener('hide.bs.modal', function () {
+                    location.reload();
+                });
+            }
+        });
+
+        function confirmDelete(button) {
+            const postId = button.getAttribute("data-post-id")
+            // 사용자에게 확인 메시지 표시
+            const userConfirmed = confirm("정말로 삭제하시겠습니까?");
+            if (userConfirmed) {
+                // 사용자가 확인을 누르면 페이지 이동
+                location.href = `/post/delete?id=${postId}`;
+            }
+            // 취소하면 아무 동작도 하지 않음
+        }
+    </script>
+</div>

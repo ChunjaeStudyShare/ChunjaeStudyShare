@@ -8,8 +8,8 @@ public class Paging {
     private int pageSize;
     private int blockSize;
     private int totalCnt;
-    private String sortType;
-    private String sortOrder;
+//    private String sortType;
+//    private String sortOrder;
 
 
     public int getStartIdx(){

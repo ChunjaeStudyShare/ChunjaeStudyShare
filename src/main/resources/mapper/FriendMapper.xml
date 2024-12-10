@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.fullstack7.studyShare.mapper.FriendMapper">
+    <select id="list1" resultType="java.lang.String">
+        SELECT requesterId FROM Friend
+        WHERE status = 1
+          AND friendId = #{userId}
+    </select>
+    <select id="list2" resultType="java.lang.String">
+        SELECT friendId FROM Friend
+        WHERE status = 1
+        AND requesterId = #{userId}
+    </select>
+    <select id="searchById" resultType="java.lang.String">
+        SELECT userId FROM Member
+        WHERE userId LIKE CONCAT('%', #{searchId}, '%')
+        AND userId != #{userId}
+        LIMIT 5
+    </select>
+    <select id="amIReceiver" resultType="java.lang.Integer">
+        SELECT count(*) FROM Friend
+        WHERE friendId = #{userId}
+        AND requesterId = #{searchId}
+        AND status = 0
+    </select>
+    <select id="amISender" resultType="java.lang.Integer">
+        SELECT count(*) FROM Friend
+        WHERE friendId = #{searchId}
+          AND requesterId = #{userId}
+          AND status = 0
+    </select>
+    <insert id="sendFriendRequest">
+        INSERT INTO Friend (status, friendId, requesterId)
+        VALUES (#{status}, #{friendId}, #{requesterId})
+    </insert>
+    <delete id="cancelFriendRequest">
+        DELETE FROM Friend
+        WHERE friendId = #{friendId} AND requesterId = #{requesterId}
+    </delete>
+    <update id="acceptFriendRequest">
+        UPDATE Friend
+        SET status = 1
+        WHERE friendId = #{friendId} AND requesterId = #{requesterId}
+    </update>
+    <delete id="rejectFriendRequest">
+        DELETE FROM Friend
+        WHERE friendId = #{friendId} AND requesterId = #{requesterId}
+    </delete>
+    <select id="receivedList" resultType="java.lang.String">
+        SELECT requesterId FROM Friend
+        WHERE friendId = #{userId}
+        AND status = 0
+    </select>
+    <select id="sentList" resultType="java.lang.String">
+        SELECT friendId FROM Friend
+        WHERE requesterId = #{userId}
+        AND status = 0
+    </select>
+
+    <select id="isSharedByUser" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM Share
+            WHERE userId = #{userId} AND postId = #{postId}
+        )
+    </select>
+    <delete id="deleteFriend1">
+        DELETE FROM Friend
+        WHERE friendId = #{friendId} AND requesterId = #{requesterId}
+    </delete>
+    <delete id="deleteFriend2">
+        DELETE FROM Friend
+        WHERE friendId = #{requesterId} AND requesterId = #{friendId}
+    </delete>
+</mapper>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="https://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <style>
+        .chat-bubble {
+            display: inline-block;
+            max-width: 70%; /* 말풍선의 최대 너비 */
+            padding: 10px 15px; /* 내부 여백 */
+            margin: 5px 0; /* 상하 간격 */
+            background-color: #f1f0f0; /* 말풍선 배경색 */
+            border-radius: 20px; /* 둥근 모서리 */
+            color: #333; /* 글씨 색상 */
+            word-wrap: break-word; /* 긴 단어 줄바꿈 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
+        }
+
+        .chat-bubble-my {
+            display: inline-block;
+            max-width: 70%; /* 말풍선의 최대 너비 */
+            padding: 10px 15px; /* 내부 여백 */
+            margin: 5px 0; /* 상하 간격 */
+            background-color: #1e2125; /* 말풍선 배경색 */
+            border-radius: 20px; /* 둥근 모서리 */
+            color: #fff; /* 글씨 색상 */
+            word-wrap: break-word; /* 긴 단어 줄바꿈 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
+        }
+
+        .chat-bubble-manager {
+            text-align: center;
+            padding: 10px 15px; /* 내부 여백 */
+            margin: 5px 0; /* 상하 간격 */
+            color: #333; /* 글씨 색상 */
+            word-wrap: break-word; /* 긴 단어 줄바꿈 */
+            font-size: 15px;
+        }
+
+        .chat-box {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .chat-input-box {
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .chat-date {
+            display: inline-block;
+            font-size: 12px;
+            color: #4f5050;
+        }
+
+        .chat-id {
+            display: inline-block;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        #messages {
+            /*max-height: 550px; !* 최대 높이 600px로 제한 *!*/
+            height: 75vh;
+            overflow-y: auto; /* 세로 스크롤바 활성화 */
+            display: block; /* tbody에 block을 적용해 스크롤 가능하도록 설정 */
+        }
+
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div>채팅방</div>
+    <div>
+        <button data-invited-id="user3" class="btn-invite">초대</button>
+    </div>
+    <div class="row chat-box" id="messages">
+        <div class="row" th:each="item, status:${messages}">
+            <div class="chat-bubble-manager" th:if="${item.senderId == 'chatmanager'}" th:text="${item.message}"></div>
+            <th:block th:unless="${item.senderId == 'chatmanager'}">
+                <div class="col-2"><span class="chat-id" th:if="${item.senderId != 'chatmanager'}" th:text="${item.senderId}"></span></div>
+                <div class="col-10">
+                    <span th:class="${item.senderId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}" th:text="${item.message}"></span>
+                    <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </div>
+            </th:block>
+        </div>
+    </div>
+    <div class="row chat-input-box fixed-bottom">
+        <div class="col-12">
+            <form class="form-inline">
+
+                <div class="input-group">
+                    <input type="text" id="sender" class="form-control" placeholder="name...">
+                    <input type="text" id="content" class="form-control" placeholder="content..." maxlength="300">
+                    <button id="send" class="btn btn-dark" type="submit">Send</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript" layout:fragment="script">
+    let isConnected = false;
+    window.addEventListener("pageshow", function (event) {
+        connect();
+        scrollToBottom();
+    });
+
+    const inputContent = document.getElementById("content");
+    const roomId = [[${roomId}]];
+    const userId = [[${userId}]];
+    const messagesContainer = document.getElementById("messages");
+
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    const host = window.location.hostname; // 현재 호스트 이름 가져오기
+    const port = window.location.port; // 포트 설정
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'; // HTTPS일 경우 'wss', 아니면 'ws'
+    // const brokerURL = `${protocol}://${host}:${port}/ws-stomp`;
+    const stompClient = new StompJs.Client({
+        brokerURL: `${protocol}://${host}:${port}/ws-stomp`
+    });
+
+
+    stompClient.onConnect = (frame) => {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/room/' + roomId, (chatMessage) => {
+            let rContent = chatMessage.body;
+            if (rContent != null)
+                showMessageContent(JSON.parse(rContent))
+        });
+        //개인채널
+        stompClient.subscribe('/user/queue/errors', function (message) {
+            alert(JSON.parse(message.body).message);
+        });
+    };
+
+    stompClient.onWebSocketError = (error) => {
+        alert('채팅방 연결이 원활하지 않습니다. 페이지를 새로고침 해주세요.');
+    }
+
+    stompClient.onStompError = (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+    };
+
+
+
+    function connect() {
+        if (!isConnected && stompClient) {
+            stompClient.reconnectDelay = 60000; // 연결 끊겼을 때 다시 시도 방지
+            stompClient.activate();
+            isConnected = true;
+            console.log("Connected");
+        }
+    }
+
+    function disconnect() {
+        isConnected = false;
+        stompClient.deactivate();
+        console.log("Disconnected");
+    }
+
+    function sendMessageContent() {
+        if (!stompClient.active || !stompClient.connected) {
+            alert('채팅방 연결이 원활하지 않습니다. 페이지를 새로고침 해주세요.');
+            return;
+        }
+        if (inputContent.value === '') return;
+        if (inputContent.value.length > 300) {
+            alert("300자 이내 전송 가능합니다.");
+            return;
+        }
+        //메시지 전송
+        stompClient.publish({
+            destination: "/send/" + roomId,
+            body: JSON.stringify({'content': $("#content").val(), 'sender': $("#sender").val() }) //sender -> userId로 바꿔야됨
+        });
+        inputContent.value = '';
+    }
+
+    function showMessageContent(message) {
+
+        let content = `<div class="row">`;
+        if (message.senderId === 'chatmanager')
+            content += `<div class="chat-bubble-manager">${message.message}</div>`
+        else {
+            let classname = (message.senderId === userId) ? 'chat-bubble-my' :'chat-bubble';
+            content += `
+            <div class="col-2"><span class="chat-id">${message.senderId}</span></div>
+            <div class="col-10">
+                <span class="${classname}">${message.message}</span>
+                <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
+            </div>`
+        }
+        content += `</div>`
+
+        $("#messages").append(content);
+
+        scrollToBottom();
+    }
+
+    $(function () {
+        $("form").on('submit', (e) => e.preventDefault());
+        $("#connect").click(() => connect());
+        $("#disconnect").click(() => disconnect());
+        $("#send").click(() => sendMessageContent());
+    });
+
+    window.addEventListener("beforeunload", function (event) {
+        leave(roomId);
+        if (isConnected) disconnect();
+        event.preventDefault();
+    });
+
+    // unload 이벤트 사용
+    // window.addEventListener("unload", function() {
+    //     disconnect();
+    // });
+
+    document.querySelectorAll(".btn-invite").forEach(button => {
+        button.addEventListener("click", evt => {
+            let invitedId = button.dataset.invitedId;
+            let response = invite(invitedId, roomId).then((data) => {
+                alert(data);
+           });
+        });
+    })
+
+    async function invite(invitedId, roomId) {
+        const url = "/api/chat/room/invite";
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({invitedId: invitedId , roomId: roomId})
+        });
+
+
+        return response.text();
+    }
+
+    async function leave(roomId) {
+        const url = "/api/chat/room/leave";
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({leaveAt: new Date().toISOString(), roomId: roomId})
+        });
+        return response.ok;
+    }
+</script>
+</body>
+</html>

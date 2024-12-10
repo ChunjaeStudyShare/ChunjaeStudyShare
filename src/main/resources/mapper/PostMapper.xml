@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.fullstack7.studyShare.mapper.PostMapper">
+    <select id="totalCnt">
+        SELECT COUNT(DISTINCT p.id)
+        FROM Post p
+        LEFT JOIN ThumbsUp t ON p.id = t.postId
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'domain'">
+                        p.domain = #{searchValue}
+                    </when>
+                    <when test="searchCategory == 'hashtag'">
+                        p.hashtag LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null">
+                AND p.displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND p.displayEnd &lt;= #{displayEnd}
+            </if>
+            AND p.userId = #{userId}
+        </where>
+    </select>
+
+    <select id="selectAllPost">
+        SELECT p.*, COUNT(t.id) as thumbsUpCount    
+        FROM Post p
+        LEFT JOIN ThumbsUp t ON p.id = t.postId
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'domain'">
+                        p.domain = #{searchValue}
+                    </when>
+                    <when test="searchCategory == 'hashtag'">
+                        p.hashtag LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null">
+                AND p.displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND p.displayEnd &lt;= #{displayEnd}
+            </if>
+            AND p.userId = #{userId}
+        </where>
+        GROUP BY p.id
+        <choose>
+            <when test="sortType == 'thumbUp'">
+                ORDER BY thumbsUpCount DESC, p.createdAt DESC
+            </when>
+            <otherwise>
+                ORDER BY p.createdAt DESC
+            </otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="findPostWithFile" resultType="net.fullstack7.studyShare.dto.post.PostViewDTO">
+        SELECT
+            p.id,
+            p.title,
+            p.content,
+            p.privacy,
+            p.share,
+            p.displayAt,
+            p.displayEnd,
+            p.createdAt,
+            p.domain,
+            p.hashtag,
+            f.fileName,
+            f.path
+        FROM Post p
+                 LEFT JOIN File f ON p.id = f.postId
+        WHERE p.id = #{id}
+    </select>
+
+    <select id="checkWriter" resultType="boolean">
+        SELECT COUNT(*)
+        FROM Post
+        WHERE id = #{id} AND userId = #{userId}
+    </select>
+
+    <select id="selectMyShare" resultType="net.fullstack7.studyShare.dto.post.PostShareDTO">
+        SELECT
+        s.id,
+        p.id,
+        p.title,
+        p.createdAt,
+        p.userId,
+        s.createdAt AS sharedCreatedAt
+        FROM
+        Share s
+        JOIN
+        Post p ON s.postId = p.id
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        p.userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null">
+                AND p.displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND p.displayEnd &lt;= #{displayEnd}
+            </if>
+            AND s.userId = #{userId} <!-- 공유 받은 사용자 ID -->
+        </where>
+        ORDER BY p.createdAt DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 게시글 조회 -->
+<!--    <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">-->
+<!--        SELECT id, title, createdAt-->
+<!--        FROM Post-->
+<!--        WHERE userId = #{userId} AND share = 1-->
+<!--        ORDER BY createdAt DESC-->
+<!--    </select>-->
+
+    <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
+        SELECT id as postId, title, createdAt
+        FROM Post
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null">
+                AND p.displayAt &gt;= #{displayAt}
+            </if>
+            <if test="displayEnd != null">
+                AND p.displayEnd &lt;= #{displayEnd}
+            </if>
+            AND userId = #{userId}<!-- 로그인한 사용자 ID -->
+        </where>
+        ORDER BY createdAt DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+
+
+
+
+    <!-- 공유자 조회 -->
+    <select id="selectSharesByPostId" resultType="net.fullstack7.studyShare.dto.post.ShareInfoDTO">
+        SELECT
+            userId AS sharedUserId,
+            createdAt AS sharedAt,
+            postId
+        FROM Share
+        WHERE
+            postId IN
+                <foreach collection="postIds" item="post" open="(" separator="," close=")">
+                    #{post}
+                </foreach>
+    </select>
+
+    <!--인규-->
+    <select id="hasShare" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM Share
+        WHERE postId = #{id}
+    </select>
+    <delete id="deletePost">
+        DELETE FROM Post
+        WHERE id = #{id}
+    </delete>
+    <delete id="deleteShare">
+        DELETE FROM Share
+        WHERE postId = #{id}
+    </delete>
+
+</mapper>

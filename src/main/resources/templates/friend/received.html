@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout.html}">
+<div layout:fragment="content" class="container mt-4">
+    <!-- 상단 검색/정렬 영역 -->
+    <div class="mb-3">
+        <input type="text" id="searchFriend" class="form-control w-25" placeholder="목록에서 검색" onkeyup="searchFriend()" >
+        <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">친구 찾기</button>
+    </div>
+
+    <ul class="nav nav-tabs" id="friendTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="friend-list-tab" data-bs-toggle="tab" type="button" role="tab" aria-selected="false" onclick="location.href='/friend/list'">친구 목록</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="received-requests-tab" data-bs-toggle="tab" type="button" role="tab" aria-selected="true" onclick="location.href='/friend/received'">받은 요청</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sent-requests-tab" data-bs-toggle="tab" type="button" role="tab"  aria-selected="false"  onclick="location.href='/friend/sent'">보낸 요청</button>
+        </li>
+    </ul>
+
+    <!-- 친구 찾기 모달 -->
+    <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 친구 검색 기능 -->
+                    <div class="container mt-3">
+                        <!-- 입력 필드 -->
+                        <div class="mb-3">
+                            <label for="searchId" class="form-label">아이디 검색</label>
+                            <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요" onkeyup="searchUserById()">
+                        </div>
+                        <!-- 친구 검색 결과 -->
+                        <div id="suggestions"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 친구 목록 테이블 -->
+    <div>
+        <table class="table">
+            <thead>
+            <colgroup>
+                <col style="width: 15%;">
+                <col style="width: 65%;">
+                <col style="width: 20%;">
+            </colgroup>
+            <tr>
+                <th>#</th>
+                <th>아이디</th>
+                <th>수락/거절</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="userId, status : ${receivedList}">
+                <td th:text="${status.index + 1}"></td>
+                <td th:text="${userId}"></td>
+                <td><button
+                        class="btn btn-lignt"
+                        th:data-user-id="${userId}"
+                        onclick="acceptRequest1(this)">
+                        수락
+                    </button>
+                    <button
+                            class="btn btn-dark"
+                            th:data-user-id="${userId}"
+                            onclick="rejectRequest1(this)">
+                        거절
+                    </button>
+            </tr>
+            <tr>
+                <td colspan="3" class="text-center" th:if="${receivedList.isEmpty() || receivedList == null}">
+                    받은 친구 요청이 없습니다.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script th:inline="javascript">
+        let debounceTimer;
+        let lastSearchId = '';
+
+        function searchUserById() {
+            const searchId = document.getElementById('searchId').value;
+
+            // 입력값이 비어있으면 검색 결과를 지우고 리턴
+            if (searchId.length === 0) {
+                document.getElementById('suggestions').innerHTML = '';
+                return;
+            }
+
+            // 동일한 검색어에 대해 새로운 요청을 보내지 않도록
+            if (lastSearchId === searchId) {
+                return;
+            }
+
+            lastSearchId = searchId; // 최신 검색어로 갱신
+
+            clearTimeout(debounceTimer); // 이전 요청을 취소
+            debounceTimer = setTimeout(() => {
+                fetch(`/friend/searchUserById?searchId=${searchId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let suggestionsHtml = `
+                <table class="table table-bordered">
+                    <colgroup>
+                        <col style="width:60%;">
+                        <col style="width:40%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>아이디</th>
+                            <th>신청</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+
+                        if (data.length === 0) {
+                            suggestionsHtml += '<tr><td colspan="2">검색된 유저가 없습니다.</td></tr>';
+                        } else {
+                            data.forEach(user => {
+                                suggestionsHtml += `
+                            <tr>
+                                <td>${user.userId}</td>
+                                <td>
+                                    <button class="btn ${user.isFriend === 1 ? 'btn-secondary' :
+                                    (user.sent === 1 ? 'btn-dark' :
+                                        (user.received === 1 ? 'btn-secondary' : 'btn-secondary'))}"
+                                            onclick="${user.isFriend === 1 ? '' :
+                                    (user.sent === 1 ? `cancelRequest('${user.userId}')` :
+                                        (user.received === 1 ? `acceptRequest('${user.userId}')` : `sendRequest('${user.userId}')`))}">
+                                        ${user.isFriend === 1 ? '이미 친구입니다' :
+                                    (user.sent === 1 ? '친구 신청 취소' :
+                                        (user.received === 1 ? '친구 신청 수락' : '신청'))}
+                                    </button>
+                                    <!-- 친구 신청 수락 버튼 -->
+                                    ${user.received === 1 ? `
+                                        <button class="btn btn-dark" onclick="rejectRequest('${user.userId}')">거절</button>
+                                    ` : ''}
+                                </td>
+                            </tr>
+                        `;
+                            });
+                        }
+                        suggestionsHtml += '</tbody></table>';
+                        document.getElementById('suggestions').innerHTML = suggestionsHtml;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }, 30);
+        }
+
+        function sendRequest(userId) {
+            let flag = confirm(userId + '에게 친구 신청을 보내시겠습니까?');
+            if(flag) {
+                fetch('/friend/sendRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ friendId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 신청이 성공적으로 보내졌습니다!');
+                            refreshModal();
+                        } else {
+                            alert('친구 신청 실패');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+        function refreshModal() {
+            lastSearchId = ''; //검색어 초기화 !!!!!이거였구나~~~~
+            // searchUserById()를 호출하여 데이터를 갱신
+            searchUserById();
+
+            // 모달 내용이 갱신된 후에는 모달을 다시 열지 않음
+            // 이미 열린 상태에서 갱신만 하므로 모달을 숨기거나 다시 열지 않습니다.
+            const modal = document.getElementById('friendSearchModal');
+            if (modal && modal.style.display !== 'block') {
+                modal.style.display = 'block';  // 만약 모달이 닫혀있다면 다시 열기
+            }
+        }
+        function cancelRequest(userId) {
+            let flag = confirm(userId + '에게 보낸 친구 신청을 취소하시겠습니까?');
+            if(flag) {
+                fetch('/friend/cancelRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ friendId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 신청이 성공적으로 취소되었습니다.');
+                            refreshModal();
+                        } else {
+                            alert('취소 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+        function acceptRequest(userId) {
+            let flag = confirm(userId + '에게서 온 친구 요청을 수락하시겠습니까?');
+            if(flag) {
+                fetch('/friend/acceptRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requesterId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 요청을 성공적으로 수락했습니다.');
+                            refreshModal();
+                        } else {
+                            alert('수락 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+
+        function rejectRequest(userId) {
+            let flag = confirm(userId + '에게서 온 친구 요청을 거절하시겠습니까?');
+            if(flag) {
+                fetch('/friend/rejectRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requesterId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 요청을 성공적으로 거절했습니다.');
+                            refreshModal();
+                        } else {
+                            alert('거절 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+
+        function acceptRequest1(button) {
+            const userId = button.getAttribute('data-user-id');
+            const confirmation = confirm(`${userId}에게서 온 친구 요청을 수락하시겠습니까?`);
+            if (confirmation) {
+                fetch('/friend/acceptRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requesterId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 요청을 성공적으로 수락했습니다.');
+                            location.reload();
+                        } else {
+                            alert('수락 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+        function rejectRequest1(button) {
+            const userId = button.getAttribute('data-user-id');
+            const confirmation = confirm(`${userId}에게서 온 친구 요청을 거절하시겠습니까?`);
+            if (confirmation) {
+                fetch('/friend/rejectRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requesterId: userId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('친구 요청을 성공적으로 거절했습니다.');
+                            location.reload();
+                        } else {
+                            alert('거절 실패. 다시 시도해주세요.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // 모달 창이 닫힐 때 location.reload() 실행
+            const modal = document.getElementById('friendSearchModal');
+            if (modal) {
+                modal.addEventListener('hide.bs.modal', function () {
+                    location.reload();
+                });
+            }
+        });
+        function searchFriend() {
+            const searchQuery = document.getElementById('searchFriend').value.toLowerCase();
+            const tableRows = document.querySelectorAll('tbody tr:not(.no-data-message)');
+            const noDataRow = document.querySelector('.no-data-message');
+            let hasVisibleRow = false;
+
+            if (searchQuery.length === 0) {
+
+                tableRows.forEach(row => {
+                    row.style.display = '';
+                });
+                if (noDataRow) {
+                    noDataRow.style.display = 'none';
+                }
+                return;
+            }
+
+            tableRows.forEach(row => {
+                const userIdCell = row.querySelector('td:nth-child(2)');
+                if (userIdCell) {
+                    const userId = userIdCell.textContent.toLowerCase();
+                    if (userId.includes(searchQuery)) {
+                        row.style.display = '';
+                        hasVisibleRow = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+
+
+            if (!hasVisibleRow) {
+                if (!noDataRow) {
+                    const noDataMessage = `
+                <tr class="no-data-message">
+                    <td colspan="3" class="text-center">검색 결과가 없습니다.</td>
+                </tr>
+            `;
+                    document.querySelector('tbody').insertAdjacentHTML('beforeend', noDataMessage);
+                } else {
+                    noDataRow.style.display = '';
+                }
+            } else {
+                if (noDataRow) {
+                    noDataRow.style.display = 'none';
+                }
+            }
+        }
+    </script>
+</div>

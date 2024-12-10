@@ -7,10 +7,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import lombok.Getter;
+
+import lombok.*;
 import jakarta.persistence.Column;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 @Getter
+@Setter
 @Entity
+@NoArgsConstructor // JPA 기본 생성자 필요
+@AllArgsConstructor // @Builder와 함께 필요
+@Builder
+@Table(name = "Post", indexes = {
+    @Index(name = "idx_user_date", columnList = "userId, createdAt")
+})
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,4 +56,10 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "userId")
     private Member member;
+
+    @Column(columnDefinition = "VARCHAR(100) COMMENT '썸네일명'")
+    private String thumbnailName;
+
+    @Column(columnDefinition = "VARCHAR(200) COMMENT '썸네일경로'")
+    private String thumbnailPath;
 }

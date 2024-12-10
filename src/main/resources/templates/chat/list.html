@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="https://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .chat-list {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chat-item:hover {
+            background: #f9f9f9;
+        }
+
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+
+        .chat-details {
+            flex: 1;
+        }
+
+        .chat-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 0 5px;
+        }
+
+        .chat-last-message {
+            font-size: 14px;
+            color: #555;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+        }
+
+
+        .chat-box {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">친구 선택</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/chat/create" method="post">
+                <div class="modal-body" id="friend-list">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="submit" class="btn btn-primary">채팅 시작</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row chat-box">
+        <div class="btn-chat">
+            <button type="button" id="create-chatroom" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                채팅방 만들기
+            </button>
+        </div>
+        <div class="chat-list chat-box">
+
+            <div class="chat-item" th:each="item, status:${chatlist}" th:data-chat-room-id="${item.chatRoomId}">
+                <div class="chat-details">
+                    <div class="chat-title"><span th:each="member, iterStat : ${item.members}"
+                                                   th:text="${member} + (${iterStat.last} ? '' : ',')"></span> </div>
+                    <div class="chat-last-message">
+                        <span class="badge rounded-pill text-bg-danger" th:text="${item.newMessagesCount}"></span>
+                        <span th:text="${item.lastMessage}"></span>
+                    </div>
+                </div>
+                <div class="chat-time" th:text="${#temporals.format(item.lastMessageTime, 'yyyy-MM-dd HH:mm:ss')}">10:30 AM</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script layout:fragment="script" th:inline="javascript">
+    document.querySelectorAll(".chat-item").forEach(value => {
+        value.addEventListener("click", e => {
+            location.href = "/chat/room/"+value.dataset.chatRoomId;
+        })
+    });
+
+    let friendFlag = false;
+    const friendList = document.getElementById("friend-list");
+    document.getElementById("create-chatroom").addEventListener("click", async e => {
+        const url = "/api/chat/friends";
+
+        if(friendFlag)
+            return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET'
+            });
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const json = await response.json();
+            // console.log(json);
+
+            friendFlag = true;
+
+            for(let item of json) {
+                friendList.innerHTML += `<input type="checkbox" id="${item}" value="${item}" name="invited"><lable for="user2">${item}</lable><br>`
+            }
+
+        } catch (error) {
+            console.error(error.message);
+        }
+    });
+
+</script>
+
+</body>
+</html>

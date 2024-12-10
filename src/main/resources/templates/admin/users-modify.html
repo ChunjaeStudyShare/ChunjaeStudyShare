@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/adminLayout}">
+<body>
+    <div layout:fragment="content">
+        <div class="container mt-4">
+            <h2>사용자 정보 수정</h2>
+            
+            <!-- 에러 메시지 표시 -->
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/admin/users/modify}" method="post" th:object="${member}">
+                <input type="hidden" name="currentPage">
+                
+                <div class="mb-3">
+                    <label for="userId" class="form-label">아이디</label>
+                    <input type="text" class="form-control" id="userId" th:field="*{userId}" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">이름</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">이메일</label>
+                    <input type="email" class="form-control" id="email" th:field="*{email}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="phone" class="form-label">전화번호</label>
+                    <input type="text" class="form-control" id="phone" th:field="*{phone}">
+                </div>
+                <p class="text-muted">상태 종류:<br>
+                    0 : 활동중<br>
+                    1 : 휴면<br>
+                    2 : 탈퇴(강퇴 관리자 또는 이용 규칙 위반)<br>
+                    3 : 미인증<br>
+                    4 : 잠금 (5회 이상 로그인 실패)</p>
+                <div class="mb-3">
+                    <label for="status" class="form-label">상태</label>
+                    <select class="form-select" id="status" th:field="*{status}">
+                        <option value="0">활동중</option>
+                        <option value="1">휴면</option>
+                        <option value="2">탈퇴</option>
+                        <option value="3">미인증</option>
+                        <option value="4">잠금</option>
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">수정</button>
+                    <a th:href="${currentPage != null ? currentPage : '/admin/users'}" class="btn btn-secondary">취소</a>
+                </div>
+            </form>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const url = document.URL;
+                console.log("url: ", url);
+                document.querySelector('input[name="currentPage"]').value = url;
+            });
+        </script>
+    </div>
+</body>
+</html>
