@@ -5,10 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.File;
 import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.domain.Post;
-import net.fullstack7.studyShare.dto.post.PostDTO;
-import net.fullstack7.studyShare.dto.post.PostGetInfoDTO;
-import net.fullstack7.studyShare.dto.post.PostRegistDTO;
-import net.fullstack7.studyShare.dto.post.PostViewDTO;
+import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.mapper.PostMapper;
 import net.fullstack7.studyShare.repository.FileRepository;
 import net.fullstack7.studyShare.repository.MemberRepository;
@@ -177,23 +174,6 @@ public class PostServiceImpl implements PostServiceIf{
                 .map(i -> modelMapper.map(i, PostDTO.class)).collect(Collectors.toList());
     }
 
-    @Override
-    public List<PostGetInfoDTO> selectMyShare(int pageNo, int pageSize, String searchCategory, String searchValue,
-                                              String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("offset", (pageNo - 1) * pageSize);
-        map.put("limit", pageSize);
-        map.put("searchCategory", searchCategory);
-        map.put("searchValue", searchValue);
-        map.put("userId", userId);
-        map.put("sortType", sortType);
-        map.put("displayAt", displayAt);
-        map.put("displayEnd", displayEnd);
-
-        List<Post> list = postMapper.selectMyShare(map);
-        return list.stream()
-                .map(i -> modelMapper.map(i, PostGetInfoDTO.class)).collect(Collectors.toList());
-    }
 
     @Override
     public PostViewDTO findPostWithFile(String id) {
@@ -369,5 +349,107 @@ public class PostServiceImpl implements PostServiceIf{
         boolean post = postMapper.deletePost(id); // 게시글 삭제
 
         return post && (hasShare == 0 || share); // 세 가지 경우
+    }
+
+    @Override
+    public List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("offset", (dto.getPageNo() - 1) * dto.getPageSize());
+        map.put("limit", dto.getPageSize());
+        map.put("searchCategory", dto.getSearchCategory());
+        map.put("searchValue", dto.getSearchValue());
+        map.put("userId", userId);
+        map.put("sortType", dto.getSortType());
+        map.put("displayAt", dto.getDisplayAt());
+        map.put("displayEnd", dto.getDisplayEnd());
+
+        List<PostShareDTO> list = postMapper.selectMyShare(map);
+        return list.stream()
+                .map(i -> modelMapper.map(i, PostShareDTO.class)).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<PostMyShareDTO> selectPostsByUserId(PostSharePagingDTO dto, String userId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("offset", (dto.getPageNo() - 1) * dto.getPageSize());
+        map.put("limit", dto.getPageSize());
+        map.put("searchCategory", dto.getSearchCategory());
+        map.put("searchValue", dto.getSearchValue());
+        map.put("userId", userId);
+        map.put("sortType", dto.getSortType());
+        map.put("displayAt", dto.getDisplayAt());
+        map.put("displayEnd", dto.getDisplayEnd());
+
+        // 게시글 조회
+        List<PostMyShareDTO> posts = postMapper.selectPostsByUserId(map);
+        if (posts == null || posts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        log.info("posts, {}", posts);
+
+        // 게시글 ID 추출
+        List<Integer> postIds = posts.stream()
+                .map(PostMyShareDTO::getPostId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        log.info("postIds, {}", postIds);
+
+        if (postIds.isEmpty()) {
+            return posts; // 게시글은 있으나 postId가 없는 경우 그대로 반환
+        }
+
+        // 공유자 정보 조회
+        List<ShareInfoDTO> shares = postMapper.selectSharesByPostId(postIds);
+
+        log.info("shares, {}", shares);
+
+
+        if (shares == null || shares.isEmpty()) {
+            return posts; // 공유 정보가 없는 경우 그대로 반환
+        }
+
+        // 공유자 정보를 게시글 ID별로 그룹화
+        Map<Integer, List<ShareInfoDTO>> sharesByPostId = shares.stream()
+                .filter(share -> share.getPostId() != null)
+                .collect(Collectors.groupingBy(ShareInfoDTO::getPostId));
+
+        log.info("sharesByPostId, {}", sharesByPostId);
+
+        // 게시글 리스트에 공유자 정보 매핑
+        posts.forEach(post -> {
+            // `sharesByPostId`에서 공유자 리스트 가져오기
+//            List<ShareInfoDTO> shareInfos = sharesByPostId.getOrDefault(post.getPostId(), new ArrayList<>());
+
+            // `ShareInfoDTO` -> `PostShareDTO` 변환
+//            List<PostShareDTO> postShares = shareInfos.stream()
+//                    .map(shareInfo -> {
+//                        PostShareDTO postShareDTO = new PostShareDTO();
+//                        postShareDTO.setPostId(shareInfo.getPostId());
+//                        postShareDTO.setUserId(shareInfo.getSharedUserId());
+//                        postShareDTO.setSharedCreatedAt(shareInfo.getSharedAt());
+//                        postShareDTO.setTitle(post.getTitle()); // 게시글 제목 복사
+//                        postShareDTO.setCreatedAt(post.getCreatedAt()); // 게시글 생성 시간 복사
+//                        return postShareDTO;
+//                    })
+//                    .collect(Collectors.toList());
+
+            // 변환된 리스트를 설정
+            post.setShares(sharesByPostId.get(post.getPostId()));
+            log.info("post, {}", post);
+        });
+
+        return posts;
+    }
+
+
+
+
+
+    @Override
+    public List<ShareInfoDTO> selectSharesByPostId(List<Integer> postId) {
+        return postMapper.selectSharesByPostId(postId);
     }
 }

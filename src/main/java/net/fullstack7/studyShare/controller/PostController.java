@@ -7,11 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.Share;
-import net.fullstack7.studyShare.dto.post.PostDTO;
-import net.fullstack7.studyShare.dto.post.PostRegistDTO;
-import net.fullstack7.studyShare.dto.post.PostShareDTO;
-import net.fullstack7.studyShare.dto.post.PostViewDTO;
-import net.fullstack7.studyShare.dto.post.PostPagingDTO;
+import net.fullstack7.studyShare.dto.post.*;
 import net.fullstack7.studyShare.service.post.PostServiceIf;
 import net.fullstack7.studyShare.service.share.ShareServiceIf;
 import net.fullstack7.studyShare.util.CommonFileUtil;
@@ -180,25 +176,55 @@ public class PostController {
 
     @GetMapping("/shareList")
     public String shareList(Model model,
-                              HttpServletResponse response,
-                              @Valid PostPagingDTO dto) {
+                            HttpServletResponse response,
+                            @Valid PostSharePagingDTO dto) {
         LogUtil logUtil = new LogUtil();
         logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
         String userId = "user1";
-
+        System.out.println(dto.getSortType());
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         log.info("totalCnt: " + totalCnt);
+        List<PostMyShareDTO> sharePosts;
+        List<PostShareDTO> getSharePosts;
+        if("share".equals(dto.getSortType()) || dto.getSortType().isEmpty()){
+            sharePosts = postService.selectPostsByUserId(dto, userId); // 공유 한 것
+            model.addAttribute("posts", sharePosts);
+        }else{
+            getSharePosts = postService.getSharedPosts(dto, userId); // 공유 받은 것
+            model.addAttribute("posts", getSharePosts);
+        }
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
-        List<PostDTO> posts = postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
-
-        model.addAttribute("posts", posts);
         model.addAttribute("paging", paging);
         model.addAttribute("postPagingDTO", dto);
         model.addAttribute("uri", "/post/shareList");
         return "post/shareList";
-
     }
+
+
+
+//    @GetMapping("/shareList_1")
+//    public String shareList_1(Model model,
+//                            HttpServletResponse response,
+//                            @Valid PostSharePagingDTO dto) {
+//        LogUtil logUtil = new LogUtil();
+//        logUtil.info("dto: " + dto);
+//        response.setCharacterEncoding("utf-8");
+//        String userId = "user1";
+//
+//        int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
+//        log.info("totalCnt: " + totalCnt);
+//
+//        Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
+//        System.out.println("sharePosts: " + sharePosts.size());
+//
+//        model.addAttribute("paging", paging);
+//        model.addAttribute("postPagingDTO", dto);
+//        model.addAttribute("uri", "/post/shareList_1");
+//        return "post/shareList_1";
+//
+//    }
+
     //인규가 작업함
     @GetMapping("/delete")
     public String delete(@RequestParam int id, HttpServletResponse response){
