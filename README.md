@@ -8,7 +8,7 @@
 ## 👥 팀원 소개
 |이름|역할|담당 기능|GitHub|
 |---|---|---|---|
-|공미경|팀장|• 채팅 ㄱ<br>• 단체 채팅|[@GitHub](https://github.com/qoiol)|
+|공미경|팀장|• 채팅<br>• 단체 채팅|[@GitHub](https://github.com/qoiol)|
 |강경민|팀원|• 회원 관련 <br>• DB 설계<br>• 어드민 페이지|[@GitHub](https://github.com/GyeongMin2)|
 |송수미|팀원|• 포스트 관련 <br>• 페이징 공통모듈 설계 <br>• 파일 업로드 |[@GitHub](https://github.com/SumiSong)|
 |한인규|팀원|• 친구 관련<br>• 메인 페이지|[@GitHub](https://github.com/Haninqq)|
