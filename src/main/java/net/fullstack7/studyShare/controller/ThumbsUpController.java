@@ -3,8 +3,7 @@ package net.fullstack7.studyShare.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.apiResponse.ApiResponse;
@@ -19,16 +18,16 @@ import net.fullstack7.studyShare.exception.CustomException;
 @RequiredArgsConstructor
 public class ThumbsUpController {
     private final ThumbsUpService thumbsUpService;
-    @PostMapping("/{postId}")
+    @GetMapping("/{postId}")
     public ResponseEntity<?> getThumbsUp(@PathVariable Integer postId, HttpServletRequest request) {
         try {
             String userId = (String) request.getAttribute("userId");
             boolean isThumbsUp = thumbsUpService.insertThumbsUp(postId, userId);
             if (isThumbsUp) {
-                return ResponseEntity.ok(ApiResponse.success("좋아요 추가 성공", null));
+                return ResponseEntity.ok(ApiResponse.success("좋아요 추가 성공", thumbsUpService.countThumbsUp(postId)));
             }else {
                 thumbsUpService.deleteThumbsUp(postId, userId);
-                return ResponseEntity.ok(ApiResponse.success("좋아요가 취소되었습니다.", null));
+                return ResponseEntity.ok(ApiResponse.success("좋아요가 취소되었습니다.", thumbsUpService.countThumbsUp(postId)));
             }
         } catch (Exception e) {
             log.error("좋아요 추가 처리 중 오류가 발생했습니다: {}", postId, e);

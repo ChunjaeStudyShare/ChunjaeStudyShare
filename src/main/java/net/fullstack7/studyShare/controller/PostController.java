@@ -24,7 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import net.fullstack7.studyShare.service.ThumbsUp.ThumbsUpService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +42,7 @@ public class PostController {
 
     private final PostServiceIf postService;
     private final ShareServiceIf shareService;
+    private final ThumbsUpService thumbsUpService;
 
     @GetMapping("/myList")
     public String myStudyList(Model model,
@@ -66,12 +67,13 @@ public class PostController {
     @GetMapping("/view")
     public String view(Model model,
                              HttpServletResponse response,
+                             HttpServletRequest request,
                              @RequestParam("currentPage") String currentPage,
                              @RequestParam(defaultValue = "") String type,
                              @RequestParam String id,
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
-        System.out.println("current: " + currentPage);
+            System.out.println("current: " + currentPage);
             String userId = "user1"; //세션 아아디
             try{
                 //게시글 조회
@@ -83,7 +85,10 @@ public class PostController {
                         redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
                         return "redirect:/post/shareList";
                     }
-
+                    // 좋아요 개수 조회
+                    Integer thumbUpCnt = thumbsUpService.countThumbsUp(Integer.parseInt(id));
+                    model.addAttribute("thumbsUpCnt", thumbUpCnt);
+                  
                     //공유 목록 조회
                     List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
                     model.addAttribute("shareList", shareList);
