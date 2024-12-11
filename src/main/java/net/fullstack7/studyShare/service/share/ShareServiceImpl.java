@@ -56,7 +56,11 @@ public class ShareServiceImpl implements ShareServiceIf{
                         .user(Member.builder().userId(postShareDTO.getUserId()).build()) //공유 받는 사람, 객체로 들어와야함
                         .post(post)
                         .build();
+//                Post post_in = Post.builder()
+//                                .share(1)
+//                                .build();
                 shareRepository.save(share);
+//                postRepository.save(post_in);
                 log.info(" 성공  ID: {}", share.getId());
                 return true;
             }catch(Exception e){
@@ -82,10 +86,15 @@ public class ShareServiceImpl implements ShareServiceIf{
             // postId로 Post 객체 조회
             Post post = postRepository.findById(postShareDTO.getPostId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+
             // 데이터 삭제
             int result = shareRepository.deleteByUserIdAndPostId(user, post);
             if(result > 0) {
                 log.info("삭제 성공");
+//                Post post_in = Post.builder()
+//                        .share(0)
+//                        .build();
+//                postRepository.save(post_in);
                 return true;
             }else {
                 log.info("삭제 실패");

@@ -299,12 +299,13 @@
 
                 //파일
                 const maxSize = 10*1024*1024;
-                if (file.files[0].size > maxSize) {
+
+                if (file.files.length > 0 && file.files[0].size > maxSize) {
                     fileError.textContent = "파일 크기는 최대 10MB까지만 허용됩니다.";
                     event.target.value = ""; // 파일 입력 초기화
                     isValid = false;
                 }
-                console.log(file.files[0].size);
+
 
                 // 유효성 검사 실패 시 폼 제출 중단
                 if (!isValid) {
