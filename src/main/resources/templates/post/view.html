@@ -89,29 +89,40 @@
                     <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
                : (post.displayAt != null ? post.displayAt + ' ~'
                : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}" colspan="4">
-                    </td>
-                </tr>
-                <!-- 이미지와 내용 -->
-                <tr>
-                    <td colspan="2" style="text-align: center;">
-                        <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded"
-                            th:if="${post.path != null}">
-                        <span th:if="${post.path == null}">이미지가 없습니다.</span>
-                    </td>
-                    <td colspan="4">
-                        <div class="scroll-box" th:text="${post.content}"></div>
-                    </td>
-                </tr>
-                <!-- 공유 정보 -->
-                <tr>
-                    <th>공유한 사람</th>
-                    <td colspan="5">
-                        <div th:each="shared, status:${shareList}">
-                            <span th:text="${shared.user.userId}"></span>
-                            <button type="button" class="btn-close-custom" aria-label="Close"
-                                th:data-user-id="${shared.user.userId}" th:onclick="'cancelRequest(this)'">X
-                            </button>
-                            <br>
+                </td>
+            </tr>
+            <!-- 이미지와 내용 -->
+            <tr>
+                <td colspan="1" style="text-align: center;">
+                    <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}">
+                    <span th:if="${post.path == null}">이미지가 없습니다.</span>
+                </td>
+                <td colspan="5">
+                    <div class="scroll-box" th:text="${post.content}"></div>
+                </td>
+            </tr>
+            <!-- 공유 정보 -->
+            <tr>
+                <th>공유한 사람</th>
+                <td colspan="5">
+                    <div th:each="shared, status:${shareList}">
+                        <span th:text="${shared.user.userId}"></span>
+                        <button type="button" class="btn-close-custom" aria-label="Close"
+                                th:data-user-id="${shared.user.userId}"
+                                th:onclick="'cancelRequest(this)'">X
+                        </button>
+                        <br>
+                    </div>
+                    <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
+                    <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
+                </td>
+            </tr>
+            <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
                         <button class="btn btn-secondary float-end" data-bs-toggle="modal"
@@ -159,8 +170,11 @@
         <br>
         <!-- 하단 버튼 -->
         <div class="button-end text-end">
+
+            <!-- 공유 받은 글인 경우 -->
             <button class="btn btn-success" id="thumbsUpBtn">좋아요</button>
-            <button class="btn btn-primary" th:onclick="|location.href='@{/post/list}'|">목록</button>
+<!--            <button class="btn btn-primary" th:onclick="|location.href='@{currentPage != null ? currentPage : '/post/myList'}'|">목록</button>-->
+            <button th:onclick="|location.href='@{${currentPage != null ? currentPage : '/post/myList'}}'|" class="btn btn-primary">목록</button>
             <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
             <button class="btn btn-danger" th:data-post-id="${post.id}" onclick="confirmDelete(this)">
@@ -307,6 +321,7 @@
             }
             // 취소하면 아무 동작도 하지 않음
         }
+
         //Post
         document.getElementById('thumbsUpBtn').addEventListener('click', function () {
             console.log('thumbsUpBtn 호출');
@@ -327,5 +342,12 @@
                     alert('좋아요 처리 중 오류가 발생했습니다.');
                 });
         });
+
+
+        const url = document.URL;
+        console.log("url", url);
+        document.querySelector('input[name="currentPage"]').value = url;
+
+
     </script>
 </div>

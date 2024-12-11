@@ -21,6 +21,7 @@ public class PostViewDTO {
     private String content;
     private Integer privacy;
     private Integer share;
+    private String userId;
     private LocalDateTime displayAt;
     private LocalDateTime displayEnd;
     private LocalDateTime createdAt;

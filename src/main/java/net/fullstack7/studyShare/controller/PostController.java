@@ -17,6 +17,7 @@ import net.fullstack7.studyShare.util.Paging;
 import net.fullstack7.studyShare.util.ValidateList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.repository.query.JSqlParserUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,9 +52,6 @@ public class PostController {
         logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
         String userId = "user1";
-        // if (!ValidateList.validateMyListParameters(pageNo, searchCategory, searchValue, displayAt, displayEnd, sortType, response)) {
-        //     return null;
-        // }
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         log.info("totalCnt: " + totalCnt);
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
@@ -62,11 +60,6 @@ public class PostController {
         model.addAttribute("posts", posts);
         model.addAttribute("paging", paging);
         model.addAttribute("postPagingDTO", dto);
-        // model.addAttribute("searchCategory", dto.getSearchCategory());
-        // model.addAttribute("searchValue", dto.getSearchValue());
-        // model.addAttribute("sortType", dto.getSortType());
-        // model.addAttribute("displayAt", dto.getDisplayAt());
-        // model.addAttribute("displayEnd", dto.getDisplayEnd());
         model.addAttribute("uri", "/post/myList");
         return "post/list";
     }
@@ -75,24 +68,46 @@ public class PostController {
     public String view(Model model,
                              HttpServletResponse response,
                              HttpServletRequest request,
-                             @RequestParam String id){
-        response.setCharacterEncoding("utf-8");
-        // 게시글 조회
-        PostViewDTO post = postService.findPostWithFile(id);
-        // 좋아요 개수 조회
-        Integer thumbUpCnt = thumbsUpService.countThumbsUp(Integer.parseInt(id));
-        model.addAttribute("thumbsUpCnt", thumbUpCnt);
-        //공유 목록 가져오기
-        List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
-        model.addAttribute("shareList", shareList);
-        if(post != null){
-            model.addAttribute("post", post);
-            return "post/view";
-        }else {
-            JSFunc.alertBack("일치하는 ID 정보가 없습니다.",response);
+                             @RequestParam("currentPage") String currentPage,
+                             @RequestParam(defaultValue = "") String type,
+                             @RequestParam String id,
+                             RedirectAttributes redirectAttributes) {
+            response.setCharacterEncoding("utf-8");
+            System.out.println("current: " + currentPage);
+            String userId = "user1"; //세션 아아디
+            try{
+                //게시글 조회
+                PostViewDTO post = postService.findPostWithFile(id);
+                if(post != null){
+                    //권한 확인(작성자인지, 공유받은 사람인지)
+                    boolean hasAccess = postService.isOwnerOrSharedWithUser(Integer.parseInt(id), userId);
+                    if (!hasAccess) {
+                        redirectAttributes.addFlashAttribute("alertMessage", "접근 권한이 없습니다.");
+                        return "redirect:/post/shareList";
+                    }
+                    // 좋아요 개수 조회
+                    Integer thumbUpCnt = thumbsUpService.countThumbsUp(Integer.parseInt(id));
+                    model.addAttribute("thumbsUpCnt", thumbUpCnt);
+                  
+                    //공유 목록 조회
+                    List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
+                    model.addAttribute("shareList", shareList);
+                    model.addAttribute("post", post);
+                    model.addAttribute("currentPage", currentPage);
+                    if("share".equals(type)){
+                        return "post/shareView";
+                    }else{
+                        return "post/view";
+                    }
+                }else {
+                    redirectAttributes.addFlashAttribute("alertMessage", "게시글 정보가 없습니다.");
+                    return "redirect:/post/myList";
+                }
+            }catch(Exception e){
+                redirectAttributes.addFlashAttribute("alertMessage",  e.getMessage());
+                return "redirect:/post/shareList";
+            }
         }
-        return null;
-    }
 
     @GetMapping("/regist")
     public String registGet(){
@@ -111,7 +126,7 @@ public class PostController {
         if (bindingResult.hasErrors()) {
             log.error("Validation errors: {}", bindingResult.getAllErrors());
             model.addAttribute("dto", dto);
-            redirectAttributes.addFlashAttribute("errors", bindingResult);
+            redirectAttributes.addFlashAttribute("alertMessage", bindingResult);
             return "post/regist";
         }
 
@@ -207,7 +222,6 @@ public class PostController {
         model.addAttribute("uri", "/post/shareList");
         return "post/shareList";
     }
-
 
     //인규가 작업함
     //2024-12-10 수미 수정

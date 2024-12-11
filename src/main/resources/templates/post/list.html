@@ -114,7 +114,7 @@
         </tr>
         </thead>
         <tbody id="dataTable">
-            <tr th:each="post, status : ${posts}" th:onclick="|location.href = '@{/post/view(id= ${post.id})}'|" style="cursor: pointer;">
+            <tr th:each="post, status : ${posts}" class="link"  th:data-post-id="${post.id}" style="cursor: pointer;">
                 <td th:text="${status.index + 1}"></td>
                 <td th:text="${post.title}"></td>
                 <td th:text="${post.createdAt}"></td>
@@ -220,6 +220,14 @@
                     alert('종료일은 시작일보다 이전일 수 없습니다.');
                     this.value = displayAt.value;
                 }
+            });
+
+            document.querySelectorAll('.link').forEach(row =>{
+                row.addEventListener('click', () =>{
+                    const postId = row.getAttribute('data-post-id');
+                    const encodedCurrentPage = encodeURIComponent(window.location.href);
+                    window.location.href = `/post/view?id=${postId}&currentPage=${encodedCurrentPage}`; // URL 생성
+                });
             });
         });
     </script>
