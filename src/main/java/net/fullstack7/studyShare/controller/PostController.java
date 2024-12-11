@@ -47,11 +47,12 @@ public class PostController {
     @GetMapping("/myList")
     public String myStudyList(Model model,
                               HttpServletResponse response,
+                              HttpServletRequest request,
                               @Valid PostPagingDTO dto){
         LogUtil logUtil = new LogUtil();
         logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
-        String userId = "user1";
+        String userId = (String) request.getAttribute("userId");
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
         List<PostDTO> posts =  postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
@@ -72,10 +73,9 @@ public class PostController {
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
             log.info("current  {}" , currentPage);
-            String userId = "user1"; //세션 아아디
-//            System.out.println("id: " +id);
-            log.info("type {}", type);
-        log.info("id {}", id);
+        String userId = (String) request.getAttribute("userId");
+//            log.info("type {}", type);
+//            log.info("id {}", id);
 
             try{
                 //게시글 조회
@@ -108,7 +108,6 @@ public class PostController {
                     }else{
                         return "redirect:/post/myList";
                     }
-
                 }
             }catch(Exception e){
                 redirectAttributes.addFlashAttribute("alertMessage",  e.getMessage());
@@ -119,7 +118,6 @@ public class PostController {
     @GetMapping("/regist")
     public String registGet(@RequestParam("currentPage") String currentPage,Model model){
         model.addAttribute("currentPage", currentPage);
-
         return "post/regist";
     }
 
@@ -128,45 +126,51 @@ public class PostController {
                              BindingResult bindingResult,
                              RedirectAttributes redirectAttributes,
                              HttpServletResponse response,
+                             HttpServletRequest request,
                              HttpSession session, Model model) {
         response.setCharacterEncoding("UTF-8");
         // 세션 아이디
-        String userId = "user1";
+        String userId = (String) request.getAttribute("userId");
         if (bindingResult.hasErrors()) {
             log.error("Validation errors: {}", bindingResult.getAllErrors());
             model.addAttribute("dto", dto);
             redirectAttributes.addFlashAttribute("alertMessage", bindingResult);
             return "post/regist";
         }
-
         try {
             postService.regist(dto, userId);
             return "redirect:/post/myList";
         } catch (IOException e) {
-            log.error("PostController - 업로드 실패: {}", e.getMessage(), e);
-            //model.addAttribute("errorMessage", e.getMessage());
-            JSFunc.alert("업로드 실패. 다시 시도해주세요" + e.getMessage(), response);
+            log.info("aaa");
+            redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
+            return "post/regist";
         } catch (Exception e) {
-            log.error("PostController - 예기치 않은 오류: {}", e.getMessage(), e);
-            //model.addAttribute("errorMessage", e.getMessage());
-            JSFunc.alert("예기치 않은 오류가 발생했습니다." + e.getMessage(), response);
+            log.info("bbbbb");
+            redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
+            return "post/regist";
         }
-        return "redirect:/post/regist";
     }
 
     @GetMapping("/modify")
-    public String modifyGet(@RequestParam String id, Model model, HttpServletResponse response){
+    public String modifyGet(@RequestParam String id, Model model,
+                            HttpServletResponse response,
+                            HttpServletRequest request,
+                            RedirectAttributes redirectAttributes){
         response.setCharacterEncoding("utf-8");
-
-        // 데이터베이스에서 Post 정보 가져오기
+        String userId = (String) request.getAttribute("userId");
+        // 작성자 확인
+        if (!postService.checkWriter(Integer.parseInt(id), userId)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
+            return "redirect:/post/myList"; // 권한 없으면 목록으로 리다이렉트
+        }
         PostViewDTO post = postService.findPostWithFile(id);
         if (post != null) {
             model.addAttribute("post", post);
             return "post/modify";
         } else {
-            JSFunc.alertBack("해당 학습 정보를 찾을 수 없습니다.", response);
+            redirectAttributes.addFlashAttribute("alertMessage",  "해당 학습 정보를 찾을 수 없습니다.");
+            return "redirect:post/myList";
         }
-        return null;
     }
 
     @PostMapping("/modify")
@@ -175,18 +179,16 @@ public class PostController {
                              BindingResult bindingResult,
                              RedirectAttributes redirectAttributes,
                              HttpServletResponse response,
+                             HttpServletRequest request,
                              Model model) {
         response.setCharacterEncoding("utf-8");
-        String userId = "user1";
-        System.out.println(dto.getDisplayAt());
-        System.out.println(dto.getDisplayEnd());
+        String userId = (String) request.getAttribute("userId");
 
         // 작성자 확인
         if (!postService.checkWriter(dto.getId(), userId)) {
             redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
             return "redirect:/post/myList"; // 권한 없으면 목록으로 리다이렉트
         }
-
         if (bindingResult.hasErrors()) {
             log.error("Validation errors: {}", bindingResult.getAllErrors());
             model.addAttribute("dto", dto);
@@ -206,14 +208,14 @@ public class PostController {
     @GetMapping("/shareList")
     public String shareList(Model model,
                             HttpServletResponse response,
+                            HttpServletRequest request,
                             @Valid PostSharePagingDTO dto) {
         LogUtil logUtil = new LogUtil();
-        logUtil.info("dto: " + dto);
+        //logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
-        String userId = "user1";
-        System.out.println(dto.getSortType());
+        String userId = (String) request.getAttribute("userId");
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
-        log.info("totalCnt: " + totalCnt);
+        //log.info("totalCnt: " + totalCnt);
         List<PostMyShareDTO> sharePosts;
         List<PostShareDTO> getSharePosts;
         if("share".equals(dto.getSortType()) || dto.getSortType().isEmpty()){
@@ -222,7 +224,6 @@ public class PostController {
             model.addAttribute("sortType", "share");
         }else{
             getSharePosts = postService.getSharedPosts(dto, userId); // 공유 받은 것
-            log.info("나와라");
             log.info(getSharePosts.toString());
             model.addAttribute("posts", getSharePosts);
             model.addAttribute("sortType", "receiveShare");

@@ -21,26 +21,31 @@ public class CommonFileUtil {
 
     // 단일 파일 업로드 메서드
     public static String uploadFile(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) {
-            return null;  // null 허용
-        }
-        File uploadDir = new File(UPLOAD_DIR);
+        try{
+            if (file == null || file.isEmpty()) {
+                return null;  // null 허용
+            }
+            File uploadDir = new File(UPLOAD_DIR);
 
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String originalFileName = file.getOriginalFilename(); //업로드 된 원래 파일 이름
+            if (originalFileName != null && !originalFileName.isEmpty()) {
+                String uniqueFileName = generateUniqueFileName(originalFileName); //고유 파일명 생성
+                String fullPath = uploadDir.getPath() + File.separator + uniqueFileName; // 파일 저장 경로 생성
+                File destinationFile = new File(fullPath); // 파일 객체 생성
+                file.transferTo(destinationFile); //MultipartFile의 내용을 실제 파일로 저장
+                // 업로드된 파일의 경로 반환
+                return uniqueFileName;
+            } else {
+                throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+            }
+        }catch(IOException e){
+            throw e;
         }
 
-        String originalFileName = file.getOriginalFilename(); //업로드 된 원래 파일 이름
-        if (originalFileName != null && !originalFileName.isEmpty()) {
-            String uniqueFileName = generateUniqueFileName(originalFileName); //고유 파일명 생성
-            String fullPath = uploadDir.getPath() + File.separator + uniqueFileName; // 파일 저장 경로 생성
-            File destinationFile = new File(fullPath); // 파일 객체 생성
-            file.transferTo(destinationFile); //MultipartFile의 내용을 실제 파일로 저장
-            // 업로드된 파일의 경로 반환
-            return uniqueFileName;
-        } else {
-            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
-        }
     }
 
     //썸네일
