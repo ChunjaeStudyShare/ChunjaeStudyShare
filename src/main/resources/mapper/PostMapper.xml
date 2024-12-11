@@ -103,7 +103,7 @@
     <select id="selectMyShare" resultType="net.fullstack7.studyShare.dto.post.PostShareDTO">
         SELECT
         s.id,
-        p.id,
+        p.id AS postId,
         p.title,
         p.createdAt,
         p.userId,

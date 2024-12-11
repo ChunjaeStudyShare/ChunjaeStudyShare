@@ -114,7 +114,8 @@
         </tr>
         </thead>
         <tbody id="dataTable">
-            <tr th:each="post, status : ${posts}" class="link"  th:data-post-id="${post.postId}" style="cursor: pointer;">
+            <tr th:each="post, status : ${posts}" class="link" th:data-post-id=" ${post.postId}"
+                            style="cursor: pointer;">
                 <td th:text="${status.index + 1}"></td>
 <!--                <td>-->
 <!--                    <a th:href="@{/post/view(id=${post.postId}, type='share')}">[[${post.title}]]</a>-->
@@ -188,6 +189,10 @@
         document.addEventListener("DOMContentLoaded", function () {
             const displayAt = document.getElementById("displayAt");
             const displayEnd = document.getElementById("displayEnd");
+            const sortTypeInput = document.getElementById("sortType");
+            const sortType = sortTypeInput ? sortTypeInput.value : 'share';
+            // console.log(sortType);
+
 
             // 날짜를 'YYYY-MM-DDTHH:mm' 형식으로 변환하는 함수
             function formatDateForDatetimeLocal(date) {
@@ -221,12 +226,11 @@
                     this.value = displayAt.value;
                 }
             });
-
             document.querySelectorAll('.link').forEach(row =>{
                 row.addEventListener('click', () =>{
                     const postId = row.getAttribute('data-post-id');
                     const encodedCurrentPage = encodeURIComponent(window.location.href);
-                    window.location.href = `/post/view?id=${postId}&currentPage=${encodedCurrentPage}&type=share`; // URL 생성
+                    window.location.href = `/post/view?id=${postId}&currentPage=${encodedCurrentPage}&type=${sortType}`; // URL 생성
                 });
             });
         });

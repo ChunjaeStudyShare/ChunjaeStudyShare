@@ -74,9 +74,12 @@ public class PostController {
                              @RequestParam String id,
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
-            System.out.println("current: " + currentPage);
+            log.info("current  {}" , currentPage);
             String userId = "user1"; //세션 아아디
-            System.out.println("id, {}" +id);
+//            System.out.println("id: " +id);
+            log.info("type {}", type);
+        log.info("id {}", id);
+
             try{
                 //게시글 조회
                 PostViewDTO post = postService.findPostWithFile(id);
@@ -104,7 +107,7 @@ public class PostController {
                 }else {
                     redirectAttributes.addFlashAttribute("alertMessage", "게시글 정보가 없습니다.");
                     if("share".equals(type)){
-                        return "redirect:/post/shareList";
+                        return "redirect:/post/shareList"; //이전페이지로 돌려야할듯
                     }else{
                         return "redirect:/post/myList";
                     }
@@ -222,6 +225,8 @@ public class PostController {
             model.addAttribute("sortType", "share");
         }else{
             getSharePosts = postService.getSharedPosts(dto, userId); // 공유 받은 것
+            log.info("나와라");
+            log.info(getSharePosts.toString());
             model.addAttribute("posts", getSharePosts);
             model.addAttribute("sortType", "receiveShare");
         }
