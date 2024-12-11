@@ -33,7 +33,7 @@ public class ChatApiController {
         }
     }
 
-    @PostMapping("/room/leave")
+    @PutMapping("/room/leave")
     public ResponseEntity<?> leave(@RequestBody ChatLeaveDTO chatLeaveDTO, HttpServletRequest request) {
         try {
             LocalDateTime leaveAt = chatLeaveDTO.getLeaveAt().plusHours(9);

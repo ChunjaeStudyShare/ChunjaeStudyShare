@@ -68,6 +68,18 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     @Override
     public int createChatRoom(String userId, String[] invited) {
+        String errorMessage = "";
+        if(invited.length==1){
+            try{
+                int existRoom = isExistChatRoom(userId,invited[0]);
+                if(existRoom>0){
+                    return existRoom;
+                }
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+        }
+
         ChatRoom newChatRoom = ChatRoom.builder().createdAt(LocalDateTime.now()).build();
         chatRoomRepository.save(newChatRoom);
 
@@ -191,20 +203,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public int isExistChatRoom(List<String> members, String userId) {
-
-        List<ChatMember> chatMembers = chatMemberMapper.findMemberByUserId(userId);
-
-        List<ChatRoomDTO> list = new ArrayList<>();
-
-        chatMembers.remove(userId);
-        for (String member : members) {
-            chatMembers.remove(member);
+    public int isExistChatRoom(String user1, String user2) {
+        int compare = user1.compareTo(user2);
+        if(compare == 0) {
+            throw new IllegalArgumentException("채팅 상대방을 선택해주세요.");
         }
-
-//            return chatMembers.isEmpty();
-
-        return 0;
+        return compare < 0 ? chatMemberMapper.findChatRoomIdBy2UserId(user1, user2) : chatMemberMapper.findChatRoomIdBy2UserId(user2, user1);
     }
 
     @Override
@@ -215,10 +219,7 @@ public class ChatServiceImpl implements ChatService {
         }
         int result = chatMemberMapper.updateLeaveAt(leaveAt, roomId, userId);
 
-        if (result > 0) {
-            return true;
-        }
-        return false;
+        return result > 0;
     }
 
     @Override

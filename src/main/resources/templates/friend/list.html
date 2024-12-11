@@ -67,7 +67,7 @@
             <tr th:each="userId, status : ${friendList}">
                 <td th:text="${status.index + 1}"></td>
                 <td th:text="${userId}"></td>
-                <td><a href="#" class="btn btn-secondary">채팅</a></td>
+                <td><button href="#" class="btn btn-secondary btn-to-chat" th:data-user-id="${userId}">채팅</button></td>
                 <td><button class="btn btn-dark" th:data-user-id="${userId}"
                             onclick="deleteFriend(this)">삭제</button></td>
             </tr>
@@ -334,6 +334,10 @@
                     .catch(error => console.error('Error:', error));
             }
         }
-
+        document.querySelectorAll(".btn-to-chat").forEach(value => {
+            value.addEventListener("click", e => {
+                window.location.href = "/chat/friend?friendId="+value.dataset.userId;
+            });
+        })
     </script>
 </div>

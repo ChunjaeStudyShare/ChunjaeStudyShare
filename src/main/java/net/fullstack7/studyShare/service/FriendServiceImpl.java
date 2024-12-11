@@ -85,15 +85,21 @@ public class FriendServiceImpl implements FriendService {
     @Override
     public boolean deleteFriend(FriendDTO friendDTO) {
         boolean first = friendMapper.deleteFriend1(friendDTO);
-        boolean second = friendMapper.deleteFriend2(friendDTO);
-        return first && second;
+        if(first){
+            return true;
+        } else {
+            return friendMapper.deleteFriend2(friendDTO);
+        }
     }
 
     @Override
     public boolean deleteShare(FriendDTO friendDTO) {
         boolean gotShared = friendMapper.deleteShared1(friendDTO);
-        boolean didShare = friendMapper.deleteShared2(friendDTO);
-        return gotShared && didShare;
+        if(gotShared){
+            return true;
+        } else {
+            return friendMapper.deleteShared2(friendDTO);
+        }
     }
 
 

@@ -225,7 +225,7 @@
                             <div class="tags" th:if="${item.hashtag == null || item.hashtag.isEmpty()}">해시태그가 없습니다.</div>
                             <div class="shared">
                                 <ul th:if="${item.sharedList != null}" class="list-group list-group-flush">
-                                    <li th:each="sharedId : ${item.sharedList}" th:text="${sharedId.userId}+'('+${#temporals.format(sharedId.createAt, 'yyyy-MM-dd HH:mm:ss')}+')'" class="list-group-item text-start"></li>
+                                    <li th:each="sharedId : ${item.sharedList}" th:text="${sharedId.userId}+'('+${#temporals.format(sharedId.createdAt, 'yyyy-MM-dd HH:mm:ss')}+')'" class="list-group-item text-start"></li>
                                 </ul>
                             </div>
                             <div class="shared" th:if="${item.sharedList == null || item.sharedList.isEmpty()}">

@@ -7,4 +7,18 @@
         FROM member
         WHERE memberId = #{memberId}
     </select> -->
+    <!--회원 기준 모든 데이터 삭제 -->
+    <!-- <delete id="deleteAllByUserId">
+        DELETE s, f, p, fr, ec, q, m, atvt, tu
+        FROM Member m
+        LEFT JOIN Share s ON s.userId = m.userId
+        LEFT JOIN Post p ON p.userId = m.userId
+        LEFT JOIN File f ON f.postId = p.id
+        LEFT JOIN Friend fr ON fr.requesterId = m.userId OR fr.friendId = m.userId
+        LEFT JOIN EmailCode ec ON ec.userId = m.userId
+        LEFT JOIN ActiveTokens atvt ON atvt.userId = m.userId
+        LEFT JOIN ThumbsUp tu ON tu.userId = m.userId
+        WHERE m.userId = #{userId}
+    </delete> -->
 </mapper>
+
