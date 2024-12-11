@@ -227,14 +227,14 @@
                 if (!content.value.trim()) {
                     contentError.textContent = "학습 내용을 입력하세요.";
                     isValid = false;
-                } else if (content.value.length < 10 || content.value.length > 2000) {
-                    contentError.textContent = "학습 내용은 10자 이상 100자 이하로 입력하세요.";
+                } else if (content.value.length < 10 || content.value.length > 4000) {
+                    contentError.textContent = "학습 내용은 10자 이상 4000자 이하로 입력하세요.";
                     isValid = false;
                 }
 
                 // 파일 유효성 검사
                 if (file.value) {
-                    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+                    const allowedExtensions = /(\.jpg|\.png)$/i;
                     if (!allowedExtensions.test(file.value)) {
                         fileError.textContent = "이미지는 .jpg 또는 .png 형식만 가능합니다.";
                         isValid = false;
@@ -306,9 +306,9 @@
                 }
 
                 //파일
-                const maxSize = 500*1024*1024
+                const maxSize = 10*1024*1024
                 if (file.size > maxSize) {
-                    fileError.textContent = "파일 크기는 최대 500MB까지만 허용됩니다.";
+                    fileError.textContent = "파일 크기는 최대 10MB까지만 허용됩니다.";
                     event.target.value = ""; // 파일 입력 초기화
                     isValid = false;
                 }
