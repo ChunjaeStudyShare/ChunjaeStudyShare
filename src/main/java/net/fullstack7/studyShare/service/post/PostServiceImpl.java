@@ -392,6 +392,7 @@ public class PostServiceImpl implements PostServiceIf{
         map.put("displayEnd", dto.getDisplayEnd());
 
         List<PostShareDTO> list = postMapper.selectMyShare(map);
+        log.info("list, {}", list);
         return list.stream()
                 .map(i -> modelMapper.map(i, PostShareDTO.class)).collect(Collectors.toList());
 

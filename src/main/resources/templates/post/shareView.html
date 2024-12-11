@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .scroll-box {
-            max-height: 300px; /* 내용이 많을 경우 스크롤 */
+            max-height: 600px; /* 내용이 많을 경우 스크롤 */
             overflow-y: auto;
             border: 1px solid #ddd;
             padding: 10px;
@@ -110,11 +110,11 @@
                 <th style="width: 20%;">제목</th>
                 <td style="width: 50%;" colspan="3" th:text="${post.title}">제목</td>
                 <th style="width: 10%;">좋아요</th>
-                <td style="width: 10%;" th:text="${post.share}">0</td>
+                <td style="width: 10%;" th:text="${thumbsUpCnt}">0</td>
             </tr>
             <tr>
                 <th style="width: 25%;">등록일</th>
-                <td th:text="${post.createdAt}" colspan="5">등록일</td>
+                <td th:text="${#temporals.format(post.createdAt,'yyyy-MM-dd')}" colspan="5">등록일</td>
             </tr>
             <!-- 이미지와 내용 -->
 <!--            <tr>-->
@@ -206,6 +206,26 @@
         </div>
     </div>
     <script th:inline="javascript">
+        document.getElementById('thumbsUpBtn').addEventListener('click', function () {
+            console.log('thumbsUpBtn 호출');
+            const postId = [[${ post.id }]];
+
+            fetch(`/thumbs-up/${postId}`, {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(result => {
+                    // 메시지 알림 표시
+                    alert(result.message);
+                    // 좋아요 수 업데이트
+                    document.getElementById('thumbsUpCnt').textContent = result.data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('좋아요 처리 중 오류가 발생했습니다.');
+                });
+        });
+
         const url = document.URL;
         console.log("url", url);
         document.querySelector('input[name="currentPage"]').value = url;
