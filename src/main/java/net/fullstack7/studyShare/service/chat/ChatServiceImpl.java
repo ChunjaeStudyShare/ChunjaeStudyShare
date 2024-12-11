@@ -45,7 +45,7 @@ public class ChatServiceImpl implements ChatService {
 
             list.forEach(room -> {
                 room.setMembers(chatMemberMapper.findMembersByChatRoomId(room.getChatRoomId()));
-                log.info(room);
+//                log.info(room);
             });
             return list;
         } else {
