@@ -107,5 +107,24 @@ public class JSFunc {
         return input.replace("'", "\\'").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
     }
 
+	public static void alertAndRedirectWithDeleteCookie(String msg,String redirectUrl, HttpServletResponse response) {
+		try {
+			PrintWriter writer = response.getWriter();
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("text/html;charset=UTF-8");
+			String script = "<script>"
+					+ "alert('" + msg + "');"
+					+ "window.location.href='" + redirectUrl + "';"
+					+ "localStorage.removeItem('token');"
+					+ "localStorage.removeItem('user');"
+					+ "document.cookie = 'Authorization=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';"
+					+ "</script>";
+			writer.print(script);
+			writer.flush();
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
+
 
 }

@@ -19,6 +19,8 @@ import net.fullstack7.studyShare.dto.member.PasswordResetRequestDTO;
 import net.fullstack7.studyShare.service.member.PasswordResetService;
 import net.fullstack7.studyShare.service.member.MemberService;
 import net.fullstack7.studyShare.dto.member.MemberResponseDTO;
+import net.fullstack7.studyShare.util.JSFunc;
+import jakarta.servlet.http.HttpServletResponse;
 
 /* 리다이렉트용 회원 관련 컨트롤러
  * 회원관련 요청은 api 서버에서 처리 /api/auth/ 또는 /api/user/ 로 요청
@@ -87,4 +89,17 @@ public class MemberController {
         return "member/update-user";
     }
 
+    @GetMapping("/delete-member")
+    public String deleteMember(HttpServletRequest request, HttpServletResponse response) {
+        response.setCharacterEncoding("UTF-8");
+        String userId = (String) request.getAttribute("userId");
+        try {
+            memberService.deleteMember(userId);
+            JSFunc.alertAndRedirectWithDeleteCookie("회원탈퇴가 완료되었습니다.", "/", response);
+        } catch (Exception e) {
+            JSFunc.alertAndRedirect("회원탈퇴 중 오류가 발생했습니다."+e.getMessage(), "/", response);
+        }
+        return null;
+    }
 }
+

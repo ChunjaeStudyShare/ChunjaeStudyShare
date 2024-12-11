@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 import java.time.LocalDateTime;
-
+import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query(value = "SELECT p.*, f.fileName AS fileName, f.path AS path " +
             "FROM post p " +
@@ -34,5 +34,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     //int existsByIdAndMember(@Param("user") Member member , @Param("post") Post post);
     boolean existsByMember_UserIdAndId(String userId, Integer postId);
 
+    //내 모든 게시글 조회
+    List<Post> findByMember(Member member);
 
+    //게시글 삭제
+    void deleteById(Integer postId);
 }
