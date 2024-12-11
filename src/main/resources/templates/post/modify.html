@@ -104,18 +104,16 @@
                 <tr>
                     <th class="text-end align-middle">공유된 친구</th>
                     <td>
-                        <table id="sharedFriendsTable" class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>아이디</th>
-                                <th>공유 날짜</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <!-- 공유된 친구 목록 추가 -->
-                            </tbody>
-                        </table>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#friendSearchModal">친구 찾기</button>
+                        <div th:each="shared, status:${shareList}">
+                            <span th:text="${shared.user.userId}"></span>
+                            <button type="button" class="btn-close-custom" aria-label="Close"
+                                    th:data-user-id="${shared.user.userId}"
+                                    th:onclick="'cancelRequest(this)'">X
+                            </button>
+                            <br>
+                        </div>
+                        <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
+                        <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
                     </td>
                 </tr>
 

@@ -81,6 +81,7 @@
             p.content,
             p.privacy,
             p.share,
+            p.userId,
             p.displayAt,
             p.displayEnd,
             p.createdAt,
