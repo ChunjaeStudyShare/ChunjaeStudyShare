@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 import net.fullstack7.studyShare.domain.EmailCode;
-
+import net.fullstack7.studyShare.domain.Member;
 // SELECT * FROM EmailCode 
 // WHERE userId = ? AND code = ? 
 // AND createdAt > DATE_SUB(NOW(), INTERVAL 1 HOUR)
@@ -25,4 +25,6 @@ public interface EmailCodeRepository extends JpaRepository<EmailCode, Long> {
     Optional<EmailCode> findValidCode(@Param("userId") String userId, @Param("code") String code);
 
     void deleteByCode(String code);
+
+    void deleteByUser(Member member);
 }
