@@ -49,8 +49,8 @@
         if (token && cookie) {
             // 로그인 상태
             navbarContent.innerHTML = `
-                <button class="btn btn-primary" type="button">나의 학습</button>
-                <button class="btn btn-primary" type="button">공유 학습</button>
+                <button class="btn btn-primary" onclick="location.href='/post/myList'" type="button">나의 학습</button>
+                <button class="btn btn-primary" onclick="location.href='/post/shareList'" type="button">공유 학습</button>
             `;
             navbarSupportedContent.innerHTML = `
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
