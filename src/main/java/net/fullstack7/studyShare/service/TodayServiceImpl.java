@@ -2,8 +2,6 @@ package net.fullstack7.studyShare.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.fullstack7.studyShare.dto.FriendDTO;
-import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.dto.today.TodayDTO;
 import net.fullstack7.studyShare.mapper.FriendMapper;
