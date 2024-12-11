@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
-    layout:decorate="~{common/layout}">
+      layout:decorate="~{common/layout}">
 <div layout:fragment="content">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
@@ -72,21 +72,21 @@
         <h4 class="mb-4">학습 정보</h4>
         <table class="table table-bordered table-custom">
             <tbody>
-                <tr>
-                    <th style="width: 20%;">제목</th>
-                    <td style="width: 50%;" colspan="3" th:text="${post.title}">제목</td>
-                    <th style="width: 10%;">좋아요</th>
-                    <td style="width: 10%;" th:text="${thumbsUpCnt}" id="thumbsUpCnt">0</td>
-                </tr>
-                <tr>
-                    <th style="width: 25%;">등록일</th>
-                    <th style="width: 25%;">오늘의 학습 노출 여부</th>
-                    <th style="width: 50%;" colspan="4">오늘의 학습 노출 기간</th>
-                </tr>
-                <tr>
-                    <td th:text="${post.createdAt}">등록일</td>
-                    <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
-                    <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
+            <tr>
+                <th style="width: 20%;">제목</th>
+                <td style="width: 50%;" colspan="3" th:text="${post.title}">제목</td>
+                <th style="width: 10%;">좋아요</th>
+                <td style="width: 10%;" th:text="${thumbsUpCnt}" id="thumbsUpCnt">0</td>
+            </tr>
+            <tr>
+                <th style="width: 25%;">등록일</th>
+                <th style="width: 25%;">오늘의 학습 노출 여부</th>
+                <th style="width: 50%;" colspan="4">오늘의 학습 노출 기간</th>
+            </tr>
+            <tr>
+                <td th:text="${post.createdAt}">등록일</td>
+                <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
+                <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
                : (post.displayAt != null ? post.displayAt + ' ~'
                : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}" colspan="4">
                 </td>
@@ -124,46 +124,31 @@
                             <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
-                        <button class="btn btn-secondary float-end" data-bs-toggle="modal"
-                            data-bs-target="#friendSearchModal">공유하기</button>
-                    </td>
-                </tr>
-                <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- 친구 검색 기능 -->
-                                <div class="container mt-3">
-                                    <!-- 입력 필드 -->
-                                    <div class="mb-3">
-                                        <label for="searchId" class="form-label">아이디 검색</label>
-                                        <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요"
-                                            onkeyup="searchUserById()">
-                                    </div>
-                                    <!-- 친구 검색 결과 -->
-                                    <div id="suggestions"></div>
+                        <div class="modal-body">
+                            <!-- 친구 검색 기능 -->
+                            <div class="container mt-3">
+                                <!-- 입력 필드 -->
+                                <div class="mb-3">
+                                    <label for="searchId" class="form-label">아이디 검색</label>
+                                    <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요" onkeyup="searchUserById()">
                                 </div>
+                                <!-- 친구 검색 결과 -->
+                                <div id="suggestions"></div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                         </div>
                     </div>
                 </div>
-                <!-- 분야와 해시태그 -->
-                <tr>
-                    <th>분야</th>
-                    <td th:text="${post.domain != null ? post.domain : '없음'}">분야</td>
-                    <th style="width: 20%;">해시태그</th>
-                    <td th:text="${post.hashtag != null ? post.hashtag : '없음'}" colspan="3">해시태그</td>
-                </tr>
+            </div>
+            <!-- 분야와 해시태그 -->
+            <tr>
+                <th>분야</th>
+                <td th:text="${post.domain != null ? post.domain : '없음'}">분야</td>
+                <th style="width: 20%;">해시태그</th>
+                <td th:text="${post.hashtag != null ? post.hashtag : '없음'}" colspan="3">해시태그</td>
+            </tr>
             </tbody>
         </table>
         <br>
@@ -173,7 +158,7 @@
 
             <!-- 공유 받은 글인 경우 -->
             <button class="btn btn-success" id="thumbsUpBtn">좋아요</button>
-<!--            <button class="btn btn-primary" th:onclick="|location.href='@{currentPage != null ? currentPage : '/post/myList'}'|">목록</button>-->
+            <!--            <button class="btn btn-primary" th:onclick="|location.href='@{currentPage != null ? currentPage : '/post/myList'}'|">목록</button>-->
             <button th:onclick="|location.href='@{${currentPage != null ? currentPage : '/post/myList'}}'|" class="btn btn-primary">목록</button>
             <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
