@@ -41,7 +41,7 @@
                         <label for="content">학습 내용</label>
                     </th>
                     <td>
-                        <textarea class="form-control" id="content" name="content" rows="5" minlength="10" maxlength="2000" placeholder="오늘의 학습 내용을 입력하세요" ></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="5" minlength="10" maxlength="4000" placeholder="오늘의 학습 내용을 입력하세요" ></textarea>
                         <div class="text-danger small" id="contentError"></div>
                     </td>
                 </tr>
@@ -116,17 +116,27 @@
                 </tbody>
             </table>
 
-            <!-- 버튼 -->
-            <div class="d-flex justify-content-end gap-2 mt-3">
-                <button type="submit" class="btn btn-primary">등록</button>
-                <button type="reset" class="btn btn-secondary">취소</button>
-                <a href="/my-study-list" class="btn btn-outline-dark">목록</a>
+<!--            &lt;!&ndash; 버튼 &ndash;&gt;-->
+<!--            <div class="d-flex justify-content-end gap-2 mt-3">-->
+<!--                <button type="submit" class="btn btn-primary">등록</button>-->
+<!--                <button type="reset" class="btn btn-secondary">취소</button>-->
+<!--                <a href="/my-study-list" class="btn btn-outline-dark">목록</a>-->
+<!--            </div>-->
+            <!-- 하단 버튼 -->
+            <div class="button-end text-end">
+
+                <button th:onclick="|location.href='@{${currentPage != null ? currentPage : '/post/myList'}}';return false;|" class="btn btn-primary">목록</button>
+                <button class="btn btn-secondary" type="submit">등록</button>
+                <button type="reset" class="btn btn-warning">취소</button>
             </div>
         </form>
     </div>
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("DOM 로드 완료");
+            //console.log("DOM 로드");
+            const url = document.URL;
+            console.log("url", url);
+            document.querySelector('input[name="currentPage"]').value = url;
 
             const form = document.querySelector("form");
             const title = document.getElementById("title");
@@ -303,13 +313,14 @@
                     isValid = false;
                 }
 
-
                 // 유효성 검사 실패 시 폼 제출 중단
                 if (!isValid) {
                     console.log("폼 제출 중단");
                     event.preventDefault();
                 }
             });
+
+
         });
 
     </script>
