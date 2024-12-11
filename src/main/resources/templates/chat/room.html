@@ -7,6 +7,7 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <style>
+        /*말풍선*/
         .chat-bubble {
             display: inline-block;
             max-width: 70%; /* 말풍선의 최대 너비 */
@@ -18,7 +19,6 @@
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
         }
-
         .chat-bubble-my {
             text-align: left;
             display: inline-block;
@@ -31,7 +31,6 @@
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
         }
-
         .chat-bubble-manager {
             text-align: center;
             padding: 10px 0; /* 내부 여백 */
@@ -39,31 +38,15 @@
             color: #333; /* 글씨 색상 */
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
             font-size: 15px;
+            width: 100%;
         }
-
-        .chat-row-my {
-            text-align: right;
-        }
-        .chat-row {
-            text-align: left;
-        }
-
-        .chat-box {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .chat-input-box {
-            max-width: 900px;
-            margin: 20px auto;
-        }
-
+        /*보낸시간*/
         .chat-date {
             display: inline-block;
             font-size: 12px;
             color: #4f5050;
         }
-
+        /*보낸사람아이디*/
         .chat-id {
             padding: 10px 0; /* 내부 여백 */
             margin: 5px 0;
@@ -71,21 +54,55 @@
             text-align: center;
         }
 
-        #messages {
-            /*max-height: 550px; !* 최대 높이 600px로 제한 *!*/
-            height: 75vh;
-            overflow-y: auto; /* 세로 스크롤바 활성화 */
-            /*display: block; !* tbody에 block을 적용해 스크롤 가능하도록 설정 *!*/
-            box-sizing: border-box; /* 스크롤바를 포함하여 크기 계산 */
-            /*padding-right: 15px;*/
+        /*메시지 요소 정렬*/
+        .chat-row-my {
+            text-align: right;
+        }
+        .chat-row {
+            text-align: left;
         }
 
+        /*메시지 크기 설정 가로 스크롤바 x*/
+        .chat-content {
+            width: 100%;
+        }
+
+
+        /*메시지 전체 영역*/
+        .chat-box {
+            max-width: 900px;
+            width: 100%;
+            height: 75vh;
+            margin: 0 auto;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        /*입력 영역*/
+        .chat-input-box {
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+
+
+        /*#messages {*/
+        /*    width: 100%;*/
+        /*    */
+        /*    !* 세로 스크롤바 활성화 *!*/
+        /*    !*display: block; !* tbody에 block을 적용해 스크롤 가능하도록 설정 *!*!*/
+        /*     !* 스크롤바를 포함하여 크기 계산 *!*/
+        /*    !*padding-right: 15px;*!*/
+        /*}*/
+
+        /*친구목록*/
         .freind-info {
             display: flex;
             justify-content: space-between; /* 좌우 끝으로 배치 */
             align-items: center; /* 세로 가운데 정렬 */
             width: 100%; /* 필요시 부모 요소의 너비를 기준으로 확장 */
         }
+
+        /*채팅 헤더*/
         .chat-header {
             max-width: 100%;
             display: flex;
@@ -105,6 +122,15 @@
         .chat-header-item-left{
             text-align: left;
         }
+
+        /*스크롤바*/
+        .scroll2::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scroll2::-webkit-scrollbar-thumb {
+            background: #666;
+        }
+
     </style>
 </head>
 <body>
@@ -117,8 +143,8 @@
             <button type="button" id="btn-invite" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">초대하기</button>
         </div>
     </div>
-    <div class="row chat-box" id="messages">
-        <div class="row" th:each="item, status:${messages}">
+    <div class="chat-box scroll scroll2" id="messages">
+        <div class="row chat-content" th:each="item, status:${messages}">
             <div class="col chat-bubble-manager" th:if="${item.senderId == 'chatmanager'}" th:text="${item.message}"></div>
             <th:block th:unless="${item.senderId == 'chatmanager'}">
                 <div class="col-2" th:if="${item.senderId != userId}"><div class="chat-id" th:text="${item.senderId}"></div></div>
@@ -133,17 +159,15 @@
             </th:block>
         </div>
     </div>
-    <div class="row chat-input-box">
+    <div class="chat-input-box">
         <div class="col-12">
             <form class="form-inline">
-
                 <div class="input-group">
-                    <input type="text" id="sender" class="form-control" placeholder="name...">
+<!--                    <input type="text" id="sender" class="form-control" placeholder="name...">-->
                     <input type="text" id="content" class="form-control" placeholder="content..." maxlength="300">
                     <button id="send" class="btn btn-dark" type="submit">Send</button>
                 </div>
             </form>
-
         </div>
     </div>
     <!-- Modal -->
@@ -244,14 +268,14 @@
         //메시지 전송
         stompClient.publish({
             destination: "/send/" + roomId,
-            body: JSON.stringify({'content': $("#content").val(), 'sender': $("#sender").val() }) //sender -> userId로 바꿔야됨
+            body: JSON.stringify({'content': $("#content").val(), 'sender': userId }) //sender -> userId로 바꿔야됨
         });
         inputContent.value = '';
     }
 
     function showMessageContent(message) {
 
-        let content = `<div class="row">`;
+        let content = `<div class="row chat-content">`;
         if (message.senderId === 'chatmanager')
             content += `<div class="col chat-bubble-manager">${message.message}</div>`
         else if(message.senderId === userId) {
