@@ -58,14 +58,21 @@ public class ChatController {
     }
 
     @GetMapping("/room/{id}")
-    public String room(HttpServletRequest request, @PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
+    public String room(HttpServletRequest request, @PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
         String userId = (String) request.getAttribute("userId");
 
+        if(id.isBlank() || !id.matches("^\\d+$") || id.length() > 9) {
+            redirectAttributes.addFlashAttribute("alertMessage", "채팅방 주소를 다시 확인해주세요.");
+            return "redirect:/chat/list";
+        }
+
+        int roomId = Integer.parseInt(id);
+
         try {
-            model.addAttribute("messages", chatService.getChatMessageListByRoomId(id, userId));
-            model.addAttribute("roomId", id);
+            model.addAttribute("messages", chatService.getChatMessageListByRoomId(roomId, userId));
+            model.addAttribute("roomId", roomId);
             model.addAttribute("userId", userId);
-            chatService.enterChatRoom(id, userId);
+            chatService.enterChatRoom(roomId, userId);
             return "chat/room";
         }
         catch (Exception e) {
@@ -75,10 +82,17 @@ public class ChatController {
     }
 
     @GetMapping("/room/{id}/exit")
-    public String exit(HttpServletRequest request, @PathVariable int id, RedirectAttributes redirectAttributes) {
+    public String exit(HttpServletRequest request, @PathVariable String id, RedirectAttributes redirectAttributes) {
+        if(id.isBlank() || !id.matches("^\\d+$") || id.length() > 9) {
+            redirectAttributes.addFlashAttribute("alertMessage", "채팅방 주소를 다시 확인해주세요.");
+            return "redirect:/chat/list";
+        }
+
+        int roomId = Integer.parseInt(id);
+
         String userId = (String) request.getAttribute("userId");
 
-        redirectAttributes.addFlashAttribute("alertMessage", chatService.exitRoom(id, userId));
+        redirectAttributes.addFlashAttribute("alertMessage", chatService.exitRoom(roomId, userId));
         return "redirect:/chat/list";
     }
 

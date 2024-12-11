@@ -16,9 +16,15 @@ public class SendChatContoller {
 
     @MessageMapping("/{id}")
     @SendTo("/room/{id}")
-    public ChatMessage messageContent(@DestinationVariable int id, @Payload MessageContent messageContent) {
+    public ChatMessage messageContent(@DestinationVariable String id, @Payload MessageContent messageContent) {
 
-        if(chatService.chatMemberInfo(id, messageContent.getSender()) == null) {
+        if(id.isBlank() || !id.matches("^\\d+$") || id.length() > 9) {
+            throw new IllegalArgumentException("채팅방 주소를 다시 확인해주세요.");
+        }
+
+        int roomId = Integer.parseInt(id);
+
+        if(chatService.chatMemberInfo(roomId, messageContent.getSender()) == null) {
             throw new IllegalArgumentException("채팅방 멤버가 아닙니다.");
         }
         if (messageContent.getContent().length() > 300) {
@@ -31,7 +37,7 @@ public class SendChatContoller {
             throw new IllegalArgumentException("발신자 오류로 전송이 불가합니다.");
         }
 
-        ChatMessage chatMessage = chatService.addMessageToChatRoom(id, messageContent);
+        ChatMessage chatMessage = chatService.addMessageToChatRoom(roomId, messageContent);
         if (chatMessage != null && chatMessage.getId() > 0) {
             return chatMessage;
         }
