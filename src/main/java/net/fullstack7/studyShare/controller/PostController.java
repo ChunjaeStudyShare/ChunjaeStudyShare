@@ -53,11 +53,8 @@ public class PostController {
         response.setCharacterEncoding("utf-8");
         String userId = "user1";
         int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
-        log.info("totalCnt: " + totalCnt);
         Paging paging = new Paging(dto.getPageNo(), dto.getPageSize(), dto.getBlockSize(), totalCnt);
         List<PostDTO> posts =  postService.selectAllPost(dto.getPageNo(), dto.getPageSize(), dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
-        log.info("posts: " + posts.get(0).toString());
-        log.info("thumbsUpCnt: " + posts.get(0).getThumbsUpCount());
         model.addAttribute("posts", posts);
         model.addAttribute("paging", paging);
         model.addAttribute("postPagingDTO", dto);
