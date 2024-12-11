@@ -1,5 +1,6 @@
 package net.fullstack7.studyShare.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.domain.Share;
@@ -25,18 +26,18 @@ public class ShareController {
     private final FriendService friendService;
     private final ShareServiceIf shareService;
 
-
     @GetMapping("/searchUserIdById")
     @ResponseBody
-    public List<PostShareDTO> searchUserIdById(@RequestParam String searchId, @RequestParam String postId){
-        String userId = "user1"; //세션 아이디
-        log.info("searchId: {}", searchId);
-        log.info("postId: {}",  postId);
+    public List<PostShareDTO> searchUserIdById(@RequestParam String searchId,
+                                               @RequestParam String postId,
+                                               HttpServletRequest request){
+        String userId = (String) request.getAttribute("userId");
+//        log.info("searchId: {}", searchId);
+//        log.info("postId: {}",  postId);
         List<String> friendList = friendService.list(userId);
         List<String> searchList = friendService.searchUsersById(userId, searchId);
-        System.out.println("friendListSize" + friendList.size());
 
-        // 3. 검색된 사용자 중에서 내 친구인 항목만 필터링
+        //검색된 사용자 중에서 내 친구인 항목만 필터링
         List<PostShareDTO> friendCheckedList = new ArrayList<>();
 
         for (String search : searchList) {
@@ -65,9 +66,10 @@ public class ShareController {
 
     @PostMapping("/shareRequest")
     @ResponseBody
-    public ResponseEntity<?> shareRequest(@RequestBody PostShareDTO postShareDTO) {
+    public ResponseEntity<?> shareRequest(@RequestBody PostShareDTO postShareDTO,
+                                          HttpServletRequest request) {
         System.out.println(postShareDTO.getUserId());
-        String userId = "user1"; //세션아이디
+        String userId = (String) request.getAttribute("userId");
         boolean result = shareService.shareRequest(postShareDTO, userId);
         if(result){
             log.info("share에 추가됨");
