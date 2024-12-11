@@ -139,13 +139,6 @@
     </select>
 
     <!-- 게시글 조회 -->
-<!--    <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">-->
-<!--        SELECT id, title, createdAt-->
-<!--        FROM Post-->
-<!--        WHERE userId = #{userId} AND share = 1-->
-<!--        ORDER BY createdAt DESC-->
-<!--    </select>-->
-
     <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
         SELECT id as postId, title, createdAt
         FROM Post

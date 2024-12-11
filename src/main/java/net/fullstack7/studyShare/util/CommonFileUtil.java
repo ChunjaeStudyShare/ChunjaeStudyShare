@@ -15,7 +15,7 @@ import net.coobird.thumbnailator.Thumbnails;
 public class CommonFileUtil {
 
     private static final String UPLOAD_DIR = "D:\\chunjae\\project\\study\\src\\main\\resources\\static\\file";
-    private static final String DELETE_DIR = "D:\\chunjae\\project\\study\\src\\main\\resources\\static";
+    private static final String DELETE_DIR = "D:/chunjae/project/study/src/main/resources/static";
     @Value("D:\\chunjae\\project\\study\\src\\main\\resources\\static\\file")
     private String uploadPath;
 

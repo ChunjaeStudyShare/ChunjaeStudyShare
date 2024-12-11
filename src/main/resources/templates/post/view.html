@@ -5,26 +5,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .scroll-box {
-            max-height: 300px;
-            /* 내용이 많을 경우 스크롤 */
+            max-height: 600px; /* 내용이 많을 경우 스크롤 */
             overflow-y: auto;
             border: 1px solid #ddd;
             padding: 10px;
             background-color: #f8f9fa;
             border-radius: 5px;
-        }
-
-        .image-box {
-            width: 100%;
-            max-width: 400px;
-            /* 가로 최대 크기 */
-            aspect-ratio: 2 / 3;
-            /* 2:3 비율 유지 */
-            object-fit: cover;
-            /* 비율 유지하면서 채우기 */
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f8f9fa;
         }
 
         .table-custom {
@@ -35,8 +21,7 @@
 
         }
 
-        .table-custom th,
-        .table-custom td {
+        .table-custom th, .table-custom td {
             padding: 10px;
             text-align: center;
             border: 1px solid #ddd;
@@ -67,6 +52,36 @@
         .button-end button {
             margin-left: 5px;
         }
+        .image-box-container {
+            width: 400px;             /* 고정 가로 크기 */
+            height: 600px;            /* 고정 세로 크기 */
+            display: flex;            /* Flexbox로 정렬 */
+            justify-content: center;  /* 가로 정렬 */
+            align-items: center;      /* 세로 정렬 */
+            border: 1px solid #ddd;   /* 경계선 */
+            border-radius: 5px;       /* 둥근 테두리 */
+            background-color: #f8f9fa; /* 배경색 */
+            overflow: hidden;         /* 이미지가 컨테이너를 초과하지 않도록 */
+        }
+
+        .image-box {
+            width: 100%;              /* 기본적으로 가로 크기 채우기 */
+            height: 100%;             /* 기본적으로 세로 크기 채우기 */
+            object-fit: cover;        /* 비율 유지하며 컨테이너에 맞게 채우기 */
+        }
+
+        .image-placeholder {
+            width: 100%;              /* 가로 크기 */
+            height: 100%;             /* 세로 크기 */
+            display: flex;            /* Flexbox로 텍스트 중앙 정렬 */
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;          /* 텍스트 크기 */
+            color: #888;              /* 텍스트 색상 */
+            border: 1px dashed #ccc;  /* 대체 박스의 경계선 */
+            border-radius: 5px;       /* 둥근 테두리 */
+        }
+
     </style>
     <div class="container mt-5">
         <h4 class="mb-4">학습 정보</h4>
@@ -84,7 +99,7 @@
                 <th style="width: 50%;" colspan="4">오늘의 학습 노출 기간</th>
             </tr>
             <tr>
-                <td th:text="${post.createdAt}">등록일</td>
+                <td th:text="${#temporals.format(post.createdAt,'yyyy-MM-dd')}">등록일</td>
                 <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
                 <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
                : (post.displayAt != null ? post.displayAt + ' ~'
@@ -94,13 +109,23 @@
             <!-- 이미지와 내용 -->
             <tr>
                 <td colspan="1" style="text-align: center;">
-                    <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}">
-                    <span th:if="${post.path == null}">이미지가 없습니다.</span>
+                    <div class="image-box-container">
+                        <!-- 이미지가 있을 때 -->
+                        <img th:src="@{${post.path}}"
+                             alt="학습 이미지"
+                             class="image-box"
+                             th:if="${post.path != null}">
+                        <!-- 이미지가 없을 때 -->
+                        <div class="image-placeholder" th:if="${post.path == null}">
+                            이미지가 없습니다.
+                        </div>
+                    </div>
                 </td>
                 <td colspan="5">
                     <div class="scroll-box" th:text="${post.content}"></div>
                 </td>
             </tr>
+
             <!-- 공유 정보 -->
             <tr>
                 <th>공유한 사람</th>
@@ -145,10 +170,11 @@
             <!-- 분야와 해시태그 -->
             <tr>
                 <th>분야</th>
-                <td th:text="${post.domain != null ? post.domain : '없음'}">분야</td>
+                <td th:text="${post.domain != null && !post.domain.isEmpty() ? post.domain : '없음'}">분야</td>
                 <th style="width: 20%;">해시태그</th>
-                <td th:text="${post.hashtag != null ? post.hashtag : '없음'}" colspan="3">해시태그</td>
+                <td th:text="${post.hashtag != null && !post.hashtag.isEmpty() ? post.hashtag : '없음'}" colspan="3">해시태그</td>
             </tr>
+
             </tbody>
         </table>
         <br>
@@ -328,11 +354,8 @@
                 });
         });
 
-
         const url = document.URL;
         console.log("url", url);
         document.querySelector('input[name="currentPage"]').value = url;
-
-
     </script>
 </div>

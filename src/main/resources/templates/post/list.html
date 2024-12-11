@@ -117,7 +117,7 @@
             <tr th:each="post, status : ${posts}" class="link"  th:data-post-id="${post.id}" style="cursor: pointer;">
                 <td th:text="${status.index + 1}"></td>
                 <td th:text="${post.title}"></td>
-                <td th:text="${post.createdAt}"></td>
+                <td th:text="${#temporals.format(post.createdAt,'yyyy-MM-dd')}">등록일</td>
                 <td>
                     <span th:if="${post.privacy == 1}" >Y</span>
                     <span th:if="${post.privacy == 0}" >N</span>
@@ -134,7 +134,7 @@
     </table>
     <div th:replace="~{common/paging :: paging}"></div>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button class="btn btn-primary" th:onclick="|location.href= '@{/post/regist}'|">학습 등록</button>
+        <button class="btn btn-primary regist-link" th:onclick="|location.href= '@{/post/regist}'|" >학습 등록</button>
     </div>
     <br>
     <br>
@@ -227,6 +227,13 @@
                     const postId = row.getAttribute('data-post-id');
                     const encodedCurrentPage = encodeURIComponent(window.location.href);
                     window.location.href = `/post/view?id=${postId}&currentPage=${encodedCurrentPage}`; // URL 생성
+                });
+            });
+
+            document.querySelectorAll('.regist-link').forEach(button =>{
+                button.addEventListener('click', () =>{
+                    const encodedCurrentPage = encodeURIComponent(window.location.href);
+                    window.location.href = `/post/regist?currentPage=${encodedCurrentPage}`; // URL 생성
                 });
             });
         });

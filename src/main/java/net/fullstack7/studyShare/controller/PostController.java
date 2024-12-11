@@ -68,13 +68,14 @@ public class PostController {
     public String view(Model model,
                              HttpServletResponse response,
                              HttpServletRequest request,
-                             @RequestParam("currentPage") String currentPage,
+                             @RequestParam(value = "currentPage", defaultValue = "") String currentPage,
                              @RequestParam(defaultValue = "") String type,
                              @RequestParam String id,
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
             System.out.println("current: " + currentPage);
             String userId = "user1"; //세션 아아디
+            System.out.println("id, {}" +id);
             try{
                 //게시글 조회
                 PostViewDTO post = postService.findPostWithFile(id);
@@ -101,7 +102,12 @@ public class PostController {
                     }
                 }else {
                     redirectAttributes.addFlashAttribute("alertMessage", "게시글 정보가 없습니다.");
-                    return "redirect:/post/myList";
+                    if("share".equals(type)){
+                        return "redirect:/post/shareList";
+                    }else{
+                        return "redirect:/post/myList";
+                    }
+
                 }
             }catch(Exception e){
                 redirectAttributes.addFlashAttribute("alertMessage",  e.getMessage());
@@ -110,7 +116,9 @@ public class PostController {
         }
 
     @GetMapping("/regist")
-    public String registGet(){
+    public String registGet(@RequestParam("currentPage") String currentPage,Model model){
+        model.addAttribute("currentPage", currentPage);
+
         return "post/regist";
     }
 
