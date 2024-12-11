@@ -127,7 +127,7 @@
                : (post.displayAt != null ? post.displayAt + ' ~'
                : (post.displayEnd != null ? '~ ' + post.displayEnd : 'X'))}">
                 </td>
-                <td th:text="${post.thumbsUpCount}"></td>
+                <td>❤️[[${post.thumbsUpCount}]]</td>
             </tr>
             <tr th:if="${posts == null or posts.isEmpty()}">
                 <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>
