@@ -86,14 +86,14 @@ public class FriendServiceImpl implements FriendService {
     public boolean deleteFriend(FriendDTO friendDTO) {
         boolean first = friendMapper.deleteFriend1(friendDTO);
         boolean second = friendMapper.deleteFriend2(friendDTO);
-        return first && second;
+        return first || second;
     }
 
     @Override
     public boolean deleteShare(FriendDTO friendDTO) {
         boolean gotShared = friendMapper.deleteShared1(friendDTO);
         boolean didShare = friendMapper.deleteShared2(friendDTO);
-        return gotShared && didShare;
+        return gotShared || didShare;
     }
 
 

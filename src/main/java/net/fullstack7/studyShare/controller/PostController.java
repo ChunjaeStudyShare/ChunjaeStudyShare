@@ -68,7 +68,7 @@ public class PostController {
     public String view(Model model,
                              HttpServletResponse response,
                              HttpServletRequest request,
-                             @RequestParam("currentPage") String currentPage,
+                             @RequestParam(value = "currentPage", required = false) String currentPage,
                              @RequestParam(defaultValue = "") String type,
                              @RequestParam String id,
                              RedirectAttributes redirectAttributes) {
