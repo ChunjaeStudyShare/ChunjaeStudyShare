@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import net.fullstack7.studyShare.dto.FriendCheckDTO;
 import net.fullstack7.studyShare.dto.FriendDTO;
-import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.today.TodayDTO;
 import net.fullstack7.studyShare.service.FriendService;
 import net.fullstack7.studyShare.service.TodayService;

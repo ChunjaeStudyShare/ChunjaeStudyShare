@@ -30,5 +30,5 @@ public class PostDTO {
     private String domain;
     private String hashtag;
     private Member member;
-
+    private int thumbsUpCount;
 }

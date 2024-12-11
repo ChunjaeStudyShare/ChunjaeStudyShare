@@ -34,7 +34,7 @@
     </select>
 
     <select id="selectAllPost">
-        SELECT p.*, COUNT(t.id) as thumbsUpCount    
+        SELECT p.*, COUNT(t.id) as thumbsUpCount
         FROM Post p
         LEFT JOIN ThumbsUp t ON p.id = t.postId
         <where>

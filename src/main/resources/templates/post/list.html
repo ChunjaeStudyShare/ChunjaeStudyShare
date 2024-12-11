@@ -111,6 +111,7 @@
             <th>등록일</th>
             <th>오늘의 학습 노출 여부</th>
             <th>오늘의 학습 노출 기간</th>
+            <th>좋아요</th>
         </tr>
         </thead>
         <tbody id="dataTable">
@@ -126,6 +127,7 @@
                : (post.displayAt != null ? post.displayAt + ' ~'
                : (post.displayEnd != null ? '~ ' + post.displayEnd : 'X'))}">
                 </td>
+                <td th:text="${post.thumbsUpCount}"></td>
             </tr>
             <tr th:if="${posts == null or posts.isEmpty()}">
                 <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>

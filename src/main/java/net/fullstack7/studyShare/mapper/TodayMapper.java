@@ -1,7 +1,5 @@
 package net.fullstack7.studyShare.mapper;
 
-import net.fullstack7.studyShare.dto.FriendDTO;
-import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.dto.today.TodayDTO;
 import org.apache.ibatis.annotations.Mapper;

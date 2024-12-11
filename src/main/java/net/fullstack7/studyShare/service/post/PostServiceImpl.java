@@ -15,7 +15,6 @@ import net.fullstack7.studyShare.util.CommonFileUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -168,7 +167,7 @@ public class PostServiceImpl implements PostServiceIf{
         map.put("displayAt", displayAt);
         map.put("displayEnd", displayEnd);
 
-        List<Post> list = postMapper.selectAllPost(map);
+        List<PostDTO> list = postMapper.selectAllPost(map);
         return list.stream()
                 .map(i -> modelMapper.map(i, PostDTO.class)).collect(Collectors.toList());
     }

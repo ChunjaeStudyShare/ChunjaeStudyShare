@@ -28,7 +28,7 @@ public class AuthenticationFilter implements Filter {
         "/admin/*"
     );
 
-    private static final boolean IS_DEVELOPMENT = false;
+    private static final boolean IS_DEVELOPMENT = true;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
@@ -67,10 +67,12 @@ public class AuthenticationFilter implements Filter {
                 log.info("토큰이 유효하지 않거나 null입니다.");
                 handleUnauthorized(httpRequest, httpResponse);
             }
-        } catch (Exception e) {
-            log.error("토큰 검증 중 예외 발생", e);
-            handleUnauthorized(httpRequest, httpResponse);
         }
+        catch (Exception e) {
+            log.error("토큰 검증 중 예외 발생", e);
+            handleException(httpRequest, httpResponse);
+        }
+
     }
 
     private String extractToken(HttpServletRequest request) {
@@ -120,5 +122,10 @@ public class AuthenticationFilter implements Filter {
             String encodedMessage = URLEncoder.encode("세션이 만료되었거나 인증이 필요한 요청입니다.", StandardCharsets.UTF_8);
             response.sendRedirect("/member/login?error=true&message=" + encodedMessage);
         }
+    }
+
+    private void handleException(HttpServletRequest request, HttpServletResponse response) 
+            throws IOException {
+        response.sendRedirect("/error");
     }
 }

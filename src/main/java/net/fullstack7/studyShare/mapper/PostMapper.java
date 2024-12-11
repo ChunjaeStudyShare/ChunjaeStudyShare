@@ -8,7 +8,7 @@ import net.fullstack7.studyShare.dto.post.ShareInfoDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import net.fullstack7.studyShare.dto.post.PostDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.Map;
 public interface PostMapper {
     int totalCnt(@Param("searchCategory") String searchCategory, @Param("searchValue") String searchValue, @Param("userId") String userId,
                  @Param("sortType") String sortType, @Param("displayAt") LocalDateTime displayAt, @Param("displayEnd") LocalDateTime displayEnd);
-    List<Post> selectAllPost(Map<String, Object> map);
+    List<PostDTO> selectAllPost(Map<String, Object> map);
 
     //List<Post> selectMyShare(Map<String, Object> map);
 
