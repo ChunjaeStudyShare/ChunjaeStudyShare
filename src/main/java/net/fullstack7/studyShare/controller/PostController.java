@@ -74,7 +74,6 @@ public class PostController {
             response.setCharacterEncoding("utf-8");
             log.info("current  {}" , currentPage);
             String userId = (String) request.getAttribute("userId");
-
             try{
                 //게시글 조회
                 PostViewDTO post = postService.findPostWithFile(id);
@@ -139,11 +138,9 @@ public class PostController {
             postService.regist(dto, userId);
             return "redirect:/post/myList";
         } catch (IOException e) {
-            log.info("aaa");
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
             return "post/regist";
         } catch (Exception e) {
-            log.info("bbbbb");
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
             return "post/regist";
         }
