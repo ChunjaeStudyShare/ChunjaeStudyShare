@@ -111,7 +111,7 @@
                 <td colspan="1" style="text-align: center;">
                     <div class="image-box-container">
                         <!-- 이미지가 있을 때 -->
-                        <img th:src="@{${post.path}}"
+                        <img th:src="${post.path}"
                              alt="학습 이미지"
                              class="image-box"
                              th:if="${post.path != null}">

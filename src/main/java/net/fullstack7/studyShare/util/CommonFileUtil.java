@@ -9,19 +9,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
 import net.coobird.thumbnailator.Thumbnails;
 
 public class CommonFileUtil {
 
-    private static final String UPLOAD_DIR = "D:\\chunjae\\project\\study\\src\\main\\resources\\static\\file";
-    private static final String DELETE_DIR = "D:/chunjae/project/study/src/main/resources/static";
-    @Value("D:\\chunjae\\project\\study\\src\\main\\resources\\static\\file")
-    private String uploadPath;
+    private static final String UPLOAD_DIR = "/home/gyeongmini/upload/images"; // 실제 파일 저장 경로
+    private static final String WEB_DIR = "/upload/images"; // 웹에서 접근할 경로
+    private static final String DELETE_DIR = "/home/gyeongmini/upload/images"; // 삭제 경로
 
     // 단일 파일 업로드 메서드
     public static String uploadFile(MultipartFile file) throws IOException {
-        try{
+        try {
             if (file == null || file.isEmpty()) {
                 return null;  // null 허용
             }
@@ -31,24 +29,23 @@ public class CommonFileUtil {
                 uploadDir.mkdirs();
             }
 
-            String originalFileName = file.getOriginalFilename(); //업로드 된 원래 파일 이름
+            String originalFileName = file.getOriginalFilename(); // 업로드 된 원래 파일 이름
             if (originalFileName != null && !originalFileName.isEmpty()) {
-                String uniqueFileName = generateUniqueFileName(originalFileName); //고유 파일명 생성
+                String uniqueFileName = generateUniqueFileName(originalFileName); // 고유 파일명 생성
                 String fullPath = uploadDir.getPath() + File.separator + uniqueFileName; // 파일 저장 경로 생성
                 File destinationFile = new File(fullPath); // 파일 객체 생성
-                file.transferTo(destinationFile); //MultipartFile의 내용을 실제 파일로 저장
+                file.transferTo(destinationFile); // MultipartFile의 내용을 실제 파일로 저장
                 // 업로드된 파일의 경로 반환
-                return uniqueFileName;
+                return WEB_DIR + "/" + uniqueFileName; // 웹 경로 반환
             } else {
                 throw new IllegalArgumentException("업로드할 파일이 없습니다.");
             }
-        }catch(IOException e){
+        } catch (IOException e) {
             throw e;
         }
-
     }
 
-    //썸네일
+    // 썸네일 생성 메서드
     public static String createThumbnail(String fileName) throws IOException {
         String inputFilePath = UPLOAD_DIR + File.separator + fileName; // 원본 파일 경로
         String thumbnailName = "thumb_" + fileName; // 썸네일 파일 이름
@@ -59,7 +56,8 @@ public class CommonFileUtil {
                 .outputQuality(0.8) // 용량
                 .outputFormat("jpg")  // 파일 형식
                 .toFile(outputFilePath);  // 저장 경로
-        return thumbnailName;
+
+        return WEB_DIR + "/" + thumbnailName; // 웹 경로 반환
     }
 
     // 다중 파일 업로드 메서드
@@ -78,7 +76,7 @@ public class CommonFileUtil {
                 String fullPath = uploadDir.getPath() + File.separator + uniqueFileName;
                 File destinationFile = new File(fullPath);
                 file.transferTo(destinationFile);
-                uploadedFilePaths.add(fullPath);
+                uploadedFilePaths.add(WEB_DIR + "/" + uniqueFileName); // 웹 경로 추가
             }
         }
         return uploadedFilePaths;
@@ -87,7 +85,7 @@ public class CommonFileUtil {
     // 파일 삭제 메서드
     public static boolean deleteFile(String filePath) {
         if (filePath == null || filePath.isEmpty()) return false;
-        String dir = DELETE_DIR+filePath;
+        String dir = DELETE_DIR + filePath;
         File file = new File(dir);
         return file.exists() && file.delete();
     }
@@ -97,11 +95,11 @@ public class CommonFileUtil {
         File oldFile = new File(oldFilePath);
 
         String uniqueNewFileName = generateUniqueFileName(newFileName);
-        String newFullPath = UPLOAD_DIR + uniqueNewFileName;
+        String newFullPath = UPLOAD_DIR + File.separator + uniqueNewFileName;
         File newFile = new File(newFullPath);
 
         if (oldFile.exists() && oldFile.renameTo(newFile)) {
-            return newFullPath; // 새 파일 경로 반환
+            return WEB_DIR + "/" + uniqueNewFileName; // 웹 경로 반환
         } else {
             throw new IOException("파일명을 변경할 수 없습니다.");
         }
@@ -110,20 +108,20 @@ public class CommonFileUtil {
     // 고유 파일명 생성 메서드
     private static String generateUniqueFileName(String originalFileName) {
         String extension = "";
-        int index = originalFileName.lastIndexOf("."); //lastIndexOf(".")를 사용해 파일 이름에서 마지막 .의 위치 찾음
+        int index = originalFileName.lastIndexOf("."); // lastIndexOf(".")를 사용해 파일 이름에서 마지막 .의 위치 찾음
         if (index > 0) {
-            extension = originalFileName.substring(index); //파일 확장자 추출
+            extension = originalFileName.substring(index); // 파일 확장자 추출
         }
-        return UUID.randomUUID().toString() + extension; //고유 파일명 생성
+        return UUID.randomUUID().toString() + extension; // 고유 파일명 생성
     }
 
     public static Resource downloadFile(String fileName) throws IOException {
         File file = new File(UPLOAD_DIR + File.separator + fileName);
 
         if (file.exists()) {
-            return new FileSystemResource(file); // FileSystemResource는 Spring에서 파일을 읽는 데 사용됩니다.
+            return new FileSystemResource(file);    
         } else {
-            throw new IOException("파일을 찾을 수 없습니다: " + fileName); // 파일이 존재하지 않으면 예외 처리
+            throw new IOException("파일을 찾을 수 없습니다: " + fileName);
         }
     }
 }

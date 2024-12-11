@@ -210,7 +210,7 @@ public class PostController {
                             HttpServletResponse response,
                             HttpServletRequest request,
                             @Valid PostSharePagingDTO dto) {
-        LogUtil logUtil = new LogUtil();
+        // LogUtil logUtil = new LogUtil();
         //logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
         String userId = (String) request.getAttribute("userId");
