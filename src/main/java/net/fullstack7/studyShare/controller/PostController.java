@@ -23,7 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import net.fullstack7.studyShare.service.ThumbsUp.ThumbsUpService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +41,7 @@ public class PostController {
 
     private final PostServiceIf postService;
     private final ShareServiceIf shareService;
+    private final ThumbsUpService thumbsUpService;
 
     @GetMapping("/myList")
     public String myStudyList(Model model,
@@ -76,7 +77,11 @@ public class PostController {
                              HttpServletRequest request,
                              @RequestParam String id){
         response.setCharacterEncoding("utf-8");
+        // 게시글 조회
         PostViewDTO post = postService.findPostWithFile(id);
+        // 좋아요 개수 조회
+        Integer thumbUpCnt = thumbsUpService.countThumbsUp(Integer.parseInt(id));
+        model.addAttribute("thumbsUpCnt", thumbUpCnt);
         //공유 목록 가져오기
         List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
         model.addAttribute("shareList", shareList);

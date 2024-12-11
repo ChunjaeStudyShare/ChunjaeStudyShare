@@ -21,5 +21,6 @@ public interface ActiveTokensRepository extends JpaRepository<ActiveTokens, Inte
     @Query("DELETE FROM ActiveTokens t WHERE t.member = :member")
     void deleteByMember(@Param("member") Member member);
 
-    Optional<ActiveTokens> findByUserId(String userId);
+    @Query("SELECT t FROM ActiveTokens t WHERE t.member.userId = :userId")
+    Optional<ActiveTokens> findByUserId(@Param("userId") String userId);
 }
