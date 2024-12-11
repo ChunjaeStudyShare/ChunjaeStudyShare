@@ -38,7 +38,7 @@ public class PostServiceImpl implements PostServiceIf{
         String filePath = null;
         String thumbnailName = null;
         String thumbnailPath = null;
-        long maxSize = 1024*1024*500L;
+        long maxSize = 1024*1024*10L;
         List<String> allowedMimeTypes = Arrays.asList("image/jpeg", "image/png");
         List<String> allowedExtensions = Arrays.asList(".jpg", ".png");
 
@@ -56,7 +56,7 @@ public class PostServiceImpl implements PostServiceIf{
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
             //파일 크기
             if (dto.getFile() != null && dto.getFile().getSize() > maxSize) {
-                throw new IllegalArgumentException("파일 업로드 크기는 최대 500MB 입니다");
+                throw new IllegalArgumentException("파일 업로드 크기는 최대 10MB 입니다");
             }
 
             // MIME 타입 검증
@@ -189,7 +189,7 @@ public class PostServiceImpl implements PostServiceIf{
         String filePath = null;
         String thumbnailName = null;
         String thumbnailPath = null;
-        long maxSize = 1024 * 1024 * 500L;
+        long maxSize = 1024 * 1024 * 10L;
         List<String> allowedMimeTypes = Arrays.asList("image/jpeg", "image/png");
         List<String> allowedExtensions = Arrays.asList(".jpg", ".png");
 
@@ -217,7 +217,7 @@ public class PostServiceImpl implements PostServiceIf{
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
             //파일 크기
             if (dto.getFile() != null && dto.getFile().getSize() > maxSize) {
-                throw new IllegalArgumentException("파일 업로드 크기는 최대 500MB 입니다");
+                throw new IllegalArgumentException("파일 업로드 크기는 최대 10MB 입니다");
             }
 
             // MIME 타입 검증
@@ -372,11 +372,6 @@ public class PostServiceImpl implements PostServiceIf{
         return isShared || isOwner;
     }
 
-//    @Override
-//    public boolean isSharedWithUser(int id, String userId) {
-
-//        return result > 0;
-//    }
 
     @Override
     public List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId) {
