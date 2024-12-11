@@ -210,7 +210,7 @@
                         <div class="container1 h-100">
                             <div class="thumbnail" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
                             <div class="title" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
-                            <div class="content" >등록된 글이 없습니다.</div>
+                            <div class="content" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
                             <div class="category">등록된 글이 없습니다.</div>
                             <div class="tags">등록된 글이 없습니다.</div>
                             <div class="shared">등록된 글이 없습니다.</div>
@@ -256,13 +256,6 @@
 
                 <!-- 캐러셀 인디케이터 -->
                 <div class="carousel-indicators">
-                    <!-- todayList가 비어있을 때 기본 인디케이터 -->
-                    <button th:if="${todayList == null || todayList.isEmpty()}"
-                            data-bs-target="#carouselExampleDark"
-                            data-bs-slide-to="0"
-                            class="active"
-                            aria-label="슬라이드1">
-                    </button>
 
                     <!-- todayList가 있을 때만 각 항목별로 인디케이터 생성 -->
                     <button th:if="${todayList != null && !todayList.isEmpty()}"
