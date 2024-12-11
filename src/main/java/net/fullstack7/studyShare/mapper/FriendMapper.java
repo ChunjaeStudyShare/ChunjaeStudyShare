@@ -1,5 +1,6 @@
 package net.fullstack7.studyShare.mapper;
 
+import net.fullstack7.studyShare.domain.Friend;
 import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -24,5 +25,7 @@ public interface FriendMapper {
     Boolean isSharedByUser(String userId, String postId);
     Boolean deleteFriend1(FriendDTO friendDTO);
     Boolean deleteFriend2(FriendDTO friendDTO);
+    Boolean deleteShared1(FriendDTO friendDTO);
+    Boolean deleteShared2(FriendDTO friendDTO);
 
 }
