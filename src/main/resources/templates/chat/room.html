@@ -3,7 +3,7 @@
       layout:decorate="~{common/layout.html}">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>채팅방</title>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <style>
@@ -389,7 +389,7 @@
     });
 
     function exit() {
-        if(confirm("정말로 나가시겠습니까?")) {
+        if(confirm("대화내용이 모두 삭제되고 채팅목록에서도 삭제됩니다.")) {
             window.location.href="/chat/room/"+roomId+"/exit";
         }
     }
