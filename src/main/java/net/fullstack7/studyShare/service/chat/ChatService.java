@@ -16,7 +16,7 @@ public interface ChatService {
     String exitRoom(int roomId, String userId);
     String inviteUserToChatRoom(int roomId, String userId);
     ChatMember chatMemberInfo(int roomId, String userId);
-    int isExistChatRoom(List<String> members, String userId);
+    int isExistChatRoom(String user1, String user2);
     boolean leaveChatRoom(int roomId, String userId, LocalDateTime leaveAt);
     boolean enterChatRoom(int roomId, String userId);
 }
