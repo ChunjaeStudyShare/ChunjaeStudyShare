@@ -56,11 +56,9 @@ public class ShareServiceImpl implements ShareServiceIf{
                         .user(Member.builder().userId(postShareDTO.getUserId()).build()) //공유 받는 사람, 객체로 들어와야함
                         .post(post)
                         .build();
-//                Post post_in = Post.builder()
-//                                .share(1)
-//                                .build();
+                post.setShare(1); // 게시글을 공유 상태로 변경
+                postRepository.save(post);
                 shareRepository.save(share);
-//                postRepository.save(post_in);
                 log.info(" 성공  ID: {}", share.getId());
                 return true;
             }catch(Exception e){
@@ -91,10 +89,13 @@ public class ShareServiceImpl implements ShareServiceIf{
             int result = shareRepository.deleteByUserIdAndPostId(user, post);
             if(result > 0) {
                 log.info("삭제 성공");
-//                Post post_in = Post.builder()
-//                        .share(0)
-//                        .build();
-//                postRepository.save(post_in);
+                // 게시글이 다른 사람도 공유했는지 확인
+                //게시글 id 로 share 테이블에 있는지 확인하면 됨
+                boolean isShared = shareRepository.existsByPostId(postShareDTO.getPostId());
+                if (!isShared) {
+                    post.setShare(0);
+                    postRepository.save(post);
+                }
                 return true;
             }else {
                 log.info("삭제 실패");

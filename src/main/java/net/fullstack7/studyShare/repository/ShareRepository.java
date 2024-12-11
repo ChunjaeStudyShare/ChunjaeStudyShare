@@ -40,5 +40,7 @@ public interface ShareRepository extends JpaRepository<Share, Integer> {
     void deleteByPost_Id(@Param("post") Post post);
 
     void deleteByPostIn(List<Post> posts);
+
+    boolean existsByPostId(int postId);
 }
 

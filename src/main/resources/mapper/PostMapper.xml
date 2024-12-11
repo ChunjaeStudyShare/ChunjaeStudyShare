@@ -163,6 +163,7 @@
                 AND p.displayEnd &lt;= #{displayEnd}
             </if>
             AND userId = #{userId}<!-- 로그인한 사용자 ID -->
+            AND share = 1
         </where>
         ORDER BY createdAt DESC
         LIMIT #{offset}, #{limit}
