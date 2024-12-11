@@ -147,21 +147,6 @@
                 </td>
             </tr>
             <!-- 공유 정보 -->
-            <tr>
-                <th>공유한 사람</th>
-                <td colspan="5">
-                    <div th:each="shared, status:${shareList}">
-                        <span th:text="${shared.user.userId}"></span>
-                        <button type="button" class="btn-close-custom" aria-label="Close"
-                                th:data-user-id="${shared.user.userId}"
-                                th:onclick="'cancelRequest(this)'">X
-                        </button>
-                        <br>
-                    </div>
-                    <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
-                    <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
-                </td>
-            </tr>
             <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">

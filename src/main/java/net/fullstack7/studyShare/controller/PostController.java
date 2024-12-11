@@ -73,9 +73,7 @@ public class PostController {
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
             log.info("current  {}" , currentPage);
-        String userId = (String) request.getAttribute("userId");
-//            log.info("type {}", type);
-//            log.info("id {}", id);
+            String userId = (String) request.getAttribute("userId");
 
             try{
                 //게시글 조회
@@ -96,7 +94,7 @@ public class PostController {
                     model.addAttribute("shareList", shareList);
                     model.addAttribute("post", post);
                     model.addAttribute("currentPage", currentPage);
-                    if("share".equals(type)){
+                    if("receiveShare".equals(type)){
                         return "post/shareView";
                     }else{
                         return "post/view";
