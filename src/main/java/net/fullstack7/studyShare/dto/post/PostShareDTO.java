@@ -21,4 +21,7 @@ public class PostShareDTO {
     private LocalDateTime sharedCreatedAt;
     private String userId; // 공유 받은 사람
     private int isShared;
+
+    // 좋아요 join
+    private int likeCount;
 }

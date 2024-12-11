@@ -31,4 +31,7 @@ public class TodayDTO {
     private List<PostShareDTO> sharedList;
     private String thumbnailPath;
     private String thumbnailName;
+
+    // 추가
+    private int likeCount;
 }

@@ -25,6 +25,7 @@ public class TodayServiceImpl implements TodayService {
         for(TodayDTO todayDTO : todayList) {
             int postId = todayDTO.getId();
             List<PostShareDTO> sharedList = todayMapper.sharedIdList(postId);
+
             todayDTO.setSharedList(sharedList);
         }
         return todayList;
@@ -32,6 +33,12 @@ public class TodayServiceImpl implements TodayService {
 
     @Override
     public List<TodayDTO> sharedPosts(String userId) {
+        List<TodayDTO> sharedList = todayMapper.sharedPosts(userId);
+        for(TodayDTO todayDTO : sharedList) {
+            int postId = todayDTO.getId();
+            int likeCount = todayMapper.likeCount(postId);
+            todayDTO.setLikeCount(likeCount);
+        }
         return todayMapper.sharedPosts(userId);
     }
 }
