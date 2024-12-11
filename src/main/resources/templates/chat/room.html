@@ -137,9 +137,12 @@
 
 <div layout:fragment="content">
     <div class="row chat-header">
-        <div class="col chat-header-item-left"></div>
+        <div class="col chat-header-item-left">
+            <button type="button" id="btn-to-chat-list" onclick="location.href='/chat/list'" class="btn btn-dark">목록으로</button>
+        </div>
         <div class="col chat-header-item-center">채팅방</div>
         <div class="col chat-header-item-right">
+            <button type="button" id="btn-exit" class="btn btn-danger" onclick="javascript:exit();">나가기</button>
             <button type="button" id="btn-invite" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">초대하기</button>
         </div>
     </div>
@@ -337,7 +340,7 @@
     async function leave(roomId) {
         const url = "/api/chat/room/leave";
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -384,6 +387,12 @@
             console.error(error.message);
         }
     });
+
+    function exit() {
+        if(confirm("정말로 나가시겠습니까?")) {
+            window.location.href="/chat/room/"+roomId+"/exit";
+        }
+    }
 </script>
 </body>
 </html>

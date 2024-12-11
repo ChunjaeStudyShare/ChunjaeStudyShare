@@ -14,5 +14,5 @@ public interface ChatMemberMapper {
     int updateLeaveAt(LocalDateTime leaveAt, Integer chatRoomId, String userId);
     List<ChatRoomDTO> findChatRoomListByUserId(String userId);
     List<String> findMembersByChatRoomId(Integer chatRoomId);
-    List<ChatMember> findMemberByUserId(String userId);
+    Integer findChatRoomIdBy2UserId(String user1, String user2);
 }

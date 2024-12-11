@@ -44,6 +44,19 @@ public class ChatController {
         return "redirect:/chat/room/"+roomId;
     }
 
+    @GetMapping("/friend")
+    public String friend(HttpServletRequest request, @RequestParam String friendId, Model model, RedirectAttributes redirectAttributes) {
+        String userId = (String) request.getAttribute("userId");
+        if(friendId.isBlank()) {
+            redirectAttributes.addFlashAttribute("alertMessage", "채팅방 멤버를 선택하세요");
+            return "redirect:/friend/list";
+        }
+
+        int roomId = chatService.createChatRoom(userId, new String[] {friendId});
+
+        return "redirect:/chat/room/"+roomId;
+    }
+
     @GetMapping("/room/{id}")
     public String room(HttpServletRequest request, @PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
         String userId = (String) request.getAttribute("userId");
