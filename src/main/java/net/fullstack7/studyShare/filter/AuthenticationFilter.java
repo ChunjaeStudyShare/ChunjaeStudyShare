@@ -28,7 +28,7 @@ public class AuthenticationFilter implements Filter {
         "/admin/*"
     );
 
-    private static final boolean IS_DEVELOPMENT = false;
+    private static final boolean IS_DEVELOPMENT = true;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
