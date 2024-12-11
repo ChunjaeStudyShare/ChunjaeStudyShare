@@ -2,9 +2,15 @@ package net.fullstack7.studyShare.dto.post;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import lombok.extern.log4j.Log4j2;
+import lombok.AllArgsConstructor;
 
+@Builder
+@AllArgsConstructor
+@Log4j2
 @Data
 public class PostSharePagingDTO {
     @Positive
@@ -42,7 +48,7 @@ public class PostSharePagingDTO {
     }
 
     @AssertTrue(message = "시작일은 종료일 이전이어야 합니다.")
-    private boolean isDisplayAtBeforeDisplayEnd() {
+    public boolean isDisplayAtBeforeDisplayEnd() {
         if (displayAt == null || displayEnd == null) {
             return true;
         }
