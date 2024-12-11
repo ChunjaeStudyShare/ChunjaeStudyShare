@@ -73,4 +73,18 @@
         DELETE FROM Friend
         WHERE friendId = #{requesterId} AND requesterId = #{friendId}
     </delete>
+    <delete id="deleteShared1">
+        DELETE s
+        FROM `share` AS s
+        INNER JOIN post AS p ON p.id = s.postId
+        WHERE s.userId = #{userId}
+        AND p.userId = #{requesterId};
+    </delete>
+    <delete id="deleteShared2">
+        DELETE s
+        FROM `share` AS s
+        INNER JOIN post AS p ON p.id = s.postId
+        WHERE s.userId = #{requesterId};
+        AND p.userId = #{userId};
+    </delete>
 </mapper>

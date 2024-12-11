@@ -133,8 +133,9 @@ public class FriendController {
         //requesterId가 상대, userId가 나임
         //친구 관계가 어떻게 되어있는 지 몰라서 두 번 삭제를 해보든가, 아니면 올바른 정보를 가져와서 그걸 삭제하든가 이긴 한데
         //기냥 서비스에서 두 번 삭제해봄
+        boolean deleteShare = friendService.deleteShare(friendDTO);
         boolean success = friendService.deleteFriend(friendDTO);
-        if(success) {
+        if(success && deleteShare) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(400).build();
