@@ -10,7 +10,7 @@
         AND userId = #{userId}
     </select>
     <select id="sharedIdList" resultType="net.fullstack7.studyShare.dto.post.PostShareDTO">
-        SELECT userId ,createdAt AS createAt
+        SELECT userId ,createdAt
         FROM Share
         WHERE postId = #{postId}
         ORDER BY createdAt DESC
