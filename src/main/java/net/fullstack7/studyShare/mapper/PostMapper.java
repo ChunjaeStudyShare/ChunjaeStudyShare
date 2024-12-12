@@ -36,4 +36,7 @@ public interface PostMapper {
     List<PostMyShareDTO> selectPostsByUserId(Map<String, Object> map);
 
     List<ShareInfoDTO> selectSharesByPostId(@Param("postIds") List<Integer> postIds);
+
+    int selectPostsByUserIdCnt(@Param("searchCategory") String searchCategory, @Param("searchValue") String searchValue, @Param("userId") String userId,
+                         @Param("sortType") String sortType, @Param("displayAt") LocalDateTime displayAt, @Param("displayEnd") LocalDateTime displayEnd);
 }
