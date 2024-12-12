@@ -21,4 +21,9 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember, Integer>
     Optional<ChatMember> findByMemberAndChatRoom(Member member, ChatRoom chatRoom);
 
     int countByChatRoom(ChatRoom chatRoom);
+
+    @Modifying
+    @Query("DELETE FROM ChatMember cm WHERE cm.member=:member")
+    void deleteByMember(Member member);
 }
+

@@ -2,8 +2,6 @@ package net.fullstack7.studyShare.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.fullstack7.studyShare.dto.FriendDTO;
-import net.fullstack7.studyShare.dto.post.PostDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.dto.today.TodayDTO;
 import net.fullstack7.studyShare.mapper.FriendMapper;
@@ -27,6 +25,7 @@ public class TodayServiceImpl implements TodayService {
         for(TodayDTO todayDTO : todayList) {
             int postId = todayDTO.getId();
             List<PostShareDTO> sharedList = todayMapper.sharedIdList(postId);
+
             todayDTO.setSharedList(sharedList);
         }
         return todayList;
@@ -34,6 +33,12 @@ public class TodayServiceImpl implements TodayService {
 
     @Override
     public List<TodayDTO> sharedPosts(String userId) {
+        List<TodayDTO> sharedList = todayMapper.sharedPosts(userId);
+        for(TodayDTO todayDTO : sharedList) {
+            int postId = todayDTO.getId();
+            int likeCount = todayMapper.likeCount(postId);
+            todayDTO.setLikeCount(likeCount);
+        }
         return todayMapper.sharedPosts(userId);
     }
 }

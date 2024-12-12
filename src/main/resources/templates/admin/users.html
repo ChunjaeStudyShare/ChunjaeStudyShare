@@ -6,7 +6,18 @@
 <div layout:fragment="content">
     <div class="container-fluid">
         <h2 class="mb-4">사용자 관리</h2>
-
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', () => {
+                const error = [[${error}]];
+                const message = [[${message}]];
+                if (error) {
+                    alert(error);
+                }
+                if (message) {
+                    alert(message);
+                }
+            });
+        </script>
         <!-- 검색 폼 -->
         <div class="row mb-4">
             <div class="col-md-6">
@@ -79,7 +90,7 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-outline-dark btn-modify" th:data-user-id="${member.userId}">수정</button>
-                                <button type="button" class="btn btn-sm btn-outline-dark">삭제</button>
+                                <button type="button" class="btn btn-sm btn-outline-dark" id="deleteMember" th:data-user-id="${member.userId}">삭제</button>
                             </div>
                         </td>
                     </tr>
@@ -132,6 +143,16 @@
                 const userId = button.getAttribute('data-user-id');
                 const encodedCurrentPage = encodeURIComponent(document.URL);
                 window.location.href = `/admin/users/modify/?userId=${userId}&currentPage=${encodedCurrentPage}`;
+            });
+        });
+
+        document.querySelectorAll('#deleteMember').forEach(button => {
+            button.addEventListener('click', () => {
+                if (confirm('정말로 삭제하시겠습니까? 삭제 후 데이터는 복구되지 않으며 모든 책임은 사용자에게 있습니다.')) {
+                    const userId = button.getAttribute('data-user-id');
+                    const encodedCurrentPage = encodeURIComponent(document.URL);
+                    window.location.href = `/admin/users/delete-member?userId=${userId}&currentPage=${encodedCurrentPage}`;
+                }
             });
         });
     </script>

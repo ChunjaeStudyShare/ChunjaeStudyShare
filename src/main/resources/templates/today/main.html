@@ -44,7 +44,7 @@
             height: 20px;
         }
         .container1 {
-            margin-top:25px;
+            margin-top: 25px;
             display: grid;
             grid-template-areas:
         "thumbnail title"
@@ -52,18 +52,18 @@
         "category shared"
         "tags shared";
             grid-template-columns: 1fr 1fr; /* 열 크기 */
-            grid-template-rows: 80px auto auto auto; /* 행 크기 */
+            grid-template-rows: 10% 50% 10% 10%; /* 행 크기 */
             gap: 10px;
             width: 100%;
             max-width: 800px;
-            height:100%;
+            height: 100%;
         }
 
         .thumbnail {
             grid-area: thumbnail;
             background-color: #e0e0e0;
             border: 1px solid #d0d0d0;
-            height: 366px;
+            height: 100%; /* 이미지가 그리드 셀을 채우도록 */
         }
 
         .title {
@@ -71,13 +71,14 @@
             background-color: #f4f4f4;
             padding: 10px;
             border: 1px solid #d0d0d0;
-            text-align: center;
-            line-height: 55px;
             font-weight: bold;
-            height:auto;
-            overflow:hidden;
-            white-space:nowrap;
+            height: auto;
+            overflow: hidden;
+            white-space: nowrap;
             text-overflow: ellipsis;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .content {
@@ -85,12 +86,10 @@
             background-color: #ffffff;
             padding: 10px;
             border: 1px solid #d0d0d0;
-            min-height: 100%;
             overflow-y: auto;
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 3; /* 최대 줄 수 설정 */
-            overflow-x: hidden;
             text-overflow: ellipsis;
             line-height: 1.5; /* 줄 간격 */
         }
@@ -100,10 +99,12 @@
             background-color: #f9f9f9;
             padding: 10px;
             border: 1px solid #d0d0d0;
-            text-align: center;
-            overflow:hidden;
-            white-space:nowrap;
+            overflow: hidden;
+            white-space: nowrap;
             text-overflow: ellipsis;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .tags {
@@ -111,11 +112,13 @@
             background-color: #f9f9f9;
             padding: 10px;
             border: 1px solid #d0d0d0;
-            text-align: center;
             color: #555;
-            overflow:hidden;
-            white-space:nowrap;
+            overflow: hidden;
+            white-space: nowrap;
             text-overflow: ellipsis;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .shared {
@@ -123,12 +126,14 @@
             background-color: #ffffff;
             padding: 10px;
             border: 1px solid #d0d0d0;
-            text-align: center;
             color: #555;
-            height:100px;
-            overflow:hidden;
-            white-space:nowrap;
+            height: auto;
+            overflow: hidden;
+            white-space: nowrap;
             text-overflow: ellipsis;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         /*.list-group-item {*/
         /*    max-width:100%;*/
@@ -188,7 +193,7 @@
     <!-- 메인 컨테이너 -->
     <h1 class="text-center">오늘의 학습</h1>
     <hr>
-    <div class="d-flex" style="height: 75vh;">
+    <div class="d-flex" style="height: 75vh; border-radius:10px; background-color: #f8f9fa">
 
         <!-- 좌측 달력 영역 -->
         <div class="h-100 w-25" style="width: 15%;">
@@ -199,24 +204,27 @@
         <div class="h-100 w-50">
             <div id="carouselExampleDark" class="carousel carousel-dark slide h-100" data-bs-ride="carousel">
                 <!-- 캐러셀 콘텐츠 -->
-                <div class="carousel-inner">
+                <div class="carousel-inner h-100">
                     <!-- 반복적으로 보여질 항목 -->
-                    <div th:if="${todayList==null || todayList.isEmpty()}" class="carousel-item active">
-                        <div class="container1">
-                            <div class="thumbnail">등록된 글이 없습니다.</div>
-                            <div class="title" >등록된 글이 없습니다.</div>
-                            <div class="content" >등록된 글이 없습니다.</div>
+                    <div th:if="${todayList==null || todayList.isEmpty()}" class="carousel-item active h-100">
+                        <div class="container1 h-100">
+                            <div class="thumbnail" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
+                            <div class="title" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
+                            <div class="content" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
                             <div class="category">등록된 글이 없습니다.</div>
                             <div class="tags">등록된 글이 없습니다.</div>
                             <div class="shared">등록된 글이 없습니다.</div>
                         </div>
                     </div>
-                    <div class="carousel-item"
+                    <div class="carousel-item h-100"
                          th:each="item, status : ${todayList}"
                          th:classappend="${status.index == 0 ? 'active' : ''}"
                          data-bs-interval="5000">
-                        <div class="container1">
-                            <div class="thumbnail"><img th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;"></div>
+                        <div class="container1 h-100">
+                            <div class="thumbnail"><img th:if="${item.thumbnailPath != null && !item.thumbnailPath.isEmpty()}" th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;"></div>
+                            <div class="thumbnail" th:if="${item.thumbnailPath == null || item.thumbnailPath.isEmpty()}" style="display: flex;justify-content: center;align-items: center;">
+                                이미지가 없습니다.
+                            </div>
                             <div class="title" th:text="${item.title}">제목</div>
                             <div class="content" th:text="${item.content}">내용</div>
                             <div class="category" th:text="${item.domain}">분야</div>
@@ -225,7 +233,7 @@
                             <div class="tags" th:if="${item.hashtag == null || item.hashtag.isEmpty()}">해시태그가 없습니다.</div>
                             <div class="shared">
                                 <ul th:if="${item.sharedList != null}" class="list-group list-group-flush">
-                                    <li th:each="sharedId : ${item.sharedList}" th:text="${sharedId.userId}+'('+${#temporals.format(sharedId.createAt, 'yyyy-MM-dd HH:mm:ss')}+')'" class="list-group-item text-start"></li>
+                                    <li th:each="sharedId : ${item.sharedList}" th:text="${sharedId.userId}+'('+${#temporals.format(sharedId.createdAt, 'yyyy-MM-dd HH:mm:ss')}+')'" class="list-group-item text-start"></li>
                                 </ul>
                             </div>
                             <div class="shared" th:if="${item.sharedList == null || item.sharedList.isEmpty()}">
@@ -248,13 +256,6 @@
 
                 <!-- 캐러셀 인디케이터 -->
                 <div class="carousel-indicators">
-                    <!-- todayList가 비어있을 때 기본 인디케이터 -->
-                    <button th:if="${todayList == null || todayList.isEmpty()}"
-                            data-bs-target="#carouselExampleDark"
-                            data-bs-slide-to="0"
-                            class="active"
-                            aria-label="슬라이드1">
-                    </button>
 
                     <!-- todayList가 있을 때만 각 항목별로 인디케이터 생성 -->
                     <button th:if="${todayList != null && !todayList.isEmpty()}"
@@ -280,14 +281,25 @@
                             <div class="card mx-auto position-relative" style="width: 90%; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; margin-top:10px;">
                                 <!-- 썸네일 (가로 2 : 세로 3 비율 유지) -->
                                 <div style="position: relative; width: 100%; aspect-ratio: 2 / 3; background-color: #f9f9f9;">
-                                    <img th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-                                    <!-- 텍스트 -->
+                                    <img th:if="${item.thumbnailPath != null}" th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                                    <div class="thumbnail" th:if="${item.thumbnailPath == null || item.thumbnailPath.isEmpty()}" style="display: flex;justify-content: center;align-items: center;">
+                                        이미지가 없습니다.
+                                    </div>
                                     <div class="position-absolute bottom-0 start-0 end-0 text-center p-2" style="background-color: rgba(0, 0, 0, 0.6); color: white;">
-                                        <p class="mb-0" th:text="${item.userId}" style="font-weight: bold;">Username</p>
+                                        <span class="mb-0" th:text="${item.userId}" style="font-weight: bold;">Username</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <span class="mb-0" th:text="' ❤️ : '+${item.likeCount}" style="font-weight: bold;">좋아요</span>
                                     </div>
                                 </div>
                             </div>
                         </a>
+                    </li>
+                    <li th:if="${sharedPosts == null || sharedPosts.isEmpty()}" class="list-group-item border-0 p-0" style="background: none;">
+                            <div class="card mx-auto position-relative" style="width: 90%; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; margin-top:10px;">
+                                <!-- 썸네일 (가로 2 : 세로 3 비율 유지) -->
+                                <div style="position: relative; width: 100%; aspect-ratio: 2 / 3; background-color: #f9f9f9; display: flex;justify-content: center;align-items: center;">
+                                    공유받은 학습이 없습니다.
+                                </div>
+                            </div>
                     </li>
                 </ul>
             </div>

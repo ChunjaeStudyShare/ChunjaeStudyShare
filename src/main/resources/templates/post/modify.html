@@ -34,7 +34,7 @@
                         <label for="title">제목</label>
                     </th>
                     <td style="width: 80%;">
-                        <input type="text" class="form-control" id="title" name="title"  th:value="${post.title}" minlength="2" maxlength="50" placeholder="제목을 입력하세요" required>
+                        <input type="text" class="form-control" id="title" name="title"  th:value="${post.title}" minlength="2" maxlength="100" placeholder="제목을 입력하세요" required>
                     </td>
                 </tr>
 
@@ -44,7 +44,7 @@
                         <label for="content">학습 내용</label>
                     </th>
                     <td>
-                        <textarea class="form-control" id="content" name="content" rows="5" placeholder="오늘의 학습 내용을 입력하세요" required th:text="${post.content}"></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="5" placeholder="오늘의 학습 내용을 입력하세요" minlength="10" maxlength="4000" required th:text="${post.content}"></textarea>
                         <div class="text-danger small" id="contentError"></div>
                     </td>
                 </tr>
@@ -104,18 +104,16 @@
                 <tr>
                     <th class="text-end align-middle">공유된 친구</th>
                     <td>
-                        <table id="sharedFriendsTable" class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>아이디</th>
-                                <th>공유 날짜</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <!-- 공유된 친구 목록 추가 -->
-                            </tbody>
-                        </table>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#friendSearchModal">친구 찾기</button>
+                        <div th:each="shared, status:${shareList}">
+                            <span th:text="${shared.user.userId}"></span>
+                            <button type="button" class="btn-close-custom" aria-label="Close"
+                                    th:data-user-id="${shared.user.userId}"
+                                    th:onclick="'cancelRequest(this)'">X
+                            </button>
+                            <br>
+                        </div>
+                        <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
+                        <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
                     </td>
                 </tr>
 
@@ -384,7 +382,7 @@
                 if (!title.value.trim()) {
                     titleError.textContent = "제목을 입력하세요.";
                     isValid = false;
-                } else if (title.value.length < 2 || title.value.length > 50) {
+                } else if (title.value.length < 2 || title.value.length > 100) {
                     titleError.textContent = "제목은 2글자 이상 50자 이하로 입력하세요.";
                     isValid = false;
                 }
@@ -393,14 +391,14 @@
                 if (!content.value.trim()) {
                     contentError.textContent = "학습 내용을 입력하세요.";
                     isValid = false;
-                } else if (content.value.length < 10 || content.value.length > 100) {
+                } else if (content.value.length < 10 || content.value.length > 4000) {
                     contentError.textContent = "학습 내용은 10자 이상 100자 이하로 입력하세요.";
                     isValid = false;
                 }
 
                 // 파일 유효성 검사
                 if (file.value) {
-                    const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+                    const allowedExtensions = /(\.jpg|\.png)$/i;
                     if (!allowedExtensions.test(file.value)) {
                         fileError.textContent = "이미지는 .jpg 또는 .png 형식만 가능합니다.";
                         isValid = false;

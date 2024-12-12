@@ -2,10 +2,10 @@ package net.fullstack7.studyShare.repository;
 
 import net.fullstack7.studyShare.domain.ActiveTokens;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import net.fullstack7.studyShare.domain.Member;
 import org.springframework.data.repository.query.Param;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -17,4 +17,11 @@ public interface ActiveTokensRepository extends JpaRepository<ActiveTokens, Inte
 
     @Query("DELETE FROM ActiveTokens t WHERE t.member = :member AND t.jti = :jti")
     void deleteByUserIdAndJti(@Param("member") Member member, @Param("jti") String jti);
+
+    @Modifying
+    @Query("DELETE FROM ActiveTokens a WHERE a.member = :member")
+    void deleteByMember(@Param("member") Member member);
+
+    @Query("SELECT t FROM ActiveTokens t WHERE t.member.userId = :userId")
+    Optional<ActiveTokens> findByUserId(@Param("userId") String userId);
 }

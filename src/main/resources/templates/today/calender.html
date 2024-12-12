@@ -210,48 +210,52 @@
             carouselIndicators.innerHTML = "";
 
             if (items.length === 0) {
-                carouselInner.innerHTML = `<div class="carousel-item active">
-            <div class="container1" style="text-align:center;">
-                <div class="thumbnail">등록된 글이 없습니다.</div>
-                <div class="title">등록된 글이 없습니다.</div>
-                <div class="content">등록된 글이 없습니다.</div>
-                <div class="category">등록된 글이 없습니다.</div>
-                <div class="tags">등록된 글이 없습니다.</div>
-                <div class="shared">등록된 글이 없습니다.</div>
+                carouselInner.innerHTML = `<div class="carousel-item active h-100">
+            <div class="container1 h-100" style="text-align:center;">
+                <div class="thumbnail" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
+                <div class="title" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
+                <div class="content" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
+                <div class="category" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
+                <div class="tags" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
+                <div class="shared" style="display: flex;justify-content: center;align-items: center;">등록된 글이 없습니다.</div>
             </div>
         </div>`;
                 return;
             }
 
+
             items.forEach((item, index) => {
-                // sharedList를 기반으로 <ul><li> 생성
-                let sharedListHTML = "공유하지 않았습니다.";
-                if (item.sharedList && item.sharedList.length > 0) {
-                    sharedListHTML = `<ul class="list-group list-group-flush">`;
-                    item.sharedList.forEach(sharedId => {
-                        sharedListHTML += `
+                    // sharedList를 기반으로 <ul><li> 생성
+                    let sharedListHTML = "공유하지 않았습니다.";
+                    if (item.sharedList && item.sharedList.length > 0) {
+                        sharedListHTML = `<ul class="list-group list-group-flush">`;
+                        item.sharedList.forEach(sharedId => {
+                            sharedListHTML += `
                     <li class="list-group-item text-start">
-                        ${sharedId.userId} (${formatDate(sharedId.createAt)})
+                        ${sharedId.userId} (${formatDate(sharedId.createdAt)})
                     </li>
                 `;
-                    });
-                    sharedListHTML += `</ul>`;
-                }
+                        });
+                        sharedListHTML += `</ul>`;
+                    }
 
-                // Null 체크 및 기본 값 설정
-                const domainText = item.domain ? item.domain : "분야가 없습니다.";
-                const hashtagText = item.hashtag ? item.hashtag : "해시태그가 없습니다.";
+                    // Null 체크 및 기본 값 설정
+                    const domainText = item.domain ? item.domain : "분야가 없습니다.";
+                    const hashtagText = item.hashtag ? item.hashtag : "해시태그가 없습니다.";
 
-                // 캐러셀 아이템 생성
-                const carouselItem = document.createElement("div");
-                carouselItem.className = `carousel-item ${index === 0 ? "active" : ""}`;
-                carouselItem.setAttribute("data-bs-interval", "10000");
+                    // 캐러셀 아이템 생성
+                    const carouselItem = document.createElement("div");
+                    carouselItem.className = `carousel-item h-100 ${index === 0 ? "active" : ""}`;
+                    carouselItem.setAttribute("data-bs-interval", "5000");
 
-                carouselItem.innerHTML = `
-            <div class="container1">
+                    carouselItem.innerHTML = `
+            <div class="container1 h-100">
                 <div class="thumbnail">
                     <img src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                 </div>
+                <div class="thumbnail" th:if="${item.thumbnailPath == null || item.thumbnailPath.isEmpty()}" style="display: flex;justify-content: center;align-items: center;">
+                                이미지가 없습니다.
+                            </div>
                 <div class="title">${item.title}</div>
                 <div class="content">${item.content}</div>
                 <div class="category">${domainText}</div>
@@ -260,35 +264,38 @@
             </div>
         `;
 
-                // 캐러셀 인디케이터 생성
-                const indicatorButton = document.createElement("button");
-                indicatorButton.type = "button";
-                indicatorButton.setAttribute("data-bs-target", "#carouselExampleDark");
-                indicatorButton.setAttribute("data-bs-slide-to", index);
-                if (index === 0) {
-                    indicatorButton.classList.add("active");
-                    indicatorButton.setAttribute("aria-current", "true");
-                }
-                indicatorButton.setAttribute("aria-label", `슬라이드 ${index + 1}`);
+                    // 캐러셀 인디케이터 생성
+                    const indicatorButton = document.createElement("button");
+                    indicatorButton.type = "button";
+                    indicatorButton.setAttribute("data-bs-target", "#carouselExampleDark");
+                    indicatorButton.setAttribute("data-bs-slide-to", index);
+                    if (index === 0) {
+                        indicatorButton.classList.add("active");
+                        indicatorButton.setAttribute("aria-current", "true");
+                    }
+                    indicatorButton.setAttribute("aria-label", `슬라이드 ${index + 1}`);
 
-                // 캐러셀 아이템 및 인디케이터 추가
-                carouselInner.appendChild(carouselItem);
-                carouselIndicators.appendChild(indicatorButton);
-            });
-        }
+                    // 캐러셀 아이템 및 인디케이터 추가
+                    carouselInner.appendChild(carouselItem);
+                    carouselIndicators.appendChild(indicatorButton);
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
 
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, "0");
-            const day = String(date.getDate()).padStart(2, "0");
-            const hours = String(date.getHours()).padStart(2, "0");
-            const minutes = String(date.getMinutes()).padStart(2, "0");
-            const seconds = String(date.getSeconds()).padStart(2, "0");
+                });
+            }
 
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+                const seconds = String(date.getSeconds()).padStart(2, "0");
+
+                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            }
+
 
 
 

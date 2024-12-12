@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         .scroll-box {
-            max-height: 300px; /* 필요 시 조정 */
+            max-height: 600px; /* 내용이 많을 경우 스크롤 */
             overflow-y: auto;
             border: 1px solid #ddd;
             padding: 10px;
@@ -13,69 +13,128 @@
             border-radius: 5px;
         }
 
-        .image-box {
-            max-width: 100%;
-            height: auto;
+        .table-custom {
+            width: 100%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            align-content: center;
+
         }
 
         .table-custom th, .table-custom td {
-            vertical-align: middle;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .table-custom th {
+            background-color: #f2f2f2;
+            font-weight: bold;
         }
 
         .btn-close-custom {
             background: none;
             border: none;
             color: red;
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
+
+        .modal-content {
+            border-radius: 10px;
+        }
+
+        .button-end {
+            /*border: 1px solid red;*/
+            text-align: right;
+            padding: 10px;
+        }
+
+        .button-end button {
+            margin-left: 5px;
+        }
+        .image-box-container {
+            width: 400px;             /* 고정 가로 크기 */
+            height: 600px;            /* 고정 세로 크기 */
+            display: flex;            /* Flexbox로 정렬 */
+            justify-content: center;  /* 가로 정렬 */
+            align-items: center;      /* 세로 정렬 */
+            border: 1px solid #ddd;   /* 경계선 */
+            border-radius: 5px;       /* 둥근 테두리 */
+            background-color: #f8f9fa; /* 배경색 */
+            overflow: hidden;         /* 이미지가 컨테이너를 초과하지 않도록 */
+        }
+
+        .image-box {
+            width: 100%;              /* 기본적으로 가로 크기 채우기 */
+            height: 100%;             /* 기본적으로 세로 크기 채우기 */
+            object-fit: cover;        /* 비율 유지하며 컨테이너에 맞게 채우기 */
+        }
+
+        .image-placeholder {
+            width: 100%;              /* 가로 크기 */
+            height: 100%;             /* 세로 크기 */
+            display: flex;            /* Flexbox로 텍스트 중앙 정렬 */
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;          /* 텍스트 크기 */
+            color: #888;              /* 텍스트 색상 */
+            border: 1px dashed #ccc;  /* 대체 박스의 경계선 */
+            border-radius: 5px;       /* 둥근 테두리 */
+        }
+
     </style>
     <div class="container mt-5">
         <h4 class="mb-4">학습 정보</h4>
         <table class="table table-bordered table-custom">
             <tbody>
-            <!-- 제목, 좋아요 -->
             <tr>
                 <th style="width: 20%;">제목</th>
-                <td style="width: 50%;" th:text="${post.title}">제목</td>
-                <th style="width: 15%;">좋아요</th>
-                <td style="width: 15%;" th:text="${post.share}">0</td>
+                <td style="width: 50%;" colspan="3" th:text="${post.title}">제목</td>
+                <th style="width: 10%;">좋아요</th>
+                <td style="width: 10%;" th:text="${thumbsUpCnt}" id="thumbsUpCnt">0</td>
             </tr>
-            <!-- 등록일, 노출 여부 -->
             <tr>
-                <th>등록일</th>
-                <td th:text="${post.createdAt}">등록일</td>
-                <th>오늘의 학습 노출 여부</th>
+                <th style="width: 25%;">등록일</th>
+                <th style="width: 25%;">오늘의 학습 노출 여부</th>
+                <th style="width: 50%;" colspan="4">오늘의 학습 노출 기간</th>
+            </tr>
+            <tr>
+                <td th:text="${#temporals.format(post.createdAt,'yyyy-MM-dd')}">등록일</td>
                 <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
-            </tr>
-            <!-- 노출 기간 -->
-            <tr>
-                <th>오늘의 학습 노출 기간</th>
                 <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
                : (post.displayAt != null ? post.displayAt + ' ~'
-               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}">
+               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}" colspan="4">
                 </td>
             </tr>
+            <!-- 이미지와 내용 -->
             <tr>
-                <td colspan="2">
-                    <img th:src="@{${post.path}}" alt="학습 이미지" class="image-box img-fluid border rounded" th:if="${post.path != null}"
-                         style="object-fit: cover; width: 400px; height: 600px;">
-                    <span th:if="${post.path == null}">이미지가 없습니다.</span>
-                </td>
-                <td colspan="2">
-                    <div class="card">
-                        <div class="card-header">오늘의 학습 내용</div>
-                        <div class="card-body scroll-box" th:text="${post.content}"></div>
+                <td colspan="1" style="text-align: center;">
+                    <div class="image-box-container">
+                        <!-- 이미지가 있을 때 -->
+                        <img th:src="${post.path}"
+                             alt="학습 이미지"
+                             class="image-box"
+                             th:if="${post.path != null}">
+                        <!-- 이미지가 없을 때 -->
+                        <div class="image-placeholder" th:if="${post.path == null}">
+                            이미지가 없습니다.
+                        </div>
                     </div>
                 </td>
+                <td colspan="5">
+                    <div class="scroll-box" th:text="${post.content}"></div>
+                </td>
             </tr>
+
             <!-- 공유 정보 -->
             <tr>
                 <th>공유한 사람</th>
-                <td colspan="3">
+                <td colspan="5">
                     <div th:each="shared, status:${shareList}">
                         <span th:text="${shared.user.userId}"></span>
-                        <button type="button" class="btn-close" aria-label="Close"
-                                th:onclick="cancelRequest('${shared.user.userId}')"> <!-- 변경하기 -->
+                        <button type="button" class="btn-close-custom" aria-label="Close"
+                                th:data-user-id="${shared.user.userId}"
+                                th:onclick="'cancelRequest(this)'">X
                         </button>
                         <br>
                     </div>
@@ -111,24 +170,28 @@
             <!-- 분야와 해시태그 -->
             <tr>
                 <th>분야</th>
-                <td th:text="${post.domain != null ? post.domain : '없음'}">분야</td>
-                <th>해시태그</th>
-                <td th:text="${post.hashtag != null ? post.hashtag : '없음'}">해시태그</td>
+                <td th:text="${post.domain != null && !post.domain.isEmpty() ? post.domain : '없음'}">분야</td>
+                <th style="width: 20%;">해시태그</th>
+                <td th:text="${post.hashtag != null && !post.hashtag.isEmpty() ? post.hashtag : '없음'}" colspan="3">해시태그</td>
             </tr>
+
             </tbody>
         </table>
+        <br>
+        <br>
         <!-- 하단 버튼 -->
-        <div class="text-end">
-            <button class="btn btn-primary" th:onclick="|location.href='@{/post/list}'|">목록</button>
+        <div class="button-end text-end">
+
+            <!-- 공유 받은 글인 경우 -->
+            <button class="btn btn-success" id="thumbsUpBtn">좋아요</button>
+            <!--            <button class="btn btn-primary" th:onclick="|location.href='@{currentPage != null ? currentPage : '/post/myList'}'|">목록</button>-->
+            <button th:onclick="|location.href='@{${currentPage != null ? currentPage : '/post/myList'}}'|" class="btn btn-primary">목록</button>
             <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
-            <button class="btn btn-danger" th:data-post-id="${post.id}"
-                    onclick="confirmDelete(this)">
+            <button class="btn btn-danger" th:data-post-id="${post.id}" onclick="confirmDelete(this)">
                 삭제
             </button>
         </div>
-        <br>
-        <br>
     </div>
     <script th:inline="javascript">
         let debounceTimer;
@@ -149,7 +212,7 @@
             }
 
             lastSearchId = searchId; // 최신 검색어로 갱신
-            const postId = [[${post.id}]]
+            const postId = [[${ post.id }]]
             clearTimeout(debounceTimer); // 이전 요청을 취소
             debounceTimer = setTimeout(() => {
                 fetch(`/share/searchUserIdById?postId=${encodeURIComponent(postId)}&searchId=${encodeURIComponent(searchId)}`)
@@ -191,15 +254,15 @@
         }
 
         function shareRequest(userId) {
-            const postId = [[${post.id}]]
+            const postId = [[${ post.id }]]
             let flag = confirm(userId + '에게 공유하시겠습니까?');
-            if(flag) {
+            if (flag) {
                 fetch('/share/shareRequest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ userId: userId, postId: postId})
+                    body: JSON.stringify({ userId: userId, postId: postId })
                 })
                     .then(response => {
                         if (response.ok) {
@@ -224,10 +287,11 @@
                 modal.style.display = 'block';  // 만약 모달이 닫혀있다면 다시 열기
             }
         }
-        function cancelRequest(userId) {
-            const postId = [[${post.id}]]
+        function cancelRequest(userIdElement) {
+            const postId = [[${ post.id }]]
+            const userId = userIdElement.getAttribute("data-user-id");
             let flag = confirm(userId + '에게 공유 취소하시겠습니까?');
-            if(flag) {
+            if (flag) {
                 fetch('/share/shareCancelRequest', {
                     method: 'POST',
                     headers: {
@@ -268,5 +332,27 @@
             }
             // 취소하면 아무 동작도 하지 않음
         }
+
+        //Post
+        document.getElementById('thumbsUpBtn').addEventListener('click', function () {
+            console.log('thumbsUpBtn 호출');
+            const postId = [[${ post.id }]];
+
+            fetch(`/thumbs-up/${postId}`, {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(result => {
+                    // 메시지 알림 표시
+                    alert(result.message);
+                    alert(result.message);
+                    // 좋아요 수 업데이트
+                    document.getElementById('thumbsUpCnt').textContent = result.data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('좋아요 처리 중 오류가 발생했습니다.');
+                });
+        });
     </script>
 </div>

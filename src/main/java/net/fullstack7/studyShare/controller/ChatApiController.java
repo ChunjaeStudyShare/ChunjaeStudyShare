@@ -33,13 +33,13 @@ public class ChatApiController {
         }
     }
 
-    @PostMapping("/room/leave")
+    @PutMapping("/room/leave")
     public ResponseEntity<?> leave(@RequestBody ChatLeaveDTO chatLeaveDTO, HttpServletRequest request) {
         try {
             LocalDateTime leaveAt = chatLeaveDTO.getLeaveAt().plusHours(9);
             Integer roomId = chatLeaveDTO.getRoomId();
-            log.info("leaveAt: " + leaveAt);
-            log.info("roomId: " + roomId);
+//            log.info("leaveAt: " + leaveAt);
+//            log.info("roomId: " + roomId);
             if(chatService.leaveChatRoom(roomId, (String)request.getAttribute("userId"), leaveAt)) {
                 return ResponseEntity.ok(true);
             }

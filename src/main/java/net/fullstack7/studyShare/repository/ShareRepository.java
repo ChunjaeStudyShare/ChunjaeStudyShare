@@ -24,4 +24,23 @@ public interface ShareRepository extends JpaRepository<Share, Integer> {
     int deleteByUserIdAndPostId(@Param("user") Member member , @Param("post") Post post);
     List<Share> findByPost(@Param("post") Post post);
 
+    boolean existsByUser_UserIdAndPost_Id(String userId, Integer postId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Share s WHERE s.user = :user")
+    int deleteByUserId(@Param("user") Member member);
+
+    int deleteByUser_UserId(String userId);
+
+    //내가 공유 한 목록 삭제
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Share s WHERE s.post = :post")
+    void deleteByPost_Id(@Param("post") Post post);
+
+    void deleteByPostIn(List<Post> posts);
+
+    boolean existsByPostId(int postId);
 }
+

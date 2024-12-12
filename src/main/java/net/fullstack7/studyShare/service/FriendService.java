@@ -19,6 +19,7 @@ public interface FriendService {
     List<String> receivedList(String userId);
     List<String> sentList(String userId);
     boolean deleteFriend(FriendDTO friendDTO);
-
+    boolean deleteShare(FriendDTO friendDTO);
+    List<Integer> postIdList(String userId);
 
 }

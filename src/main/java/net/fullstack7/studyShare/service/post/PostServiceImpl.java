@@ -10,25 +10,26 @@ import net.fullstack7.studyShare.mapper.PostMapper;
 import net.fullstack7.studyShare.repository.FileRepository;
 import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.repository.PostRepository;
+import net.fullstack7.studyShare.repository.ShareRepository;
 import net.fullstack7.studyShare.util.CommonFileUtil;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.fullstack7.studyShare.domain.QMember.member;
-
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostServiceIf{
+    private static final String UPLOAD_DIR = "/home/gyeongmini/upload/images"; // 실제 파일 저장 경로
+    private static final String WEB_DIR = "/upload/images"; // 웹에서 접근할 경로
+    private static final String DELETE_DIR = "/home/gyeongmini/upload/images"; // 삭제 경로
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
+    private final ShareRepository shareRepository;
     private final MemberRepository memberRepository;
     private final PostMapper postMapper;
     private final ModelMapper modelMapper;
@@ -40,9 +41,11 @@ public class PostServiceImpl implements PostServiceIf{
         String filePath = null;
         String thumbnailName = null;
         String thumbnailPath = null;
-        long maxSize = 1024*1024*500L;
+        long maxSize = 1024*1024*10L;
         List<String> allowedMimeTypes = Arrays.asList("image/jpeg", "image/png");
         List<String> allowedExtensions = Arrays.asList(".jpg", ".png");
+        
+        
 
 
         //노출 여부, 날짜 검증
@@ -58,7 +61,7 @@ public class PostServiceImpl implements PostServiceIf{
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
             //파일 크기
             if (dto.getFile() != null && dto.getFile().getSize() > maxSize) {
-                throw new IllegalArgumentException("파일 업로드 크기는 최대 500MB 입니다");
+                throw new IllegalArgumentException("파일 업로드 크기는 최대 10MB 입니다");
             }
 
             // MIME 타입 검증
@@ -83,18 +86,19 @@ public class PostServiceImpl implements PostServiceIf{
         if (dto.getFile() != null && !dto.getFile().isEmpty()) {
             try {
                 //원본
-                fileName = CommonFileUtil.uploadFile(dto.getFile()); // 파일 업로드
-                filePath = "/file/" + fileName; // 업로드된 파일의 전체 경로 설정
-                dto.setFileName(fileName); // DTO에 파일 이름 저장
+                String webPath = CommonFileUtil.uploadFile(dto.getFile()); // 웹 경로 반환받음
+                fileName = webPath.substring(webPath.lastIndexOf("/") + 1); // 실제 파일명만 추출
+                filePath = webPath; // 웹 경로 저장
+                dto.setFileName(fileName);
                 log.info("파일명: {}, 파일경로: {}", fileName, filePath);
 
                 //썸네일
-                thumbnailName = "thumb_" + fileName;
-                try{
-                    CommonFileUtil.createThumbnail(fileName);
-                    thumbnailPath = "/file/" + thumbnailName;
+                thumbnailName = fileName;
+                try {
+                    CommonFileUtil.createThumbnail(fileName); // 파일명만 전달
+                    thumbnailPath = WEB_DIR + thumbnailName + ".jpg"; // 웹 경로 구성
                     log.info("썸네일 생성 완료: {}", thumbnailPath);
-                }catch (Exception e){
+                } catch (Exception e) {
                     log.error("썸네일 생성 실패: {}", e.getMessage());
                     throw new IllegalArgumentException("썸네일 생성 중 오류가 발생했습니다.");
                 }
@@ -169,7 +173,7 @@ public class PostServiceImpl implements PostServiceIf{
         map.put("displayAt", displayAt);
         map.put("displayEnd", displayEnd);
 
-        List<Post> list = postMapper.selectAllPost(map);
+        List<PostDTO> list = postMapper.selectAllPost(map);
         return list.stream()
                 .map(i -> modelMapper.map(i, PostDTO.class)).collect(Collectors.toList());
     }
@@ -186,12 +190,13 @@ public class PostServiceImpl implements PostServiceIf{
     }
 
     @Override
+    @Transactional
     public PostRegistDTO modifyPost(PostRegistDTO dto, String userId) {
         String fileName = null;
         String filePath = null;
         String thumbnailName = null;
         String thumbnailPath = null;
-        long maxSize = 1024 * 1024 * 500L;
+        long maxSize = 1024 * 1024 * 10L;
         List<String> allowedMimeTypes = Arrays.asList("image/jpeg", "image/png");
         List<String> allowedExtensions = Arrays.asList(".jpg", ".png");
 
@@ -219,7 +224,7 @@ public class PostServiceImpl implements PostServiceIf{
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
             //파일 크기
             if (dto.getFile() != null && dto.getFile().getSize() > maxSize) {
-                throw new IllegalArgumentException("파일 업로드 크기는 최대 500MB 입니다");
+                throw new IllegalArgumentException("파일 업로드 크기는 최대 10MB 입니다");
             }
 
             // MIME 타입 검증
@@ -284,18 +289,19 @@ public class PostServiceImpl implements PostServiceIf{
         if (dto.getFile() != null && !dto.getFile().isEmpty()) {
             try {
                 //원본
-                fileName = CommonFileUtil.uploadFile(dto.getFile()); // 파일 업로드
-                filePath = "/file/" + fileName; // 업로드된 파일의 전체 경로 설정
-                dto.setFileName(fileName); // DTO에 파일 이름 저장
+                String webPath = CommonFileUtil.uploadFile(dto.getFile()); // 웹 경로 반환받음
+                fileName = webPath.substring(webPath.lastIndexOf("/") + 1); // 실제 파일명만 추출
+                filePath = webPath; // 웹 경로 저장
+                dto.setFileName(fileName);
                 log.info("파일명: {}, 파일경로: {}", fileName, filePath);
 
                 //썸네일
-                thumbnailName = "thumb_" + fileName;
-                try{
-                    CommonFileUtil.createThumbnail(fileName);
-                    thumbnailPath = "/file/" + thumbnailName;
+                thumbnailName = fileName;
+                try {
+                    CommonFileUtil.createThumbnail(fileName); // 파일명만 전달
+                    thumbnailPath = WEB_DIR + "/thumb_" + thumbnailName; // 웹 경로 구성
                     log.info("썸네일 생성 완료: {}", thumbnailPath);
-                }catch (Exception e){
+                } catch (Exception e) {
                     log.error("썸네일 생성 실패: {}", e.getMessage());
                     throw new IllegalArgumentException("썸네일 생성 중 오류가 발생했습니다.");
                 }
@@ -342,14 +348,70 @@ public class PostServiceImpl implements PostServiceIf{
         return null;
     }
 
+    //2024-12-10 수미 수정
     @Override
+    @Transactional
     public boolean delete(int id) {
-        int hasShare = postMapper.hasShare(id); //공유 있는지
-        boolean share = hasShare != 0 && postMapper.deleteShare(id); //있을때만 삭제
-        boolean post = postMapper.deletePost(id); // 게시글 삭제
+        try {
+            // 파일 삭제
+            boolean fileDeleted = postMapper.deleteFile(id);
+            log.info("파일 삭제 성공 여부: {}", fileDeleted);
 
-        return post && (hasShare == 0 || share); // 세 가지 경우
+            // 공유 여부 확인 및 삭제
+            int hasShare = postMapper.hasShare(id);
+            boolean shareDeleted = hasShare != 0 && postMapper.deleteShare(id);
+            log.info("공유 삭제 성공 여부: {}", shareDeleted);
+
+            // 게시글 삭제
+            boolean postDeleted = postMapper.deletePost(id);
+            log.info("게시글 삭제 성공 여부: {}", postDeleted);
+
+            // 전체 삭제 결과
+            boolean result = postDeleted && (hasShare == 0 || shareDeleted);
+            if (!result) {
+                log.warn("삭제 작업 중 일부 실패. ID: {}", id);
+            }
+            return result;
+
+        } catch (Exception e) {
+            log.error("게시글 삭제 중 오류 발생. ID: {}, 오류: {}", id, e.getMessage(), e);
+            throw new RuntimeException("게시글 삭제 중 오류가 발생했습니다.");
+        }
+
     }
+
+    @Override
+    public Optional<Post> findPostById(int id) {
+        return postRepository.findById(id);
+    }
+
+    @Override
+    public boolean isOwnerOrSharedWithUser(int id, String userId) {
+//        // 멤버 객체 생성
+//        Member member = memberRepository.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+//        //글 객체 생성
+//        Post post = postRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+
+        //작성자 확인
+        boolean isOwner = postRepository.existsByMember_UserIdAndId(userId, id);
+
+        //공유 받았는지 확인
+        boolean isShared = shareRepository.existsByUser_UserIdAndPost_Id(userId, id);
+        return isShared || isOwner;
+    }
+
+    @Override
+    public int shareTotalCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
+        return postMapper.selectPostsByUserIdCnt(searchCategory, searchValue, userId, sortType, displayAt, displayEnd);
+    }
+
+    @Override
+    public int selectMyShareCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
+        return postMapper.selectMyShareCnt(searchCategory, searchValue, userId, sortType, displayAt, displayEnd);
+    }
+
 
     @Override
     public List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId) {
@@ -364,6 +426,7 @@ public class PostServiceImpl implements PostServiceIf{
         map.put("displayEnd", dto.getDisplayEnd());
 
         List<PostShareDTO> list = postMapper.selectMyShare(map);
+        log.info("list, {}", list);
         return list.stream()
                 .map(i -> modelMapper.map(i, PostShareDTO.class)).collect(Collectors.toList());
 
@@ -414,28 +477,12 @@ public class PostServiceImpl implements PostServiceIf{
         // 공유자 정보를 게시글 ID별로 그룹화
         Map<Integer, List<ShareInfoDTO>> sharesByPostId = shares.stream()
                 .filter(share -> share.getPostId() != null)
-                .collect(Collectors.groupingBy(ShareInfoDTO::getPostId));
+                .collect(Collectors.groupingBy(ShareInfoDTO::getPostId)); //공유자의 postId값으로 그룹화
 
         log.info("sharesByPostId, {}", sharesByPostId);
 
         // 게시글 리스트에 공유자 정보 매핑
         posts.forEach(post -> {
-            // `sharesByPostId`에서 공유자 리스트 가져오기
-//            List<ShareInfoDTO> shareInfos = sharesByPostId.getOrDefault(post.getPostId(), new ArrayList<>());
-
-            // `ShareInfoDTO` -> `PostShareDTO` 변환
-//            List<PostShareDTO> postShares = shareInfos.stream()
-//                    .map(shareInfo -> {
-//                        PostShareDTO postShareDTO = new PostShareDTO();
-//                        postShareDTO.setPostId(shareInfo.getPostId());
-//                        postShareDTO.setUserId(shareInfo.getSharedUserId());
-//                        postShareDTO.setSharedCreatedAt(shareInfo.getSharedAt());
-//                        postShareDTO.setTitle(post.getTitle()); // 게시글 제목 복사
-//                        postShareDTO.setCreatedAt(post.getCreatedAt()); // 게시글 생성 시간 복사
-//                        return postShareDTO;
-//                    })
-//                    .collect(Collectors.toList());
-
             // 변환된 리스트를 설정
             post.setShares(sharesByPostId.get(post.getPostId()));
             log.info("post, {}", post);
@@ -443,10 +490,6 @@ public class PostServiceImpl implements PostServiceIf{
 
         return posts;
     }
-
-
-
-
 
     @Override
     public List<ShareInfoDTO> selectSharesByPostId(List<Integer> postId) {

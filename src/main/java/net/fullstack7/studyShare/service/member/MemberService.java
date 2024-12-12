@@ -10,15 +10,37 @@ import net.fullstack7.studyShare.dto.member.MemberResponseDTO;
 import net.fullstack7.studyShare.dto.member.MemberDTO;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.checkerframework.checker.units.qual.m;
 import org.springframework.data.domain.Page;
 import net.fullstack7.studyShare.util.JpaPageUtil;
 import net.fullstack7.studyShare.dto.admin.PageResponseDTO;
 import net.fullstack7.studyShare.dto.admin.PageRequestDTO;
+import org.springframework.transaction.annotation.Transactional;
+import net.fullstack7.studyShare.repository.ShareRepository;
+import net.fullstack7.studyShare.repository.PostRepository;
+import net.fullstack7.studyShare.repository.FileRepository;
+import net.fullstack7.studyShare.domain.Post;
+import net.fullstack7.studyShare.repository.FriendRepository;
+import net.fullstack7.studyShare.repository.ChatMemberRepository;
+import net.fullstack7.studyShare.repository.ActiveTokensRepository;
+import net.fullstack7.studyShare.repository.EmailCodeRepository;
+import net.fullstack7.studyShare.repository.ThumbsUpRepository;
+import lombok.extern.log4j.Log4j2;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final ShareRepository shareRepository;
+    private final PostRepository postRepository;
+    private final FileRepository fileRepository;
+    private final FriendRepository friendRepository;
+    private final ChatMemberRepository chatMemberRepository;
+    private final ActiveTokensRepository activeTokensRepository;
+    private final EmailCodeRepository emailCodeRepository;
+    private final ThumbsUpRepository thumbsUpRepository;
 
     public MemberDTO getMemberById(String userId) {
         Member member = memberRepository.findByUserId(userId)
@@ -99,6 +121,42 @@ public class MemberService {
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
         member = convertToEntity(memberDTO);
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public void deleteMember(String userId) {
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        // 1. 공유 관련 삭제
+        shareRepository.deleteByUserId(member);
+        log.info("공유 관련 삭제 완료");
+        // 2. 게시글 관련 삭제
+        List<Post> posts = postRepository.findByMember(member);
+        if (!posts.isEmpty()) {
+            shareRepository.deleteByPostIn(posts);
+            fileRepository.deleteByPostIn(posts);
+            postRepository.deleteAll(posts);
+        }
+        log.info("게시글 관련 삭제 완료");
+        // 3. 이메일 코드 삭제
+        emailCodeRepository.deleteByUser(member);
+        log.info("이메일 코드 삭제 완료");
+        // 4. 좋아요 삭제
+        thumbsUpRepository.deleteByUser(member);
+        log.info("좋아요 삭제 완료");
+        // 5. 친구 관계 삭제
+        friendRepository.deleteByUserId(member);
+        log.info("친구 관계 삭제 완료");
+        // 6. 채팅 관련 삭제
+        chatMemberRepository.deleteByMember(member);
+        log.info("채팅 관련 삭제 완료");
+        // 7. 토큰 삭제
+        activeTokensRepository.deleteByMember(member);
+        log.info("토큰 삭제 완료");
+        // 8. 회원 삭제
+        memberRepository.deleteById(member.getUserId());
+        log.info("회원 삭제 완료");
     }
 
     private MemberDTO convertToDTO(Member member) {

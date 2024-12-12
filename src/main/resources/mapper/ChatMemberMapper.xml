@@ -37,4 +37,12 @@
         from ChatMember
         where chatRoomId in (select chatRoomId from ChatMember where userId = #{userId})
     </select>
+    <select id="findChatRoomIdBy2UserId" resultType="Integer">
+        SELECT chatRoomId
+        FROM chatmember
+        GROUP BY chatRoomId
+        HAVING COUNT(*) = 2 AND MIN(userId) in (#{user1},#{user2}) and MAX(userId) in (#{user1}, #{user2})
+        ORDER BY joinAt DESC
+            LIMIT 1
+    </select>
 </mapper>

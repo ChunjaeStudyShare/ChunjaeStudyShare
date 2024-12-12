@@ -184,7 +184,9 @@ document.getElementById('updatePasswordForm').addEventListener('submit', async f
 
 // 탈퇴
 document.getElementById('deleteMember').addEventListener('click', () => {
-    window.location.href = '/delete-member';
+    if (confirm('정말로 탈퇴하시겠습니까? 탈퇴 후 데이터는 복구되지 않습니다.')) {
+        window.location.href = '/member/delete-member';
+    }
 });
 </script>
 </th:block>

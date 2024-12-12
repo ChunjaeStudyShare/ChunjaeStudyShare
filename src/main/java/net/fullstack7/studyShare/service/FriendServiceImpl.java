@@ -92,5 +92,20 @@ public class FriendServiceImpl implements FriendService {
         }
     }
 
+    @Override
+    public boolean deleteShare(FriendDTO friendDTO) {
+        boolean gotShared = friendMapper.deleteShared1(friendDTO);
+        if(gotShared){
+            return true;
+        } else {
+            return friendMapper.deleteShared2(friendDTO);
+        }
+    }
+
+    @Override
+    public List<Integer> postIdList(String userId) {
+        return friendMapper.postIdList(userId);
+    }
+
 
 }

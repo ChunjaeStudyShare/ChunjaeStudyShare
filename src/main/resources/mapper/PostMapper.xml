@@ -23,18 +23,15 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
-            </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
             AND p.userId = #{userId}
         </where>
     </select>
 
     <select id="selectAllPost">
-        SELECT p.*, COUNT(t.id) as thumbsUpCount    
+        SELECT p.*, COUNT(t.id) as thumbsUpCount
         FROM Post p
         LEFT JOIN ThumbsUp t ON p.id = t.postId
         <where>
@@ -54,12 +51,10 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
-            </if>
+
             AND p.userId = #{userId}
         </where>
         GROUP BY p.id
@@ -81,6 +76,7 @@
             p.content,
             p.privacy,
             p.share,
+            p.userId,
             p.displayAt,
             p.displayEnd,
             p.createdAt,
@@ -95,14 +91,14 @@
 
     <select id="checkWriter" resultType="boolean">
         SELECT COUNT(*)
-        FROM Post
+        FROM Post p
         WHERE id = #{id} AND userId = #{userId}
     </select>
 
     <select id="selectMyShare" resultType="net.fullstack7.studyShare.dto.post.PostShareDTO">
         SELECT
         s.id,
-        p.id,
+        p.id AS postId,
         p.title,
         p.createdAt,
         p.userId,
@@ -125,11 +121,8 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
-            </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
             AND s.userId = #{userId} <!-- 공유 받은 사용자 ID -->
         </where>
@@ -137,17 +130,39 @@
         LIMIT #{offset}, #{limit}
     </select>
 
-    <!-- 게시글 조회 -->
-<!--    <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">-->
-<!--        SELECT id, title, createdAt-->
-<!--        FROM Post-->
-<!--        WHERE userId = #{userId} AND share = 1-->
-<!--        ORDER BY createdAt DESC-->
-<!--    </select>-->
+    <select id="selectMyShareCnt" resultType="int">
+        SELECT COUNT(*)
+        FROM
+        Share s
+        JOIN
+        Post p ON s.postId = p.id
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        p.userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
+            </if>
+            AND s.userId = #{userId} <!-- 공유 받은 사용자 ID -->
+        </where>
+        ORDER BY p.createdAt DESC
+    </select>
 
+
+    <!-- 게시글 조회 -->
     <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
         SELECT id as postId, title, createdAt
-        FROM Post
+        FROM Post p
         <where>
             <if test="searchCategory != null and searchValue != null">
                 <choose>
@@ -162,21 +177,40 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
-            </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
             AND userId = #{userId}<!-- 로그인한 사용자 ID -->
+            AND share = 1
         </where>
         ORDER BY createdAt DESC
         LIMIT #{offset}, #{limit}
     </select>
-
-
-
-
+    <select id="selectPostsByUserIdCnt" resultType="int">
+        SELECT count(id)
+        FROM Post p
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
+            </if>
+            AND userId = #{userId}<!-- 로그인한 사용자 ID -->
+            AND share = 1
+        </where>
+        ORDER BY createdAt DESC
+    </select>
 
     <!-- 공유자 조회 -->
     <select id="selectSharesByPostId" resultType="net.fullstack7.studyShare.dto.post.ShareInfoDTO">
@@ -191,6 +225,10 @@
                     #{post}
                 </foreach>
     </select>
+    <delete id="deleteFile">
+        DELETE FROM File
+        WHERE postId = #{id}
+    </delete>
 
     <!--인규-->
     <select id="hasShare" resultType="java.lang.Integer">
@@ -205,5 +243,4 @@
         DELETE FROM Share
         WHERE postId = #{id}
     </delete>
-
 </mapper>

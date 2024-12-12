@@ -44,15 +44,35 @@ public class ChatController {
         return "redirect:/chat/room/"+roomId;
     }
 
+    @GetMapping("/friend")
+    public String friend(HttpServletRequest request, @RequestParam String friendId, Model model, RedirectAttributes redirectAttributes) {
+        String userId = (String) request.getAttribute("userId");
+        if(friendId.isBlank()) {
+            redirectAttributes.addFlashAttribute("alertMessage", "채팅방 멤버를 선택하세요");
+            return "redirect:/friend/list";
+        }
+
+        int roomId = chatService.createChatRoom(userId, new String[] {friendId});
+
+        return "redirect:/chat/room/"+roomId;
+    }
+
     @GetMapping("/room/{id}")
-    public String room(HttpServletRequest request, @PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
+    public String room(HttpServletRequest request, @PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
         String userId = (String) request.getAttribute("userId");
 
+        if(id.isBlank() || !id.matches("^\\d+$") || id.length() > 9) {
+            redirectAttributes.addFlashAttribute("alertMessage", "존재하지 않는 채팅방입니다. 채팅방 주소를 확인하거나 새로 생성해주세요.");
+            return "redirect:/chat/list";
+        }
+
+        int roomId = Integer.parseInt(id);
+
         try {
-            model.addAttribute("messages", chatService.getChatMessageListByRoomId(id, userId));
-            model.addAttribute("roomId", id);
+            model.addAttribute("messages", chatService.getChatMessageListByRoomId(roomId, userId));
+            model.addAttribute("roomId", roomId);
             model.addAttribute("userId", userId);
-            chatService.enterChatRoom(id, userId);
+            chatService.enterChatRoom(roomId, userId);
             return "chat/room";
         }
         catch (Exception e) {
@@ -62,10 +82,17 @@ public class ChatController {
     }
 
     @GetMapping("/room/{id}/exit")
-    public String exit(HttpServletRequest request, @PathVariable int id, RedirectAttributes redirectAttributes) {
+    public String exit(HttpServletRequest request, @PathVariable String id, RedirectAttributes redirectAttributes) {
+        if(id.isBlank() || !id.matches("^\\d+$") || id.length() > 9) {
+            redirectAttributes.addFlashAttribute("alertMessage", "존재하지 않는 채팅방입니다. 채팅방 주소를 확인하거나 새로 생성해주세요.");
+            return "redirect:/chat/list";
+        }
+
+        int roomId = Integer.parseInt(id);
+
         String userId = (String) request.getAttribute("userId");
 
-        redirectAttributes.addFlashAttribute("alertMessage", chatService.exitRoom(id, userId));
+        redirectAttributes.addFlashAttribute("alertMessage", chatService.exitRoom(roomId, userId));
         return "redirect:/chat/list";
     }
 

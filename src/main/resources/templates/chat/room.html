@@ -3,10 +3,11 @@
       layout:decorate="~{common/layout.html}">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>채팅방</title>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <style>
+        /*말풍선*/
         .chat-bubble {
             display: inline-block;
             max-width: 70%; /* 말풍선의 최대 너비 */
@@ -18,8 +19,8 @@
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
         }
-
         .chat-bubble-my {
+            text-align: left;
             display: inline-block;
             max-width: 70%; /* 말풍선의 최대 너비 */
             padding: 10px 15px; /* 내부 여백 */
@@ -30,43 +31,104 @@
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
         }
-
         .chat-bubble-manager {
             text-align: center;
-            padding: 10px 15px; /* 내부 여백 */
+            padding: 10px 0; /* 내부 여백 */
             margin: 5px 0; /* 상하 간격 */
             color: #333; /* 글씨 색상 */
             word-wrap: break-word; /* 긴 단어 줄바꿈 */
             font-size: 15px;
+            width: 100%;
         }
-
-        .chat-box {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .chat-input-box {
-            max-width: 900px;
-            margin: 20px auto;
-        }
-
+        /*보낸시간*/
         .chat-date {
             display: inline-block;
             font-size: 12px;
             color: #4f5050;
         }
-
+        /*보낸사람아이디*/
         .chat-id {
-            display: inline-block;
+            padding: 10px 0; /* 내부 여백 */
+            margin: 5px 0;
+            /*display: inline-block;*/
             text-align: center;
-            margin: 0 auto;
         }
 
-        #messages {
-            /*max-height: 550px; !* 최대 높이 600px로 제한 *!*/
+        /*메시지 요소 정렬*/
+        .chat-row-my {
+            text-align: right;
+        }
+        .chat-row {
+            text-align: left;
+        }
+
+        /*메시지 크기 설정 가로 스크롤바 x*/
+        .chat-content {
+            width: 100%;
+        }
+
+
+        /*메시지 전체 영역*/
+        .chat-box {
+            max-width: 900px;
+            width: 100%;
             height: 75vh;
-            overflow-y: auto; /* 세로 스크롤바 활성화 */
-            display: block; /* tbody에 block을 적용해 스크롤 가능하도록 설정 */
+            margin: 0 auto;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        /*입력 영역*/
+        .chat-input-box {
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+
+
+        /*#messages {*/
+        /*    width: 100%;*/
+        /*    */
+        /*    !* 세로 스크롤바 활성화 *!*/
+        /*    !*display: block; !* tbody에 block을 적용해 스크롤 가능하도록 설정 *!*!*/
+        /*     !* 스크롤바를 포함하여 크기 계산 *!*/
+        /*    !*padding-right: 15px;*!*/
+        /*}*/
+
+        /*친구목록*/
+        .freind-info {
+            display: flex;
+            justify-content: space-between; /* 좌우 끝으로 배치 */
+            align-items: center; /* 세로 가운데 정렬 */
+            width: 100%; /* 필요시 부모 요소의 너비를 기준으로 확장 */
+        }
+
+        /*채팅 헤더*/
+        .chat-header {
+            max-width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            margin: 0;
+        }
+        .chat-header-item-center{
+            text-align: center;
+        }
+        .chat-header-item-right{
+            text-align: right;
+        }
+        .chat-header-item-left{
+            text-align: left;
+        }
+
+        /*스크롤바*/
+        .scroll2::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scroll2::-webkit-scrollbar-thumb {
+            background: #666;
         }
 
     </style>
@@ -74,33 +136,60 @@
 <body>
 
 <div layout:fragment="content">
-    <div>채팅방</div>
-    <div>
-        <button data-invited-id="user3" class="btn-invite">초대</button>
+    <div class="row chat-header">
+        <div class="col chat-header-item-left">
+            <button type="button" id="btn-to-chat-list" onclick="location.href='/chat/list'" class="btn btn-dark">목록으로</button>
+        </div>
+        <div class="col chat-header-item-center">채팅방</div>
+        <div class="col chat-header-item-right">
+            <button type="button" id="btn-exit" class="btn btn-danger" onclick="javascript:exit();">나가기</button>
+            <button type="button" id="btn-invite" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">초대하기</button>
+        </div>
     </div>
-    <div class="row chat-box" id="messages">
-        <div class="row" th:each="item, status:${messages}">
-            <div class="chat-bubble-manager" th:if="${item.senderId == 'chatmanager'}" th:text="${item.message}"></div>
+    <div class="chat-box scroll scroll2" id="messages">
+        <div class="row chat-content" th:each="item, status:${messages}">
+            <div class="col chat-bubble-manager" th:if="${item.senderId == 'chatmanager'}" th:text="${item.message}"></div>
             <th:block th:unless="${item.senderId == 'chatmanager'}">
-                <div class="col-2"><span class="chat-id" th:if="${item.senderId != 'chatmanager'}" th:text="${item.senderId}"></span></div>
-                <div class="col-10">
-                    <span th:class="${item.senderId == 'user1' ? 'chat-bubble-my' : 'chat-bubble'}" th:text="${item.message}"></span>
+                <div class="col-2" th:if="${item.senderId != userId}"><div class="chat-id" th:text="${item.senderId}"></div></div>
+                <div class="col-10" th:unless="${item.senderId == userId}">
+                    <span class="chat-bubble" th:text="${item.message}"></span>
                     <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </div>
+                <div class="col-12 chat-row-my" th:if="${item.senderId == userId}">
+                    <span class="chat-date" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                    <span class="chat-bubble-my" th:text="${item.message}"></span>
                 </div>
             </th:block>
         </div>
     </div>
-    <div class="row chat-input-box fixed-bottom">
+    <div class="chat-input-box">
         <div class="col-12">
             <form class="form-inline">
-
                 <div class="input-group">
-                    <input type="text" id="sender" class="form-control" placeholder="name...">
+<!--                    <input type="text" id="sender" class="form-control" placeholder="name...">-->
                     <input type="text" id="content" class="form-control" placeholder="content..." maxlength="300">
                     <button id="send" class="btn btn-dark" type="submit">Send</button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">친구 초대</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
+                    <div class="modal-body" id="friend-list">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    </div>
+
+            </div>
         </div>
     </div>
 </div>
@@ -176,30 +265,36 @@
         }
         if (inputContent.value === '') return;
         if (inputContent.value.length > 300) {
-            alert("300자 이내 전송 가능합니다.");
+            alert("메시지는 300자 이내로 작성해주세요.");
             return;
         }
         //메시지 전송
         stompClient.publish({
             destination: "/send/" + roomId,
-            body: JSON.stringify({'content': $("#content").val(), 'sender': $("#sender").val() }) //sender -> userId로 바꿔야됨
+            body: JSON.stringify({'content': $("#content").val(), 'sender': userId }) //sender -> userId로 바꿔야됨
         });
         inputContent.value = '';
     }
 
     function showMessageContent(message) {
 
-        let content = `<div class="row">`;
+        let content = `<div class="row chat-content">`;
         if (message.senderId === 'chatmanager')
-            content += `<div class="chat-bubble-manager">${message.message}</div>`
-        else {
-            let classname = (message.senderId === userId) ? 'chat-bubble-my' :'chat-bubble';
+            content += `<div class="col chat-bubble-manager">${message.message}</div>`
+        else if(message.senderId === userId) {
             content += `
-            <div class="col-2"><span class="chat-id">${message.senderId}</span></div>
-            <div class="col-10">
-                <span class="${classname}">${message.message}</span>
-                <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
-            </div>`
+                <div class="col-12 chat-row-my">
+                    <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
+                    <span class="chat-bubble-my">${message.message}</span>
+                </div>`
+        }
+        else {
+            content +=`
+            <div class="col-2"><div class="chat-id">${message.senderId}</div></div>
+                <div class="col-10">
+                    <span class="chat-bubble">${message.message}</span>
+                    <span class="chat-date">${formatLocalDateTime(message.createdAt, 'yyyy-MM-dd HH:mm:ss')}</span>
+                </div>`
         }
         content += `</div>`
 
@@ -226,14 +321,7 @@
     //     disconnect();
     // });
 
-    document.querySelectorAll(".btn-invite").forEach(button => {
-        button.addEventListener("click", evt => {
-            let invitedId = button.dataset.invitedId;
-            let response = invite(invitedId, roomId).then((data) => {
-                alert(data);
-           });
-        });
-    })
+
 
     async function invite(invitedId, roomId) {
         const url = "/api/chat/room/invite";
@@ -252,13 +340,61 @@
     async function leave(roomId) {
         const url = "/api/chat/room/leave";
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({leaveAt: new Date().toISOString(), roomId: roomId})
         });
         return response.ok;
+    }
+
+    let friendFlag = false;
+    const friendList = document.getElementById("friend-list");
+    document.getElementById("btn-invite").addEventListener("click", async e => {
+        const url = "/api/chat/friends";
+
+        if(friendFlag)
+            return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET'
+            });
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const json = await response.json();
+            // console.log(json);
+
+            friendFlag = true;
+
+            for(let item of json) {
+                friendList.innerHTML += `<div class="freind-info"><span>${item}</span> <button type="button" class="btn btn-dark btn-invite" data-invited-id="${item}">초대하기</div><br>`
+            }
+            if(json.length === 0) {
+                friendList.innerHTML = '등록된 친구가 없습니다. 친구를 추가해보세요!';
+            }
+
+            document.querySelectorAll(".btn-invite").forEach(button => {
+                button.addEventListener("click", evt => {
+                    let invitedId = button.dataset.invitedId;
+                    let response = invite(invitedId, roomId).then((data) => {
+                        alert(data);
+                    });
+                });
+            })
+
+        } catch (error) {
+            console.error(error.message);
+        }
+    });
+
+    function exit() {
+        if(confirm("채팅방에서 나가시겠습니까? 나가면 대화 내용을 더 이상 볼 수 없습니다.")) {
+            window.location.href="/chat/room/"+roomId+"/exit";
+        }
     }
 </script>
 </body>

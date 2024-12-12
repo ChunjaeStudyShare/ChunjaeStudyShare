@@ -26,7 +26,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "VARCHAR(50)")
+    @Column(columnDefinition = "VARCHAR(100)")
     private String title;
 
     @Column(columnDefinition = "TEXT")

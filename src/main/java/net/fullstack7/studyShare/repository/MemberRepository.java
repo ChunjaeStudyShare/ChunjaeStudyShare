@@ -17,4 +17,5 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     Page<Member> findByStatus(Integer status, Pageable pageable);
     Page<Member> findByUserIdContainingOrNameContainingOrEmailContaining(
         String userId, String name, String email, Pageable pageable);
+    void deleteById(String userId);
 }
