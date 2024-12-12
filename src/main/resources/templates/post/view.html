@@ -103,7 +103,7 @@
                 <td th:text="${post.privacy == 1 ? 'Y' : 'N'}"></td>
                 <td th:text="${post.displayAt != null && post.displayEnd != null ? post.displayAt + ' ~ ' + post.displayEnd
                : (post.displayAt != null ? post.displayAt + ' ~'
-               : (post.displayEnd != null ? '~ ' + post.displayEnd : '없음'))}" colspan="4">
+               : (post.displayEnd != null ? '~ ' + post.displayEnd : '-'))}" colspan="4">
                 </td>
             </tr>
             <!-- 이미지와 내용 -->
@@ -134,7 +134,7 @@
                         <span th:text="${shared.user.userId}"></span>
                         <button type="button" class="btn-close-custom" aria-label="Close"
                                 th:data-user-id="${shared.user.userId}"
-                                th:onclick="'cancelRequest(this)'">X
+                                onclick="cancelRequest(this)">X
                         </button>
                         <br>
                     </div>
@@ -170,11 +170,10 @@
             <!-- 분야와 해시태그 -->
             <tr>
                 <th>분야</th>
-                <td th:text="${post.domain != null && !post.domain.isEmpty() ? post.domain : '없음'}">분야</td>
+                <td th:text="${post.domain != null && !post.domain.isEmpty() ? post.domain : '-'}">분야</td>
                 <th style="width: 20%;">해시태그</th>
-                <td th:text="${post.hashtag != null && !post.hashtag.isEmpty() ? post.hashtag : '없음'}" colspan="3">해시태그</td>
+                <td th:text="${post.hashtag != null && !post.hashtag.isEmpty() ? post.hashtag : '-'}" colspan="3">해시태그</td>
             </tr>
-
             </tbody>
         </table>
         <br>
@@ -237,8 +236,8 @@
                             <tr>
                                 <td>${user.userId}</td>
                                 <td>
-                         <button class="btn ${user.isShared === 1 ? 'btn-success' : 'btn-primary'}"
-                            onclick="${user.isShared === 1 ? `cancelRequest('${user.userId}')` : `shareRequest('${user.userId}')`}">
+                         <button class="btn ${user.isShared === 1 ? 'btn-success' : 'btn-primary'}" data-user-id="${user.userId}"
+                            onclick="${user.isShared === 1 ? `cancelRequest(this)` : `shareRequest('${user.userId}')`}">
                             ${user.isShared === 1 ? '공유 취소' : '공유'}
                         </button>
                                 </td>
@@ -289,7 +288,7 @@
         }
         function cancelRequest(userIdElement) {
             const postId = [[${ post.id }]]
-            const userId = userIdElement.getAttribute("data-user-id");
+            const userId = userIdElement.dataset.userId;
             let flag = confirm(userId + '에게 공유 취소하시겠습니까?');
             if (flag) {
                 fetch('/share/shareCancelRequest', {
