@@ -162,11 +162,13 @@ public class PostController {
         }
         PostViewDTO post = postService.findPostWithFile(id);
         if (post != null) {
+            List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
+            model.addAttribute("shareList", shareList);
             model.addAttribute("post", post);
             return "post/modify";
         } else {
             redirectAttributes.addFlashAttribute("alertMessage",  "해당 학습 정보를 찾을 수 없습니다.");
-            return "redirect:post/myList";
+            return "redirect:/post/myList";
         }
     }
 
