@@ -96,7 +96,7 @@
 
     <select id="checkWriter" resultType="boolean">
         SELECT COUNT(*)
-        FROM Post
+        FROM Post p
         WHERE id = #{id} AND userId = #{userId}
     </select>
 
@@ -141,7 +141,7 @@
     <!-- 게시글 조회 -->
     <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
         SELECT id as postId, title, createdAt
-        FROM Post
+        FROM Post p
         <where>
             <if test="searchCategory != null and searchValue != null">
                 <choose>

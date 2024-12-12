@@ -1,100 +1,39 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
-    layout:decorate="~{common/layout}">
+      layout:decorate="~{common/layout}">
 <div layout:fragment="content">
     <style>
         .filter-table {
-            max-width: 800px;
-            /* 검색 테이블 최대 너비 */
-            margin-left: 20px;
-            /* 가운데 정렬 + 하단 여백 */
+            max-width: 800px; /* 검색 테이블 최대 너비 */
+            margin-left:20px; /* 가운데 정렬 + 하단 여백 */
         }
-
-        .filter-table th,
-        .filter-table td {
+        .filter-table th, .filter-table td {
             padding: 8px;
             text-align: left;
             vertical-align: middle;
             border: 1px solid #ddd;
         }
-
         .filter-table .input-group input,
         .filter-table .form-select {
-            max-width: 200px;
-            /* 검색 필드와 드롭다운 너비 제한 */
+            max-width: 200px; /* 검색 필드와 드롭다운 너비 제한 */
         }
-
         .filter-table .btn {
-            max-width: 100px;
-            /* 조회 버튼 너비 제한 */
+            max-width: 100px; /* 조회 버튼 너비 제한 */
         }
 
         /* 리스트 테이블 */
         .list-table th {
-            background-color: #f8f9fa;
-            /* 연한 회색 */
+            background-color: #f8f9fa; /* 연한 회색 */
             color: #000;
         }
-
-        .list-table th,
-        .list-table td {
+        .list-table th, .list-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
         }
     </style>
-
-<div class="container mt-5">
-    <h4 class="mb-4">공유 목록</h4>
-
-    <!-- 검색 필터 -->
-    <form id="filterForm" th:action="@{/post/shareList}" method="get">
-        <table class="table filter-table">
-            <!-- 첫 줄: 기간 -->
-            <tr>
-                <th style="width: 15%;">기간</th>
-                <td style="width: 85%;">
-                    <div class="input-group">
-                        <input type="datetime-local" class="form-control" id="displayAt" name="displayAt" 
-                               th:value="${param.displayAt}">
-                        <span class="input-group-text">~</span>
-                        <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd" 
-                               th:value="${param.displayEnd}">
-                    </div>
-                </td>
-            </tr>
-
-            <!-- 두 번째 줄: 구분 & 검색어 -->
-            <tr>
-                <th>구분</th>
-                <td>
-                    <div class="row g-2 align-items-center">
-                        <div class="col-auto">
-                            <select class="form-select" id="searchCategory" name="searchCategory">
-                                <option value="">선택</option>
-                                <option value="title" th:selected="${param.searchCategory == 'title'}">제목</option>
-                                <option value="content" th:selected="${param.searchCategory == 'content'}">내용</option>
-                                <option value="content" th:selected="${param.searchCategory == 'userId'}">작성자명</option>
-                            </select>
-                        </div>
-                        <div class="col-auto">
-                            <input type="text" class="form-control" id="searchValue" name="searchValue" 
-                                   th:value="${param.searchValue}" placeholder="검색어를 입력하세요">
-                        </div>
-                    </div>
-                </td>
-            </tr>
-
-            <!-- 세 번째 줄: 정렬 & 표시 개수 -->
-            <tr>
-                <th>정렬/표시</th>
-                <td>
-                    <div class="row g-2 align-items-center">
-                        <div class="col-auto">
-                            <select class="form-select" id="sortType" name="sortType">
-                                <option value="share" th:selected="${param.sortType == 'share'}">내가 한 공유</option>
-                                <option value="receiveShare" th:selected="${param.sortType == 'receiveShare'}">내가 받은 공유</option>
-                            </select>
+    <div class="container mt-5">
+        <h4 class="mb-4">공유 목록</h4>
 
         <!-- 검색 필터 -->
         <form id="filterForm" th:action="@{/post/shareList}" method="get">
@@ -105,10 +44,10 @@
                     <td style="width: 85%;">
                         <div class="input-group">
                             <input type="datetime-local" class="form-control" id="displayAt" name="displayAt"
-                                th:value="${postPagingDTO.displayAt}">
+                                   th:value="${param.displayAt}">
                             <span class="input-group-text">~</span>
                             <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd"
-                                th:value="${postPagingDTO.displayEnd}">
+                                   th:value="${param.displayEnd}">
                         </div>
                     </td>
                 </tr>
@@ -121,17 +60,14 @@
                             <div class="col-auto">
                                 <select class="form-select" id="searchCategory" name="searchCategory">
                                     <option value="">선택</option>
-                                    <option value="title" th:selected="${postPagingDTO.searchCategory == 'title'}">제목
-                                    </option>
-                                    <option value="content" th:selected="${postPagingDTO.searchCategory == 'content'}">
-                                        내용</option>
-                                    <option value="content" th:selected="${postPagingDTO.searchCategory == 'userId'}">
-                                        작성자명</option>
+                                    <option value="title" th:selected="${param.searchCategory == 'title'}">제목</option>
+                                    <option value="content" th:selected="${param.searchCategory == 'content'}">내용</option>
+                                    <option value="content" th:selected="${param.searchCategory == 'userId'}">작성자명</option>
                                 </select>
                             </div>
                             <div class="col-auto">
                                 <input type="text" class="form-control" id="searchValue" name="searchValue"
-                                    th:value="${postPagingDTO.searchValue}" placeholder="검색어를 입력하세요">
+                                       th:value="${param.searchValue}" placeholder="검색어를 입력하세요">
                             </div>
                         </div>
                     </td>
@@ -144,20 +80,17 @@
                         <div class="row g-2 align-items-center">
                             <div class="col-auto">
                                 <select class="form-select" id="sortType" name="sortType">
-                                    <option value="share"
-                                        th:selected="${postPagingDTO.sortType == null || postPagingDTO.sortType == 'share'}">
-                                        내가 한 공유</option>
-                                    <option value="receiveShare"
-                                        th:selected="${postPagingDTO.sortType == 'receiveShare'}">내가 받은 공유</option>
+                                    <option value="share" th:selected="${param.sortType == 'share'}">내가 한 공유</option>
+                                    <option value="receiveShare" th:selected="${param.sortType == 'receiveShare'}">내가 받은 공유</option>
                                 </select>
 
                             </div>
                             <div class="col-auto">
                                 <select class="form-select" id="pageSize" name="pageSize">
-                                    <option value="10" th:selected="${postPagingDTO.pageSize == 10}">10개씩</option>
-                                    <option value="30" th:selected="${postPagingDTO.pageSize == 30}">30개씩</option>
-                                    <option value="50" th:selected="${postPagingDTO.pageSize == 50}">50개씩</option>
-                                    <option value="100" th:selected="${postPagingDTO.pageSize == 100}">100개씩</option>
+                                    <option value="10" th:selected="${param.pageSize == '10'}">10개씩</option>
+                                    <option value="30" th:selected="${param.pageSize == '30'}">30개씩</option>
+                                    <option value="50" th:selected="${param.pageSize == '50'}">50개씩</option>
+                                    <option value="100" th:selected="${param.pageSize == '100'}">100개씩</option>
                                 </select>
                             </div>
                             <div class="col-auto">
@@ -173,56 +106,20 @@
         <!-- 리스트 테이블 -->
         <table class="table list-table table-hover">
             <thead>
-                <tr>
-                    <th>No</th>
-                    <th>제목</th>
-                    <th>공유자</th>
-                    <th>등록일</th>
-                </tr>
+            <tr>
+                <th>No</th>
+                <th>제목</th>
+                <th>공유자</th>
+                <th>등록일</th>
+            </tr>
             </thead>
             <tbody id="dataTable">
-                <tr th:each="post, status : ${posts}" class="link" th:data-post-id=" ${post.postId}"
-                    style="cursor: pointer;">
-                    <td th:text="${status.index + 1}"></td>
-                    <!--                <td>-->
-                    <!--                    <a th:href="@{/post/view(id=${post.postId}, type='share')}">[[${post.title}]]</a>-->
-                    <!--                </td>-->
-                    <td>[[${post.title}]]</td>
-                    <td th:if="${sortType == 'share'}">
-                        <span th:each="share, status : ${post.shares}">
-                            [[${share.sharedUserId}]]([[${share.sharedAt}]])<br>
-                        </span>
-                    </td>
-                    <td th:if="${sortType == 'receiveShare'}">
-                        [[${post.userId}]]([[${post.sharedCreatedAt}]])
-                    </td>
-                    <td th:text="${#temporals.format(post.createdAt,'yyyy-MM-dd')}"></td>
-                </tr>
-                <tr th:if="${posts == null or posts.isEmpty()}">
-                    <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>
-                </tr>
-            </tbody>
-        </table>
-        <input type="hidden" name="pageNo" value="1">
-    </form>
-
-    <!-- 리스트 테이블 -->
-    <table class="table list-table table-hover">
-        <thead>
-        <tr>
-            <th>No</th>
-            <th>제목</th>
-            <th>공유자</th>
-            <th>등록일</th>
-        </tr>
-        </thead>
-        <tbody id="dataTable">
             <tr th:each="post, status : ${posts}" class="link" th:data-post-id=" ${post.postId}"
-                            style="cursor: pointer;">
+                style="cursor: pointer;">
                 <td th:text="${status.index + 1}"></td>
-<!--                <td>-->
-<!--                    <a th:href="@{/post/view(id=${post.postId}, type='share')}">[[${post.title}]]</a>-->
-<!--                </td>-->
+                <!--                <td>-->
+                <!--                    <a th:href="@{/post/view(id=${post.postId}, type='share')}">[[${post.title}]]</a>-->
+                <!--                </td>-->
                 <td>[[${post.title}]]</td>
                 <td th:if="${sortType == 'share'}">
                     <span th:each="share, status : ${post.shares}">
@@ -237,12 +134,12 @@
             <tr th:if="${posts == null or posts.isEmpty()}">
                 <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>
             </tr>
-        </tbody>
-    </table>
-    <div th:replace="~{common/paging :: paging}"></div>
-    <br>
-    <br>
-</div>
+            </tbody>
+        </table>
+        <div th:replace="~{common/paging :: paging}"></div>
+        <br>
+        <br>
+    </div>
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function () {
             const displayAt = document.getElementById("displayAt");
