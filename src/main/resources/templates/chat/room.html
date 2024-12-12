@@ -389,11 +389,10 @@
         console.log(new Date());
         const payload = JSON.stringify({ leaveAt: new Date(), roomId: roomId });
 
-        // sendBeacon으로 데이터 전송
         const success = navigator.sendBeacon(url, payload);
 
         console.log("leave end");
-        // sendBeacon은 성공 여부를 Boolean으로 반환
+
         return success;
     }
 
