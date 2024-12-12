@@ -164,16 +164,17 @@
         SELECT id as postId, title, createdAt
         FROM Post p
         <where>
+            0 &lt; (SELECT COUNT(*) FROM Share s WHERE p.id = s.postId)
             <if test="searchCategory != null and searchValue != null">
                 <choose>
                     <when test="searchCategory == 'title'">
-                        title LIKE CONCAT('%', #{searchValue}, '%')
+                        AND title LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                     <when test="searchCategory == 'content'">
-                        content LIKE CONCAT('%', #{searchValue}, '%')
+                        AND content LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                     <when test="searchCategory == 'userId'">
-                        userId LIKE CONCAT('%', #{searchValue}, '%')
+                        AND userId LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                 </choose>
             </if>
@@ -190,16 +191,17 @@
         SELECT count(id)
         FROM Post p
         <where>
+            0 &lt; (SELECT COUNT(*) FROM Share s WHERE p.id = s.postId)
             <if test="searchCategory != null and searchValue != null">
                 <choose>
                     <when test="searchCategory == 'title'">
-                        title LIKE CONCAT('%', #{searchValue}, '%')
+                        AND title LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                     <when test="searchCategory == 'content'">
-                        content LIKE CONCAT('%', #{searchValue}, '%')
+                        AND content LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                     <when test="searchCategory == 'userId'">
-                        userId LIKE CONCAT('%', #{searchValue}, '%')
+                        AND userId LIKE CONCAT('%', #{searchValue}, '%')
                     </when>
                 </choose>
             </if>

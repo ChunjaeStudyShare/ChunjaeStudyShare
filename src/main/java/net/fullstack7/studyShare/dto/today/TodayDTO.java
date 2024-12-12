@@ -33,5 +33,5 @@ public class TodayDTO {
     private String thumbnailName;
 
     // 추가
-    private int likeCount;
+    private int thumbsUpCnt;
 }
