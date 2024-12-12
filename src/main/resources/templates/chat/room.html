@@ -235,7 +235,11 @@
             if (rContent != null) {
                 const chatmessage = JSON.parse(rContent);
                 if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 나갔습니다.")) {
-                    document.getElementById("chatmember-"+chatmessage.message.replace(" 님이 나갔습니다.", "")).remove();
+                    const exitUserId = chatmessage.message.replace(" 님이 나갔습니다.", "");
+                    if(exitUserId === userId) {
+                        location.reload();
+                    }
+                    document.getElementById("chatmember-"+exitUserId).remove();
                 }
                 if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 초대되었습니다.")) {
                     let memberId = chatmessage.message.replace(" 님이 초대되었습니다.", "");
