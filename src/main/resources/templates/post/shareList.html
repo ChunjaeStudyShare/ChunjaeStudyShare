@@ -135,10 +135,11 @@
                     <td th:text="${status.index + 1}"></td>
                     <td>[[${post.title}]]</td>
                     <td th:if="${sortType == 'share'}">
-                        <span th:each="share, status : ${post.shares}">
-                            [[${share.sharedUserId}]]([[${share.sharedAt}]])<br>
+                        <span th:each="share : ${post.shares}">
+                            [[${share.sharedUserId}]] (<span th:text="${#temporals.format(share.sharedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>)<br>
                         </span>
                     </td>
+
                     <td th:if="${sortType == 'receiveShare'}">
                         [[${post.userId}]]([[${post.sharedCreatedAt}]])
                     </td>
@@ -205,6 +206,18 @@
                 window.location.href = `/post/view?id=${postId}&currentPage=${encodedCurrentPage}&type=${sortType}`; // URL 생성
             });
         });
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            const hours = String(date.getHours()).padStart(2, "0");
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+            const seconds = String(date.getSeconds()).padStart(2, "0");
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
     </script>
 
 </div>

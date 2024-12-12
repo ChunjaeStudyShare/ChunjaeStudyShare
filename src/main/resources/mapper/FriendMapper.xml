@@ -75,15 +75,15 @@
     </delete>
     <delete id="deleteShared1">
         DELETE s
-        FROM `share` AS s
-        INNER JOIN post AS p ON p.id = s.postId
+        FROM `Share` AS s
+        INNER JOIN `Post` AS p ON p.id = s.postId
         WHERE s.userId = #{friendId}
         AND p.userId = #{requesterId}
     </delete>
     <delete id="deleteShared2">
         DELETE s
-        FROM `share` AS s
-        INNER JOIN post AS p ON p.id = s.postId
+        FROM `Share` AS s
+        INNER JOIN `Post` AS p ON p.id = s.postId
         WHERE s.userId = #{requesterId}
         AND p.userId = #{friendId}
     </delete>
