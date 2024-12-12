@@ -27,5 +27,6 @@ public interface FriendMapper {
     Boolean deleteFriend2(FriendDTO friendDTO);
     Boolean deleteShared1(FriendDTO friendDTO);
     Boolean deleteShared2(FriendDTO friendDTO);
+    List<Integer> postIdList(String userId);
 
 }

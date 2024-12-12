@@ -87,4 +87,9 @@
         WHERE s.userId = #{requesterId}
         AND p.userId = #{friendId}
     </delete>
+    <select id="postIdList" resultType="java.lang.Integer">
+        SELECT id
+        FROM Post
+        WHERE userId = #{userId}
+    </select>
 </mapper>
