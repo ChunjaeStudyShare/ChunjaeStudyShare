@@ -4,10 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.fullstack7.studyShare.domain.Post;
 import net.fullstack7.studyShare.dto.FriendCheckDTO;
 import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.member.MemberDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
+import net.fullstack7.studyShare.repository.PostRepository;
+import net.fullstack7.studyShare.repository.ShareRepository;
 import net.fullstack7.studyShare.service.FriendService;
 import net.fullstack7.studyShare.service.share.ShareServiceIf;
 import net.fullstack7.studyShare.util.JSFunc;
@@ -31,6 +34,8 @@ public class FriendController {
 
     private final FriendService friendService;
     private final ShareServiceIf shareService;
+    private final PostRepository postRepository;
+    private final ShareRepository shareRepository;
 
     @GetMapping("/list")
     public String list(Model model, HttpServletRequest request,
@@ -137,22 +142,30 @@ public class FriendController {
         //기냥 서비스에서 두 번 삭제해봄
         boolean deleteShare = friendService.deleteShare(friendDTO);
         boolean success = friendService.deleteFriend(friendDTO);
+
         List<Integer> postIdList1 = friendService.postIdList(friendDTO.getFriendId());
+        log.info("PostIdList1:{}", postIdList1);
         List<Integer> postIdList2 = friendService.postIdList(friendDTO.getRequesterId());
+        log.info("PostIdList2:{}", postIdList2);
+
 
         for(Integer postId : postIdList1) {
-            PostShareDTO postShareDTO = new PostShareDTO();
-            postShareDTO.setPostId(postId);
-            postShareDTO.setUserId(friendDTO.getFriendId());
-            boolean shareCancel1 = shareService.shareCancelRequest(postShareDTO, friendDTO.getFriendId());
-            log.info("shareCancel1:{}", shareCancel1);
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+            boolean isShared = shareRepository.existsByPostId(postId);
+            if (!isShared) {
+                post.setShare(0);
+                postRepository.save(post);
+            }
         }
         for(Integer postId : postIdList2) {
-            PostShareDTO postShareDTO = new PostShareDTO();
-            postShareDTO.setPostId(postId);
-            postShareDTO.setUserId(friendDTO.getRequesterId());
-            boolean shareCancel2 = shareService.shareCancelRequest(postShareDTO, friendDTO.getRequesterId());
-            log.info("shareCancel2:{}", shareCancel2);
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
+            boolean isShared = shareRepository.existsByPostId(postId);
+            if (!isShared) {
+                post.setShare(0);
+                postRepository.save(post);
+            }
         }
 
 
