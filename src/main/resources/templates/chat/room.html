@@ -344,7 +344,7 @@
         $("#send").click(() => sendMessageContent());
     });
 
-    window.addEventListener("beforeunload", function (event) {
+    window.addEventListener("unload", function (event) {
         leave(roomId);
         if (isConnected) disconnect();
         event.preventDefault();
@@ -371,16 +371,30 @@
         return response.text();
     }
 
-    async function leave(roomId) {
+    // async function leave(roomId) {
+    //     const url = "/api/chat/room/leave";
+    //     const response = await fetch(url, {
+    //         method: 'PUT',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({leaveAt: new Date().toISOString(), roomId: roomId})
+    //     });
+    //     return response.ok;
+    // }
+
+    function leave(roomId) {
+        console.log("leave start");
         const url = "/api/chat/room/leave";
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({leaveAt: new Date().toISOString(), roomId: roomId})
-        });
-        return response.ok;
+        console.log(new Date());
+        const payload = JSON.stringify({ leaveAt: new Date(), roomId: roomId });
+
+        // sendBeacon으로 데이터 전송
+        const success = navigator.sendBeacon(url, payload);
+
+        console.log("leave end");
+        // sendBeacon은 성공 여부를 Boolean으로 반환
+        return success;
     }
 
     let friendFlag = false;
