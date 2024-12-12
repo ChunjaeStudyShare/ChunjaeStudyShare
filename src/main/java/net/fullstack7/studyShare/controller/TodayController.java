@@ -56,7 +56,14 @@ public class TodayController {
 
         LocalDateTime selectedDate = null;
         if (year != null && month != null && date != null) {
-            selectedDate = LocalDateTime.of(year, month, date, 0, 0);
+            LocalDateTime now = LocalDateTime.now();
+            int currentHour = now.getHour();
+            int currentMinute = now.getMinute();
+            if(now.getYear() == year && now.getMonthValue() == month && now.getDayOfMonth() == date){
+                selectedDate = LocalDateTime.of(year, month, date, currentHour, currentMinute);
+            } else {
+                selectedDate = LocalDateTime.of(year, month, date, 0, 0);
+            }
         }
         List<TodayDTO> todayList = todayService.todayList(selectedDate, userId);
         return ResponseEntity.ok(todayList);

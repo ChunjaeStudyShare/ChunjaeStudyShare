@@ -89,9 +89,16 @@
             overflow-y: auto;
             display: -webkit-box;
             -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3; /* 최대 줄 수 설정 */
             text-overflow: ellipsis;
             line-height: 1.5; /* 줄 간격 */
+        }
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background-color: #6e6e6e;
+            border-radius: 4px;
         }
 
         .category {
