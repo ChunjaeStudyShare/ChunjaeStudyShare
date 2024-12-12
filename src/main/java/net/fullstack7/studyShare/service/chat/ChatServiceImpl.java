@@ -10,6 +10,7 @@ import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
 
 import net.fullstack7.studyShare.dto.chat.ChatRoomDTO;
+import net.fullstack7.studyShare.exception.CustomException;
 import net.fullstack7.studyShare.mapper.ChatMemberMapper;
 import net.fullstack7.studyShare.repository.ChatMemberRepository;
 import net.fullstack7.studyShare.repository.ChatMessageRepository;
@@ -68,6 +69,9 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     @Override
     public int createChatRoom(String userId, String[] invited) {
+        if(invited.length >= 20){
+            throw new CustomException("채팅방의 최대 참여 인원은 20명입니다. 초과된 인원은 초대할 수 없습니다.");
+        }
         String errorMessage = "";
         if(invited.length==1){
             try{
@@ -170,6 +174,9 @@ public class ChatServiceImpl implements ChatService {
             Member member = Member.builder().userId(userId).build();
             if (chatRoomRepository.existsById(roomId)) {
                 ChatRoom chatRoom = ChatRoom.builder().id(roomId).build();
+                if(chatMemberRepository.countByChatRoom(chatRoom)==20){
+                    return "채팅방의 최대 참여 인원은 20명입니다. 초과된 인원은 초대할 수 없습니다.";
+                }
                 if (chatMemberRepository.existsByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build())) {
                     return "해당 회원은 이미 채팅방에 참여 중입니다.";
                 }
