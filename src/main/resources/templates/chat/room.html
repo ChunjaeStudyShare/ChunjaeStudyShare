@@ -140,7 +140,16 @@
         <div class="col chat-header-item-left">
             <button type="button" id="btn-to-chat-list" onclick="location.href='/chat/list'" class="btn btn-dark">목록으로</button>
         </div>
-        <div class="col chat-header-item-center">채팅방</div>
+        <div class="col chat-header-item-center">
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    대화상대
+                </button>
+                <ul class="dropdown-menu" id="chatMemberList">
+                    <li class="dropdown-item" th:each="member, status:${memberList}" th:text="${member}" th:id="'chatmember-'+${member}"></li>
+                </ul>
+            </div>
+        </div>
         <div class="col chat-header-item-right">
             <button type="button" id="btn-exit" class="btn btn-danger" onclick="javascript:exit();">나가기</button>
             <button type="button" id="btn-invite" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">초대하기</button>
@@ -223,8 +232,21 @@
         console.log('Connected: ' + frame);
         stompClient.subscribe('/room/' + roomId, (chatMessage) => {
             let rContent = chatMessage.body;
-            if (rContent != null)
-                showMessageContent(JSON.parse(rContent))
+            if (rContent != null) {
+                const chatmessage = JSON.parse(rContent);
+                if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 나갔습니다.")) {
+                    document.getElementById("chatmember-"+chatmessage.message.replace(" 님이 나갔습니다.", "")).remove();
+                }
+                if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 초대되었습니다.")) {
+                    let memberId = chatmessage.message.replace(" 님이 초대되었습니다.", "");
+                    $("#chatMemberList").append(
+                        `
+                        <li class="dropdown-item" id="chatmember-${memberId}">${memberId}</li>
+                        `
+                    )
+                }
+                showMessageContent(chatmessage);
+            }
         });
         //개인채널
         stompClient.subscribe('/user/queue/errors', function (message) {
