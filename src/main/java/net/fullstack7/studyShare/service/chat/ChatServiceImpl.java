@@ -75,11 +75,16 @@ public class ChatServiceImpl implements ChatService {
         String errorMessage = "";
         if(invited.length==1){
             try{
+                log.info("userId: "+userId);
+                log.info("invited[0]: "+invited[0]);
                 int existRoom = isExistChatRoom(userId,invited[0]);
+                log.info("existRoom: "+existRoom);
                 if(existRoom>0){
+                    log.info("existRoom: "+existRoom);
                     return existRoom;
                 }
             } catch (Exception e) {
+                log.info("chatServiceImpl.createChatRoom: "+e);
                 errorMessage = e.getMessage();
             }
         }
@@ -212,8 +217,12 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public int isExistChatRoom(String user1, String user2) {
         if(user1.equals(user2)) {
+            log.info("user1: "+user1);
+            log.info("user2: "+user2);
             throw new IllegalArgumentException("대상을 선택한 후 메시지를 보내주세요.");
         }
+        log.info("user1: "+user1);
+        log.info("user2: "+user2);
         return chatMemberMapper.findChatRoomIdBy2UserId(user1, user2);
     }
 
