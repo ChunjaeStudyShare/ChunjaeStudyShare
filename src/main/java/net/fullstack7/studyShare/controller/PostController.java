@@ -139,9 +139,11 @@ public class PostController {
             return "redirect:/post/myList";
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
+            model.addAttribute("dto", dto);
             return "post/regist";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
+            model.addAttribute("dto", dto);
             return "post/regist";
         }
     }
