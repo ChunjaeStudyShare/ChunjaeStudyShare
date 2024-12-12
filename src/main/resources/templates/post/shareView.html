@@ -186,7 +186,7 @@
         <!-- 하단 버튼 -->
         <div class="button-end text-end">
             <!-- 공유 받은 글인 경우 -->
-            <button class="btn btn-success" th:onclick="|location.href='@{/post/list}'|">좋아요</button>
+            <button class="btn btn-success" id="thumbsUpBtn">좋아요</button>
             <button th:onclick="|location.href='@{${currentPage != null ? currentPage : '/post/shareList'}}'|" class="btn btn-primary">목록</button>
         </div>
     </div>

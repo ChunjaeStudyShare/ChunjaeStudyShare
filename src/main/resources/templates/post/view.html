@@ -186,7 +186,7 @@
             <button class="btn btn-success" id="thumbsUpBtn">좋아요</button>
             <!--            <button class="btn btn-primary" th:onclick="|location.href='@{currentPage != null ? currentPage : '/post/myList'}'|">목록</button>-->
             <button th:onclick="|location.href='@{${currentPage != null ? currentPage : '/post/myList'}}'|" class="btn btn-primary">목록</button>
-            <button class="btn btn-secondary" th:onclick="|location.href='@{/post/regist}'|">등록</button>
+            <button class="btn btn-secondary" th:onclick="|location.href= '@{/post/regist}'|">등록</button>
             <button class="btn btn-warning" th:onclick="|location.href='@{/post/modify(id=${post.id})}'|">수정</button>
             <button class="btn btn-danger" th:data-post-id="${post.id}" onclick="confirmDelete(this)">
                 삭제
