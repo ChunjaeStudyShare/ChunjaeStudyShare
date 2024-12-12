@@ -190,6 +190,7 @@ public class PostServiceImpl implements PostServiceIf{
     }
 
     @Override
+    @Transactional
     public PostRegistDTO modifyPost(PostRegistDTO dto, String userId) {
         String fileName = null;
         String filePath = null;
@@ -349,12 +350,34 @@ public class PostServiceImpl implements PostServiceIf{
 
     //2024-12-10 수미 수정
     @Override
+    @Transactional
     public boolean delete(int id) {
-        boolean file = postMapper.deleteFile(id); //파일 삭제
-        int hasShare = postMapper.hasShare(id); //공유 있는지
-        boolean share = hasShare != 0 && postMapper.deleteShare(id); //있을때만 삭제
-        boolean post = postMapper.deletePost(id); // 게시글 삭제
-        return post && (hasShare == 0 || share); // 세 가지 경우
+        try {
+            // 파일 삭제
+            boolean fileDeleted = postMapper.deleteFile(id);
+            log.info("파일 삭제 성공 여부: {}", fileDeleted);
+
+            // 공유 여부 확인 및 삭제
+            int hasShare = postMapper.hasShare(id);
+            boolean shareDeleted = hasShare != 0 && postMapper.deleteShare(id);
+            log.info("공유 삭제 성공 여부: {}", shareDeleted);
+
+            // 게시글 삭제
+            boolean postDeleted = postMapper.deletePost(id);
+            log.info("게시글 삭제 성공 여부: {}", postDeleted);
+
+            // 전체 삭제 결과
+            boolean result = postDeleted && (hasShare == 0 || shareDeleted);
+            if (!result) {
+                log.warn("삭제 작업 중 일부 실패. ID: {}", id);
+            }
+            return result;
+
+        } catch (Exception e) {
+            log.error("게시글 삭제 중 오류 발생. ID: {}, 오류: {}", id, e.getMessage(), e);
+            throw new RuntimeException("게시글 삭제 중 오류가 발생했습니다.");
+        }
+
     }
 
     @Override
@@ -444,7 +467,7 @@ public class PostServiceImpl implements PostServiceIf{
         // 공유자 정보를 게시글 ID별로 그룹화
         Map<Integer, List<ShareInfoDTO>> sharesByPostId = shares.stream()
                 .filter(share -> share.getPostId() != null)
-                .collect(Collectors.groupingBy(ShareInfoDTO::getPostId));
+                .collect(Collectors.groupingBy(ShareInfoDTO::getPostId)); //공유자의 postId값으로 그룹화
 
         log.info("sharesByPostId, {}", sharesByPostId);
 

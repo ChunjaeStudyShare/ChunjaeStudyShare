@@ -73,10 +73,7 @@ public class PostController {
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
             log.info("current  {}" , currentPage);
-        String userId = (String) request.getAttribute("userId");
-//            log.info("type {}", type);
-//            log.info("id {}", id);
-
+            String userId = (String) request.getAttribute("userId");
             try{
                 //게시글 조회
                 PostViewDTO post = postService.findPostWithFile(id);
@@ -96,7 +93,7 @@ public class PostController {
                     model.addAttribute("shareList", shareList);
                     model.addAttribute("post", post);
                     model.addAttribute("currentPage", currentPage);
-                    if("share".equals(type)){
+                    if("receiveShare".equals(type)){
                         return "post/shareView";
                     }else{
                         return "post/view";
@@ -141,11 +138,9 @@ public class PostController {
             postService.regist(dto, userId);
             return "redirect:/post/myList";
         } catch (IOException e) {
-            log.info("aaa");
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
             return "post/regist";
         } catch (Exception e) {
-            log.info("bbbbb");
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
             return "post/regist";
         }

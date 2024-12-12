@@ -34,6 +34,7 @@ public class ShareController {
         String userId = (String) request.getAttribute("userId");
 //        log.info("searchId: {}", searchId);
 //        log.info("postId: {}",  postId);
+//        String userId = "user1";
         List<String> friendList = friendService.list(userId);
         List<String> searchList = friendService.searchUsersById(userId, searchId);
 
