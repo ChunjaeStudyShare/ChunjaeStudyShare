@@ -209,7 +209,7 @@ public class PostController {
         //logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
         String userId = (String) request.getAttribute("userId");
-        int totalCnt = postService.totalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
+        int totalCnt = postService.shareTotalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
         //log.info("totalCnt: " + totalCnt);
         List<PostMyShareDTO> sharePosts;
         List<PostShareDTO> getSharePosts;

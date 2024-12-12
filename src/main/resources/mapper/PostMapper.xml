@@ -158,7 +158,7 @@
         ORDER BY createdAt DESC
         LIMIT #{offset}, #{limit}
     </select>
-    <select id="selectPostsByUserIdCnt" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
+    <select id="selectPostsByUserIdCnt" resultType="int">
         SELECT count(id)
         FROM Post p
         <where>

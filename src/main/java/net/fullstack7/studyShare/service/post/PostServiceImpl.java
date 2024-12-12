@@ -402,6 +402,11 @@ public class PostServiceImpl implements PostServiceIf{
         return isShared || isOwner;
     }
 
+    @Override
+    public int shareTotalCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
+        return postMapper.selectPostsByUserIdCnt(searchCategory, searchValue, userId, sortType, displayAt, displayEnd);
+    }
+
 
     @Override
     public List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId) {
