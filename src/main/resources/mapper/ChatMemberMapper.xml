@@ -10,7 +10,7 @@
     <select id="findChatRoomListByUserId" resultType="net.fullstack7.studyShare.dto.chat.ChatRoomDTO">
         SELECT cr.id               AS chatRoomId,
                SUM(CASE
-                       WHEN cm.createdAt > IFNULL(cmb.leaveAt, NOW()) AND cm.senderId != 'chatmanager' THEN 1
+                       WHEN cm.createdAt &gt; IFNULL(cmb.leaveAt, NOW()) AND cm.senderId != 'chatmanager' THEN 1
                        ELSE 0 END) AS newMessagesCount,
                CASE
                    WHEN MAX(cm.createdAt) IS NOT NULL AND SUBSTRING_INDEX(
@@ -39,7 +39,7 @@
     </select>
     <select id="findChatRoomIdBy2UserId" resultType="Integer">
         SELECT chatRoomId
-        FROM chatmember
+        FROM ChatMember
         GROUP BY chatRoomId
         HAVING COUNT(*) = 2 AND MIN(userId) in (#{user1},#{user2}) and MAX(userId) in (#{user1}, #{user2})
         ORDER BY joinAt DESC
