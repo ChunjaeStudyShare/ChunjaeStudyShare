@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head>
+<div layout:fragment="content"> 
+    <h1>에러</h1>
+</div>
+<th:block layout:fragment="script">
+    <script>
+        alert("에러");
+    </script>
+</th:block>
+</html>

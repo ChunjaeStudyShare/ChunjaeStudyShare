@@ -1,37 +1,49 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
-      layout:decorate="~{common/layout}">
+    layout:decorate="~{common/layout}">
 <div layout:fragment="content">
     <style>
         .filter-table {
-            max-width: 800px; /* 검색 테이블 최대 너비 */
-            margin-left:20px; /* 가운데 정렬 + 하단 여백 */
+            max-width: 800px;
+            /* 검색 테이블 최대 너비 */
+            margin-left: 20px;
+            /* 가운데 정렬 + 하단 여백 */
         }
-        .filter-table th, .filter-table td {
+
+        .filter-table th,
+        .filter-table td {
             padding: 8px;
             text-align: left;
             vertical-align: middle;
             border: 1px solid #ddd;
         }
+
         .filter-table .input-group input,
         .filter-table .form-select {
-            max-width: 200px; /* 검색 필드와 드롭다운 너비 제한 */
+            max-width: 200px;
+            /* 검색 필드와 드롭다운 너비 제한 */
         }
+
         .filter-table .btn {
-            max-width: 100px; /* 조회 버튼 너비 제한 */
+            max-width: 100px;
+            /* 조회 버튼 너비 제한 */
         }
 
         /* 리스트 테이블 */
         .list-table th {
-            background-color: #f8f9fa; /* 연한 회색 */
+            background-color: #f8f9fa;
+            /* 연한 회색 */
             color: #000;
         }
-        .list-table th, .list-table td {
+
+        .list-table th,
+        .list-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
         }
     </style>
+
 <div class="container mt-5">
     <h4 class="mb-4">공유 목록</h4>
 
@@ -84,21 +96,112 @@
                                 <option value="receiveShare" th:selected="${param.sortType == 'receiveShare'}">내가 받은 공유</option>
                             </select>
 
+        <!-- 검색 필터 -->
+        <form id="filterForm" th:action="@{/post/shareList}" method="get">
+            <table class="table filter-table">
+                <!-- 첫 줄: 기간 -->
+                <tr>
+                    <th style="width: 15%;">기간</th>
+                    <td style="width: 85%;">
+                        <div class="input-group">
+                            <input type="datetime-local" class="form-control" id="displayAt" name="displayAt"
+                                th:value="${postPagingDTO.displayAt}">
+                            <span class="input-group-text">~</span>
+                            <input type="datetime-local" class="form-control" id="displayEnd" name="displayEnd"
+                                th:value="${postPagingDTO.displayEnd}">
                         </div>
-                        <div class="col-auto">
-                            <select class="form-select" id="pageSize" name="pageSize">
-                                <option value="10" th:selected="${param.pageSize == '10'}">10개씩</option>
-                                <option value="30" th:selected="${param.pageSize == '30'}">30개씩</option>
-                                <option value="50" th:selected="${param.pageSize == '50'}">50개씩</option>
-                                <option value="100" th:selected="${param.pageSize == '100'}">100개씩</option>
-                            </select>
+                    </td>
+                </tr>
+
+                <!-- 두 번째 줄: 구분 & 검색어 -->
+                <tr>
+                    <th>구분</th>
+                    <td>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <select class="form-select" id="searchCategory" name="searchCategory">
+                                    <option value="">선택</option>
+                                    <option value="title" th:selected="${postPagingDTO.searchCategory == 'title'}">제목
+                                    </option>
+                                    <option value="content" th:selected="${postPagingDTO.searchCategory == 'content'}">
+                                        내용</option>
+                                    <option value="content" th:selected="${postPagingDTO.searchCategory == 'userId'}">
+                                        작성자명</option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <input type="text" class="form-control" id="searchValue" name="searchValue"
+                                    th:value="${postPagingDTO.searchValue}" placeholder="검색어를 입력하세요">
+                            </div>
                         </div>
-                        <div class="col-auto">
-                            <button type="submit" class="btn btn-primary">조회</button>
+                    </td>
+                </tr>
+
+                <!-- 세 번째 줄: 정렬 & 표시 개수 -->
+                <tr>
+                    <th>정렬/표시</th>
+                    <td>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <select class="form-select" id="sortType" name="sortType">
+                                    <option value="share"
+                                        th:selected="${postPagingDTO.sortType == null || postPagingDTO.sortType == 'share'}">
+                                        내가 한 공유</option>
+                                    <option value="receiveShare"
+                                        th:selected="${postPagingDTO.sortType == 'receiveShare'}">내가 받은 공유</option>
+                                </select>
+
+                            </div>
+                            <div class="col-auto">
+                                <select class="form-select" id="pageSize" name="pageSize">
+                                    <option value="10" th:selected="${postPagingDTO.pageSize == 10}">10개씩</option>
+                                    <option value="30" th:selected="${postPagingDTO.pageSize == 30}">30개씩</option>
+                                    <option value="50" th:selected="${postPagingDTO.pageSize == 50}">50개씩</option>
+                                    <option value="100" th:selected="${postPagingDTO.pageSize == 100}">100개씩</option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary">조회</button>
+                            </div>
                         </div>
-                    </div>
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            </table>
+            <input type="hidden" name="pageNo" value="1">
+        </form>
+
+        <!-- 리스트 테이블 -->
+        <table class="table list-table table-hover">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>제목</th>
+                    <th>공유자</th>
+                    <th>등록일</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable">
+                <tr th:each="post, status : ${posts}" class="link" th:data-post-id=" ${post.postId}"
+                    style="cursor: pointer;">
+                    <td th:text="${status.index + 1}"></td>
+                    <!--                <td>-->
+                    <!--                    <a th:href="@{/post/view(id=${post.postId}, type='share')}">[[${post.title}]]</a>-->
+                    <!--                </td>-->
+                    <td>[[${post.title}]]</td>
+                    <td th:if="${sortType == 'share'}">
+                        <span th:each="share, status : ${post.shares}">
+                            [[${share.sharedUserId}]]([[${share.sharedAt}]])<br>
+                        </span>
+                    </td>
+                    <td th:if="${sortType == 'receiveShare'}">
+                        [[${post.userId}]]([[${post.sharedCreatedAt}]])
+                    </td>
+                    <td th:text="${#temporals.format(post.createdAt,'yyyy-MM-dd')}"></td>
+                </tr>
+                <tr th:if="${posts == null or posts.isEmpty()}">
+                    <td th:colspan="6">등록된 학습 글이 존재하지 않습니다.</td>
+                </tr>
+            </tbody>
         </table>
         <input type="hidden" name="pageNo" value="1">
     </form>
@@ -152,42 +255,43 @@
 
             // 날짜를 'YYYY-MM-DDTHH:mm' 형식으로 변환하는 함수
             function formatDateForDatetimeLocal(date) {
+                date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
                 return date.toISOString().slice(0, 16);
             }
 
             // 현재 날짜/시간 설정
             const now = new Date();
             const oneMonthAgo = new Date();
-            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            oneMonthAgo.setDate(oneMonthAgo.getDate() - 7);
 
             // 기본값 설정
-            if (displayAt.value == null) {
+            if (displayAt.value == null || displayAt.value == "" || displayAt.value.isEmpty()) {
                 displayAt.value = formatDateForDatetimeLocal(oneMonthAgo);
             }
-            if (displayEnd.value == null) {
+            if (displayEnd.value == null || displayEnd.value == "" || displayEnd.value.isEmpty()) {
                 displayEnd.value = formatDateForDatetimeLocal(now);
             }
 
             // 종료일이 시작일보다 이전이 되지 않도록 유효성 검사
-            displayAt.addEventListener('change', function() {
+            displayAt.addEventListener('change', function () {
                 if (displayEnd.value && this.value > displayEnd.value) {
                     alert('시작일은 종료일보다 이후일 수 없습니다.');
                     this.value = displayEnd.value;
                 }
             });
 
-            displayEnd.addEventListener('change', function() {
+            displayEnd.addEventListener('change', function () {
                 if (displayAt.value && this.value < displayAt.value) {
                     alert('종료일은 시작일보다 이전일 수 없습니다.');
                     this.value = displayAt.value;
                 }
             });
-            document.querySelectorAll('.link').forEach(row =>{
-                row.addEventListener('click', () =>{
-                    const postId = row.getAttribute('data-post-id');
-                    const encodedCurrentPage = encodeURIComponent(window.location.href);
-                    window.location.href = `/post/view?id=${postId}&currentPage=${encodedCurrentPage}&type=${sortType}`; // URL 생성
-                });
+        });
+        document.querySelectorAll('.link').forEach(row => {
+            row.addEventListener('click', () => {
+                const postId = row.getAttribute('data-post-id');
+                const encodedCurrentPage = encodeURIComponent(window.location.href);
+                window.location.href = `/post/view?id=${postId}&currentPage=${encodedCurrentPage}&type=${sortType}`; // URL 생성
             });
         });
     </script>

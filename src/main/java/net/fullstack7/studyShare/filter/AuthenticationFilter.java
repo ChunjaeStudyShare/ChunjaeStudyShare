@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import net.fullstack7.studyShare.exception.TokenException;
 
 @Log4j2
 @Component
@@ -68,7 +69,7 @@ public class AuthenticationFilter implements Filter {
                 handleUnauthorized(httpRequest, httpResponse);
             }
         }
-        catch (Exception e) {
+        catch (TokenException e) {
             log.error("토큰 검증 중 예외 발생", e);
             handleException(httpRequest, httpResponse);
         }

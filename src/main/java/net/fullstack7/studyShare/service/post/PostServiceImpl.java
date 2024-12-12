@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostServiceIf{
+    private static final String UPLOAD_DIR = "/home/gyeongmini/upload/images"; // 실제 파일 저장 경로
+    private static final String WEB_DIR = "/upload/images"; // 웹에서 접근할 경로
+    private static final String DELETE_DIR = "/home/gyeongmini/upload/images"; // 삭제 경로
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
     private final ShareRepository shareRepository;
@@ -41,6 +44,8 @@ public class PostServiceImpl implements PostServiceIf{
         long maxSize = 1024*1024*10L;
         List<String> allowedMimeTypes = Arrays.asList("image/jpeg", "image/png");
         List<String> allowedExtensions = Arrays.asList(".jpg", ".png");
+        
+        
 
 
         //노출 여부, 날짜 검증
@@ -81,18 +86,19 @@ public class PostServiceImpl implements PostServiceIf{
         if (dto.getFile() != null && !dto.getFile().isEmpty()) {
             try {
                 //원본
-                fileName = CommonFileUtil.uploadFile(dto.getFile()); // 파일 업로드
-                filePath = "/file/" + fileName; // 업로드된 파일의 전체 경로 설정
-                dto.setFileName(fileName); // DTO에 파일 이름 저장
+                String webPath = CommonFileUtil.uploadFile(dto.getFile()); // 웹 경로 반환받음
+                fileName = webPath.substring(webPath.lastIndexOf("/") + 1); // 실제 파일명만 추출
+                filePath = webPath; // 웹 경로 저장
+                dto.setFileName(fileName);
                 log.info("파일명: {}, 파일경로: {}", fileName, filePath);
 
                 //썸네일
-                thumbnailName = "thumb_" + fileName;
-                try{
-                    CommonFileUtil.createThumbnail(fileName);
-                    thumbnailPath = "/file/" + thumbnailName;
+                thumbnailName = fileName;
+                try {
+                    CommonFileUtil.createThumbnail(fileName); // 파일명만 전달
+                    thumbnailPath = WEB_DIR + thumbnailName + ".jpg"; // 웹 경로 구성
                     log.info("썸네일 생성 완료: {}", thumbnailPath);
-                }catch (Exception e){
+                } catch (Exception e) {
                     log.error("썸네일 생성 실패: {}", e.getMessage());
                     throw new IllegalArgumentException("썸네일 생성 중 오류가 발생했습니다.");
                 }
@@ -283,18 +289,19 @@ public class PostServiceImpl implements PostServiceIf{
         if (dto.getFile() != null && !dto.getFile().isEmpty()) {
             try {
                 //원본
-                fileName = CommonFileUtil.uploadFile(dto.getFile()); // 파일 업로드
-                filePath = "/file/" + fileName; // 업로드된 파일의 전체 경로 설정
-                dto.setFileName(fileName); // DTO에 파일 이름 저장
+                String webPath = CommonFileUtil.uploadFile(dto.getFile()); // 웹 경로 반환받음
+                fileName = webPath.substring(webPath.lastIndexOf("/") + 1); // 실제 파일명만 추출
+                filePath = webPath; // 웹 경로 저장
+                dto.setFileName(fileName);
                 log.info("파일명: {}, 파일경로: {}", fileName, filePath);
 
                 //썸네일
-                thumbnailName = "thumb_" + fileName;
-                try{
-                    CommonFileUtil.createThumbnail(fileName);
-                    thumbnailPath = "/file/" + thumbnailName;
+                thumbnailName = fileName;
+                try {
+                    CommonFileUtil.createThumbnail(fileName); // 파일명만 전달
+                    thumbnailPath = WEB_DIR + "/thumb_" + thumbnailName; // 웹 경로 구성
                     log.info("썸네일 생성 완료: {}", thumbnailPath);
-                }catch (Exception e){
+                } catch (Exception e) {
                     log.error("썸네일 생성 실패: {}", e.getMessage());
                     throw new IllegalArgumentException("썸네일 생성 중 오류가 발생했습니다.");
                 }
