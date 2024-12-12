@@ -204,11 +204,10 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public int isExistChatRoom(String user1, String user2) {
-        int compare = user1.compareTo(user2);
-        if(compare == 0) {
+        if(user1.equals(user2)) {
             throw new IllegalArgumentException("대상을 선택한 후 메시지를 보내주세요.");
         }
-        return compare < 0 ? chatMemberMapper.findChatRoomIdBy2UserId(user1, user2) : chatMemberMapper.findChatRoomIdBy2UserId(user2, user1);
+        return chatMemberMapper.findChatRoomIdBy2UserId(user1, user2);
     }
 
     @Override
