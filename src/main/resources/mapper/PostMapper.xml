@@ -23,11 +23,8 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
-            </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
             AND p.userId = #{userId}
         </where>
@@ -54,12 +51,10 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
-            </if>
+
             AND p.userId = #{userId}
         </where>
         GROUP BY p.id
@@ -126,17 +121,15 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
-            </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
             AND s.userId = #{userId} <!-- 공유 받은 사용자 ID -->
         </where>
         ORDER BY p.createdAt DESC
         LIMIT #{offset}, #{limit}
     </select>
+
 
     <!-- 게시글 조회 -->
     <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
@@ -156,17 +149,39 @@
                     </when>
                 </choose>
             </if>
-            <if test="displayAt != null">
-                AND p.displayAt &gt;= #{displayAt}
-            </if>
-            <if test="displayEnd != null">
-                AND p.displayEnd &lt;= #{displayEnd}
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
             </if>
             AND userId = #{userId}<!-- 로그인한 사용자 ID -->
             AND share = 1
         </where>
         ORDER BY createdAt DESC
         LIMIT #{offset}, #{limit}
+    </select>
+    <select id="selectPostsByUserIdCnt" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">
+        SELECT count(id)
+        FROM Post p
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
+            </if>
+            AND userId = #{userId}<!-- 로그인한 사용자 ID -->
+            AND share = 1
+        </where>
+        ORDER BY createdAt DESC
     </select>
 
     <!-- 공유자 조회 -->
