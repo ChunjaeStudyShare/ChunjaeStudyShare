@@ -130,6 +130,34 @@
         LIMIT #{offset}, #{limit}
     </select>
 
+    <select id="selectMyShareCnt" resultType="int">
+        SELECT COUNT(*)
+        FROM
+        Share s
+        JOIN
+        Post p ON s.postId = p.id
+        <where>
+            <if test="searchCategory != null and searchValue != null">
+                <choose>
+                    <when test="searchCategory == 'title'">
+                        p.title LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'content'">
+                        p.content LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchCategory == 'userId'">
+                        p.userId LIKE CONCAT('%', #{searchValue}, '%')
+                    </when>
+                </choose>
+            </if>
+            <if test="displayAt != null and displayEnd != null">
+                AND p.createdAt &gt;= #{displayAt} and p.createdAt &lt;= #{displayEnd}
+            </if>
+            AND s.userId = #{userId} <!-- 공유 받은 사용자 ID -->
+        </where>
+        ORDER BY p.createdAt DESC
+    </select>
+
 
     <!-- 게시글 조회 -->
     <select id="selectPostsByUserId" resultType="net.fullstack7.studyShare.dto.post.PostMyShareDTO">

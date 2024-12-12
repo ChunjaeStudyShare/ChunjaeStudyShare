@@ -39,4 +39,7 @@ public interface PostMapper {
 
     int selectPostsByUserIdCnt(@Param("searchCategory") String searchCategory, @Param("searchValue") String searchValue, @Param("userId") String userId,
                          @Param("sortType") String sortType, @Param("displayAt") LocalDateTime displayAt, @Param("displayEnd") LocalDateTime displayEnd);
+
+    int selectMyShareCnt(@Param("searchCategory") String searchCategory, @Param("searchValue") String searchValue, @Param("userId") String userId,
+                               @Param("sortType") String sortType, @Param("displayAt") LocalDateTime displayAt, @Param("displayEnd") LocalDateTime displayEnd);
 }

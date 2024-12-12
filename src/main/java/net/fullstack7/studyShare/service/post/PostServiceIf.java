@@ -35,4 +35,7 @@ public interface PostServiceIf {
     boolean isOwnerOrSharedWithUser(int id, String userId);
 
     int shareTotalCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
+    int selectMyShareCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd);
+
+
 }
