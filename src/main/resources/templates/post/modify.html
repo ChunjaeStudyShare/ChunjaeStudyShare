@@ -108,41 +108,14 @@
                             <span th:text="${shared.user.userId}"></span>
                             <button type="button" class="btn-close-custom" aria-label="Close"
                                     th:data-user-id="${shared.user.userId}"
-                                    th:onclick="'cancelRequest(this)'">X
+                                    onclick="cancelRequest(this)">X
                             </button>
                             <br>
                         </div>
                         <span th:if="${shareList == null || shareList.isEmpty()}">공유 정보가 없습니다.</span>
-                        <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
+                        <button type="button" class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#friendSearchModal">공유하기</button>
                     </td>
                 </tr>
-
-                <!-- 친구 찾기 모달 -->
-                <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- 친구 검색 기능 -->
-                                <div class="container mt-3">
-                                    <!-- 입력 필드 -->
-                                    <div class="mb-3">
-                                        <label for="searchId" class="form-label">아이디 검색</label>
-                                        <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요" onkeyup="searchUserById()">
-                                    </div>
-                                    <!-- 친구 검색 결과 -->
-                                    <div id="suggestions"></div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <!-- 분야 -->
                 <tr>
                     <th class="text-end align-middle">
@@ -172,112 +145,187 @@
             <!-- 버튼 -->
             <div class="d-flex justify-content-end gap-2 mt-3">
                 <button type="submit" class="btn btn-primary">수정</button>
-                <a href="/my-study-list" class="btn btn-outline-dark">목록</a>
+                <button class="btn btn-secondary" th:onclick="|location.href= '@{/post/list}'|">목록</button>
             </div>
         </form>
+        <!-- 친구 찾기 모달 -->
+        <div class="modal fade" id="friendSearchModal" tabindex="-1" aria-labelledby="friendSearchModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="friendSearchModalLabel">친구 찾기</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- 친구 검색 기능 -->
+                        <div class="container mt-3">
+                            <!-- 입력 필드 -->
+                            <div class="mb-3">
+                                <label for="searchId" class="form-label">아이디 검색</label>
+                                <input type="text" id="searchId" class="form-control" placeholder="아이디를 입력하세요" onkeyup="searchUserById()">
+                            </div>
+                            <!-- 친구 검색 결과 -->
+                            <div id="suggestions"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
+
             let debounceTimer;
             let lastSearchId = '';
+            function searchUserById() {
+                const searchId = document.getElementById('searchId').value;
 
-            // function searchUserById() {
-            //     const searchId = document.getElementById('searchId').value;
-            //
-            //     // 입력값이 비어있으면 검색 결과를 지우고 리턴
-            //     if (searchId.length === 0) {
-            //         document.getElementById('suggestions').innerHTML = '';
-            //         return;
-            //     }
-            //
-            //     // 동일한 검색어에 대해 새로운 요청을 보내지 않도록
-            //     if (lastSearchId === searchId) {
-            //         return;
-            //     }
-            //
-            //     lastSearchId = searchId; // 최신 검색어로 갱신
-            //
-            //     clearTimeout(debounceTimer); // 이전 요청을 취소
-            //     debounceTimer = setTimeout(() => {
-            //         fetch(`/friend/searchUserById?searchId=${searchId}`)
-            //             .then(response => response.json())
-            //             .then(data => {
-            //                 let suggestionsHtml = `
-            //                     <table class="table table-bordered">
-            //                         <thead>
-            //                             <tr>
-            //                                 <th>아이디</th>
-            //                                 <th>신청</th>
-            //                             </tr>
-            //                         </thead>
-            //                         <tbody>
-            //                     `;
-            //
-            //                 if (data.length === 0) {
-            //                     suggestionsHtml += '<tr><td colspan="2">검색된 유저가 없습니다.</td></tr>';
-            //                 } else {
-            //                     data.forEach(user => {
-            //                         suggestionsHtml += `
-            //                 <tr>
-            //                     <td>${user.userId}</td>
-            //                     <td>
-            //                         <button class="btn ${user.isFriend === 1 ? 'btn-secondary' :
-            //                             (user.sent === 1 ? 'btn-warning' :
-            //                                 (user.received === 1 ? 'btn-success' : 'btn-primary'))}"
-            //                                 onclick="${user.isFriend === 1 ? '' :
-            //                             (user.sent === 1 ? `cancelRequest('${user.userId}')` :
-            //                                 (user.received === 1 ? `acceptRequest('${user.userId}')` : `sendRequest('${user.userId}')`))}">
-            //                             ${user.isFriend === 1 ? '이미 친구입니다' :
-            //                             (user.sent === 1 ? '친구 신청 취소' :
-            //                                 (user.received === 1 ? '친구 신청 수락' : '신청'))}
-            //                         </button>
-            //                         <!-- 친구 신청 수락 버튼 -->
-            //                         ${user.received === 1 ? `
-            //                             <button class="btn btn-danger" onclick="rejectRequest('${user.userId}')">거절</button>
-            //                         ` : ''}
-            //                     </td>
-            //                 </tr>
-            //             `;
-            //                     });
-            //                 }
-            //                 suggestionsHtml += '</tbody></table>';
-            //                 document.getElementById('suggestions').innerHTML = suggestionsHtml;
-            //             })
-            //             .catch(error => console.error('Error:', error));
-            //     }, 30);
-            //
-            //     // 친구 공유
-            //     function shareWithFriends() {
-            //         const checkboxes = document.querySelectorAll("input[name='friendCheckbox']:checked");
-            //         const selectedFriends = Array.from(checkboxes).map(cb => cb.value);
-            //
-            //         if (selectedFriends.length === 0) {
-            //             alert("공유할 친구를 선택하세요.");
-            //             return;
-            //         }
-            //
-            //         fetch('/sharePost', {
-            //             method: 'POST',
-            //             headers: { 'Content-Type': 'application/json' },
-            //             body: JSON.stringify({ postId: 123, friendIds: selectedFriends })
-            //         })
-            //             .then(response => response.ok ? alert("공유되었습니다.") : alert("공유 실패"))
-            //             .then(() => updateSharedFriendsTable())
-            //             .catch(err => console.error(err));
-            //     }
-            //
-            //     // 공유된 친구 목록 갱신
-            //     function updateSharedFriendsTable() {
-            //         fetch('/post/sharedFriends?postId=123')
-            //             .then(response => response.json())
-            //             .then(data => {
-            //                 const tableBody = document.querySelector("#sharedFriendsTable tbody");
-            //                 tableBody.innerHTML = '';
-            //                 data.forEach(friend => {
-            //                     tableBody.innerHTML += `<tr><td>${friend.userId}</td><td>${friend.sharedDate}</td></tr>`;
-            //                 });
-            //             });
-            //     }
+
+                // 입력값이 비어있으면 검색 결과를 지우고 리턴
+                if (searchId.length === 0) {
+                    document.getElementById('suggestions').innerHTML = '';
+                    return;
+                }
+
+                // 동일한 검색어에 대해 새로운 요청을 보내지 않도록
+                if (lastSearchId === searchId) {
+                    return;
+                }
+
+                lastSearchId = searchId; // 최신 검색어로 갱신
+                const postId = [[${ post.id }]]
+                clearTimeout(debounceTimer); // 이전 요청을 취소
+                debounceTimer = setTimeout(() => {
+                    fetch(`/share/searchUserIdById?postId=${encodeURIComponent(postId)}&searchId=${encodeURIComponent(searchId)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let suggestionsHtml = `
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>아이디</th>
+                            <th>공유</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+
+                            if (data.length === 0) {
+                                suggestionsHtml += '<tr><td colspan="2">검색된 유저가 없습니다.</td></tr>';
+                            } else {
+                                data.forEach(user => {
+                                    suggestionsHtml += `
+                            <tr>
+                                <td>${user.userId}</td>
+                                <td>
+                         <button class="btn ${user.isShared === 1 ? 'btn-success' : 'btn-primary'}" data-user-id="${user.userId}"
+                            onclick="${user.isShared === 1 ? `cancelRequest(this)` : `shareRequest('${user.userId}')`}">
+                            ${user.isShared === 1 ? '공유 취소' : '공유'}
+                        </button>
+                                </td>
+                            </tr>
+                        `;
+                                });
+                            }
+                            suggestionsHtml += '</tbody></table>';
+                            document.getElementById('suggestions').innerHTML = suggestionsHtml;
+                        })
+                        .catch(error => console.error('Error:', error));
+                }, 30);
+            }
+
+            function shareRequest(userId) {
+                const postId = [[${ post.id }]]
+                let flag = confirm(userId + '에게 공유하시겠습니까?');
+                if (flag) {
+                    fetch('/share/shareRequest', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userId: userId, postId: postId })
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('공유되었습니다.');
+                                refreshModal();
+                            } else {
+                                alert('공유 실패');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            }
+            function refreshModal() {
+                lastSearchId = ''; //검색어 초기화 !!!!!이거였구나~~~~
+                // searchUserById()를 호출하여 데이터를 갱신
+                searchUserById();
+
+                // 모달 내용이 갱신된 후에는 모달을 다시 열지 않음
+                // 이미 열린 상태에서 갱신만 하므로 모달을 숨기거나 다시 열지 않습니다.
+                const modal = document.getElementById('friendSearchModal');
+                if (modal && modal.style.display !== 'block') {
+                    modal.style.display = 'block';  // 만약 모달이 닫혀있다면 다시 열기
+                }
+            }
+            function cancelRequest(userIdElement) {
+                const postId = [[${ post.id }]]
+                const userId = userIdElement.dataset.userId;
+                let flag = confirm(userId + '에게 공유 취소하시겠습니까?');
+                if (flag) {
+                    fetch('/share/shareCancelRequest', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userId: userId, postId: postId })
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('취소되었습니다.');
+                                refreshModal();
+                            } else {
+                                alert('취소 실패. 다시 시도해주세요.');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            }
+
+                // 친구 공유
+                function shareWithFriends() {
+                    const checkboxes = document.querySelectorAll("input[name='friendCheckbox']:checked");
+                    const selectedFriends = Array.from(checkboxes).map(cb => cb.value);
+
+                    if (selectedFriends.length === 0) {
+                        alert("공유할 친구를 선택하세요.");
+                        return;
+                    }
+
+                    fetch('/sharePost', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ postId: 123, friendIds: selectedFriends })
+                    })
+                        .then(response => response.ok ? alert("공유되었습니다.") : alert("공유 실패"))
+                        .then(() => updateSharedFriendsTable())
+                        .catch(err => console.error(err));
+                }
+
+                // 공유된 친구 목록 갱신
+                function updateSharedFriendsTable() {
+                    fetch('/post/sharedFriends?postId=123')
+                        .then(response => response.json())
+                        .then(data => {
+                            const tableBody = document.querySelector("#sharedFriendsTable tbody");
+                            tableBody.innerHTML = '';
+                            data.forEach(friend => {
+                                tableBody.innerHTML += `<tr><td>${friend.userId}</td><td>${friend.sharedDate}</td></tr>`;
+                            });
+                        });
+                }
 
             // 이미지 미리보기 관련 로직
             const fileNameElement = document.querySelector(".fileName"); // 파일명을 나타내는 요소
@@ -484,7 +532,7 @@
                     event.preventDefault();
                 }
             });
-        });
+
     </script>
 
 </div>
