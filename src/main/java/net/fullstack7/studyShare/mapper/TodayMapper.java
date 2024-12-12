@@ -13,5 +13,5 @@ public interface TodayMapper {
     List<TodayDTO> todayList(LocalDateTime selectedDate, String userId);
     List<PostShareDTO> sharedIdList(int postId);
     List<TodayDTO> sharedPosts(String userId);
-    int likeCount(int postId);
+    int thumbsUpCnt(int postId);
 }

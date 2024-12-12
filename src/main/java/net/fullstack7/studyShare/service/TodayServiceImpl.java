@@ -36,9 +36,10 @@ public class TodayServiceImpl implements TodayService {
         List<TodayDTO> sharedList = todayMapper.sharedPosts(userId);
         for(TodayDTO todayDTO : sharedList) {
             int postId = todayDTO.getId();
-            int likeCount = todayMapper.likeCount(postId);
-            todayDTO.setLikeCount(likeCount);
+            int likeCount = todayMapper.thumbsUpCnt(postId);
+            log.info("likeCount 임니당: {}", likeCount);
+            todayDTO.setThumbsUpCnt(likeCount);
         }
-        return todayMapper.sharedPosts(userId);
+        return sharedList;
     }
 }

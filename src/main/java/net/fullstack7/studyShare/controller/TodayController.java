@@ -38,6 +38,7 @@ public class TodayController {
         int year = selectedDate.getYear();
         int month = selectedDate.getMonthValue();
         int date = selectedDate.getDayOfMonth();
+        log.info("sharedPosts 임니당: {}", sharedPosts);
         model.addAttribute("year", year);
         model.addAttribute("month", month);
         model.addAttribute("date", date);
