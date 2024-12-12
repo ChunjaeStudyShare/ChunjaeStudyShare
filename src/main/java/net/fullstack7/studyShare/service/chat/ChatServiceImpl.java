@@ -20,7 +20,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -155,11 +154,15 @@ public class ChatServiceImpl implements ChatService {
         }
 
         chatMemberRepository.deleteByChatRoomAndMember(chatRoom, member);
+
+        // 채팅방,메시지도 삭제할 경우
 //        if (chatMemberRepository.countByChatRoom(chatRoom) == 0) {
 //            chatMessageRepository.deleteAllByChatRoom(chatRoom);
 //            chatRoomRepository.deleteById(roomId);
 //            return "채팅방에서 퇴장하셨습니다.";
 //        }
+
+        //채팅방에 시스템 메시지 전송
         ChatMessage exitMessage = ChatMessage.builder()
                 .senderId("chatmanager")
                 .message(userId + " 님이 나갔습니다.")
@@ -185,7 +188,8 @@ public class ChatServiceImpl implements ChatService {
                 if (chatMemberRepository.existsByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build())) {
                     return "해당 회원은 이미 채팅방에 참여 중입니다.";
                 }
-                ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).joinAt(LocalDateTime.now()).build();
+                LocalDateTime now = LocalDateTime.now();
+                ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).joinAt(now).leaveAt(now).build();
                 chatMemberRepository.save(chatMember);
                 if (chatMember.getId() == 0) {
                     return "초대 도중 오류가 발생했습니다. 다시 시도해주세요.";
@@ -196,7 +200,7 @@ public class ChatServiceImpl implements ChatService {
                         .message(userId + " 님이 초대되었습니다.")
                         .isRead(1)
                         .chatRoom(chatRoom)
-                        .createdAt(LocalDateTime.now())
+                        .createdAt(now)
                         .build();
 
                 chatMessageRepository.save(inviteMessage);
@@ -240,6 +244,11 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public boolean enterChatRoom(int roomId, String userId) {
         return chatMemberMapper.updateLeaveAt(null, roomId, userId) > 0;
+    }
+
+    @Override
+    public List<String> getChatMemberList(int roomId) {
+        return chatMemberMapper.findMembersByChatRoomId(roomId);
     }
 
 

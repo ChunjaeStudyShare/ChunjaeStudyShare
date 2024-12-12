@@ -78,6 +78,7 @@ public class ChatController {
             model.addAttribute("messages", chatService.getChatMessageListByRoomId(roomId, userId));
             model.addAttribute("roomId", roomId);
             model.addAttribute("userId", userId);
+            model.addAttribute("memberList", chatService.getChatMemberList(roomId));
             chatService.enterChatRoom(roomId, userId);
             return "chat/room";
         }
