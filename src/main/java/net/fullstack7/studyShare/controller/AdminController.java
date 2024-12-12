@@ -22,7 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import net.fullstack7.studyShare.util.PageUrlBuilder;
 import org.springframework.web.bind.annotation.RequestParam;
 import net.fullstack7.studyShare.service.token.TokenService;
-
+import jakarta.servlet.http.HttpServletRequest;
 @Controller
 @RequiredArgsConstructor
 @Log4j2
@@ -68,13 +68,17 @@ public class AdminController {
     public String goUsers(
         @Validated PageRequestDTO pageRequestDTO, 
         BindingResult bindingResult,
-        Model model
+        Model model,
+        HttpServletRequest request
     ) {
         if (bindingResult.hasErrors()) {
             // 검증 실패시 기본값으로 처리
             pageRequestDTO = new PageRequestDTO();
         }
-
+        String adminId = (String) request.getSession().getAttribute("admin");
+        if(adminId == null) {
+            return "redirect:/admin/login";
+        }
         PageResponseDTO<MemberDTO> pageResponse = memberService.getMembersByPaging(pageRequestDTO);
         
         model.addAttribute("pageResponse", pageResponse);
@@ -84,7 +88,11 @@ public class AdminController {
     }
 
     @GetMapping("/users/modify/")
-    public String goModify(@RequestParam("currentPage") String currentPage, @RequestParam("userId") String userId, Model model) {
+    public String goModify(HttpServletRequest request, @RequestParam("currentPage") String currentPage, @RequestParam("userId") String userId, Model model) {
+        String adminId = (String) request.getSession().getAttribute("admin");
+        if(adminId == null) {
+            return "redirect:/admin/login";
+        }
         try {
             MemberDTO memberDTO = memberService.getMemberById(userId);
             model.addAttribute("currentPage", currentPage);
@@ -96,7 +104,11 @@ public class AdminController {
         return "admin/users-modify";
     }
     @PostMapping("/users/modify")
-    public String modify(MemberDTO memberDTO, @RequestParam("currentPage") String currentPage,RedirectAttributes redirectAttributes) {
+    public String modify(HttpServletRequest request, MemberDTO memberDTO, @RequestParam("currentPage") String currentPage,RedirectAttributes redirectAttributes) {
+        String adminId = (String) request.getSession().getAttribute("admin");
+        if(adminId == null) {
+            return "redirect:/admin/login";
+        }
         try{
             String url[] = currentPage.split("currentPage=");
             System.out.println("url[1]: " + url[1]);
@@ -112,7 +124,11 @@ public class AdminController {
     }
 
     @GetMapping("/users/delete-member")
-    public String deleteMember(@RequestParam("userId") String userId, @RequestParam("currentPage") String currentPage, RedirectAttributes redirectAttributes) {
+    public String deleteMember(HttpServletRequest request, @RequestParam("userId") String userId, @RequestParam("currentPage") String currentPage, RedirectAttributes redirectAttributes) {
+        String adminId = (String) request.getSession().getAttribute("admin");
+        if(adminId == null) {
+            return "redirect:/admin/login";
+        }
         try {
             memberService.deleteMember(userId);
             redirectAttributes.addFlashAttribute("message", "회원 삭제가 완료되었습니다.");
