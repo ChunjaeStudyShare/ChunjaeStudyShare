@@ -114,11 +114,10 @@ public class PostController {
         }
 
     @GetMapping("/regist")
-    public String registGet(@RequestParam("currentPage") String currentPage,Model model){
+    public String registGet(@RequestParam(value = "currentPage", defaultValue = "") String currentPage,Model model){
         model.addAttribute("currentPage", currentPage);
         return "post/regist";
     }
-
     @PostMapping("/regist")
     public String registPost(@ModelAttribute @Valid PostRegistDTO dto,
                              BindingResult bindingResult,
