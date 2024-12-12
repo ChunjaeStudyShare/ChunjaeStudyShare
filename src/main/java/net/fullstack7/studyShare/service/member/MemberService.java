@@ -8,6 +8,8 @@ import net.fullstack7.studyShare.domain.Member;
 import net.fullstack7.studyShare.repository.MemberRepository;
 import net.fullstack7.studyShare.dto.member.MemberResponseDTO;
 import net.fullstack7.studyShare.dto.member.MemberDTO;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,11 @@ import net.fullstack7.studyShare.repository.ActiveTokensRepository;
 import net.fullstack7.studyShare.repository.EmailCodeRepository;
 import net.fullstack7.studyShare.repository.ThumbsUpRepository;
 import lombok.extern.log4j.Log4j2;
+import net.fullstack7.studyShare.domain.ChatMember;
+import net.fullstack7.studyShare.domain.ChatMessage;
+import net.fullstack7.studyShare.repository.ChatMessageRepository;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Service
 @Log4j2
@@ -41,6 +48,8 @@ public class MemberService {
     private final ActiveTokensRepository activeTokensRepository;
     private final EmailCodeRepository emailCodeRepository;
     private final ThumbsUpRepository thumbsUpRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ChatMessageRepository chatMessageRepository;
 
     public MemberDTO getMemberById(String userId) {
         Member member = memberRepository.findByUserId(userId)
@@ -67,31 +76,31 @@ public class MemberService {
         PageRequest pageRequest = JpaPageUtil.getPageRequest(requestDTO);
 
         Page<Member> memberPage;
-        
+
         if (requestDTO.hasSearch()) {
             switch (requestDTO.getSearchField()) {
                 case "userId":
                     memberPage = memberRepository.findByUserIdContaining(
-                        requestDTO.getSearchKeyword(), pageRequest);
+                            requestDTO.getSearchKeyword(), pageRequest);
                     break;
                 case "name":
                     memberPage = memberRepository.findByNameContaining(
-                        requestDTO.getSearchKeyword(), pageRequest);
+                            requestDTO.getSearchKeyword(), pageRequest);
                     break;
                 case "email":
                     memberPage = memberRepository.findByEmailContaining(
-                        requestDTO.getSearchKeyword(), pageRequest);
+                            requestDTO.getSearchKeyword(), pageRequest);
                     break;
                 case "status":
                     memberPage = memberRepository.findByStatus(
-                        Integer.parseInt(requestDTO.getSearchKeyword()), pageRequest);
+                            Integer.parseInt(requestDTO.getSearchKeyword()), pageRequest);
                     break;
                 case "all":
                     memberPage = memberRepository.findByUserIdContainingOrNameContainingOrEmailContaining(
-                        requestDTO.getSearchKeyword(), 
-                        requestDTO.getSearchKeyword(), 
-                        requestDTO.getSearchKeyword(), 
-                        pageRequest);
+                            requestDTO.getSearchKeyword(),
+                            requestDTO.getSearchKeyword(),
+                            requestDTO.getSearchKeyword(),
+                            pageRequest);
                     break;
                 default:
                     memberPage = memberRepository.findAll(pageRequest);
@@ -149,8 +158,21 @@ public class MemberService {
         friendRepository.deleteByUserId(member);
         log.info("친구 관계 삭제 완료");
         // 6. 채팅 관련 삭제
+        List<ChatMember> chatMembers = chatMemberRepository.findByMember(member);
+        for (ChatMember chatMember : chatMembers) {
+            ChatMessage exitMessage = ChatMessage.builder()
+                    .senderId("chatmanager")
+                    .message(userId + " 님이 나갔습니다.")
+                    .isRead(1)
+                    .chatRoom(chatMember.getChatRoom())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            chatMessageRepository.save(exitMessage);
+            simpMessagingTemplate.convertAndSend("/room/" + chatMember.getChatRoom().getId(), exitMessage);
+        }
         chatMemberRepository.deleteByMember(member);
         log.info("채팅 관련 삭제 완료");
+
         // 7. 토큰 삭제
         activeTokensRepository.deleteByMember(member);
         log.info("토큰 삭제 완료");

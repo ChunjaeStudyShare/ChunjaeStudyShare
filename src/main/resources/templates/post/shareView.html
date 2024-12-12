@@ -110,7 +110,7 @@
                 <th style="width: 20%;">제목</th>
                 <td style="width: 50%;" colspan="3" th:text="${post.title}">제목</td>
                 <th style="width: 10%;">좋아요</th>
-                <td style="width: 10%;" th:text="${thumbsUpCnt}">0</td>
+                <td style="width: 10%;" th:text="${thumbsUpCnt}" id="thumbsUpCnt">0</td>
             </tr>
             <tr>
                 <th style="width: 25%;">등록일</th>
@@ -175,9 +175,9 @@
             <!-- 분야와 해시태그 -->
             <tr>
                 <th>분야</th>
-                <td th:text="${post.domain != null && !post.domain.isEmpty() ? post.domain : '없음'}">분야</td>
+                <td th:text="${post.domain != null && !post.domain.isEmpty() ? post.domain : '-'}">분야</td>
                 <th style="width: 20%;">해시태그</th>
-                <td th:text="${post.hashtag != null && !post.hashtag.isEmpty() ? post.hashtag : '없음'}" colspan="3">해시태그</td>
+                <td th:text="${post.hashtag != null && !post.hashtag.isEmpty() ? post.hashtag : '-'}" colspan="3"></td>
             </tr>
             </tbody>
         </table>
