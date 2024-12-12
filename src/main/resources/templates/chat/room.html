@@ -95,11 +95,19 @@
         /*}*/
 
         /*친구목록*/
-        .freind-info {
+        .friend-info {
             display: flex;
             justify-content: space-between; /* 좌우 끝으로 배치 */
             align-items: center; /* 세로 가운데 정렬 */
             width: 100%; /* 필요시 부모 요소의 너비를 기준으로 확장 */
+        }
+
+        .friend-box {
+            width: 100%;
+            height: 70vh;
+            margin: 0 auto;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
 
         /*채팅 헤더*/
@@ -191,7 +199,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                    <div class="modal-body" id="friend-list">
+                    <div class="modal-body friend-box" id="friend-list">
 
                     </div>
                     <div class="modal-footer">
@@ -397,7 +405,7 @@
             friendFlag = true;
 
             for(let item of json) {
-                friendList.innerHTML += `<div class="freind-info"><span>${item}</span> <button type="button" class="btn btn-dark btn-invite" data-invited-id="${item}">초대하기</div><br>`
+                friendList.innerHTML += `<div class="friend-info"><span>${item}</span> <button type="button" class="btn btn-dark btn-invite" data-invited-id="${item}">초대하기</div><br>`
             }
             if(json.length === 0) {
                 friendList.innerHTML = '등록된 친구가 없습니다. 친구를 추가해보세요!';
