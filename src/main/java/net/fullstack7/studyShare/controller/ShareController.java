@@ -31,10 +31,10 @@ public class ShareController {
     public List<PostShareDTO> searchUserIdById(@RequestParam String searchId,
                                                @RequestParam String postId,
                                                HttpServletRequest request){
-        //String userId = (String) request.getAttribute("userId");
+        String userId = (String) request.getAttribute("userId");
 //        log.info("searchId: {}", searchId);
 //        log.info("postId: {}",  postId);
-        String userId = "user1";
+//        String userId = "user1";
         List<String> friendList = friendService.list(userId);
         List<String> searchList = friendService.searchUsersById(userId, searchId);
 
