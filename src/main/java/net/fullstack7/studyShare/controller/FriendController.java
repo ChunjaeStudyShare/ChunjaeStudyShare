@@ -9,6 +9,7 @@ import net.fullstack7.studyShare.dto.FriendDTO;
 import net.fullstack7.studyShare.dto.member.MemberDTO;
 import net.fullstack7.studyShare.dto.post.PostShareDTO;
 import net.fullstack7.studyShare.service.FriendService;
+import net.fullstack7.studyShare.service.share.ShareServiceIf;
 import net.fullstack7.studyShare.util.JSFunc;
 import net.fullstack7.studyShare.util.Paging;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class FriendController {
 
     private final FriendService friendService;
+    private final ShareServiceIf shareService;
 
     @GetMapping("/list")
     public String list(Model model, HttpServletRequest request,
@@ -135,6 +137,25 @@ public class FriendController {
         //기냥 서비스에서 두 번 삭제해봄
         boolean deleteShare = friendService.deleteShare(friendDTO);
         boolean success = friendService.deleteFriend(friendDTO);
+        List<Integer> postIdList1 = friendService.postIdList(friendDTO.getFriendId());
+        List<Integer> postIdList2 = friendService.postIdList(friendDTO.getRequesterId());
+
+        for(Integer postId : postIdList1) {
+            PostShareDTO postShareDTO = new PostShareDTO();
+            postShareDTO.setPostId(postId);
+            postShareDTO.setUserId(friendDTO.getFriendId());
+            boolean shareCancel1 = shareService.shareCancelRequest(postShareDTO, friendDTO.getFriendId());
+            log.info("shareCancel1:{}", shareCancel1);
+        }
+        for(Integer postId : postIdList2) {
+            PostShareDTO postShareDTO = new PostShareDTO();
+            postShareDTO.setPostId(postId);
+            postShareDTO.setUserId(friendDTO.getRequesterId());
+            boolean shareCancel2 = shareService.shareCancelRequest(postShareDTO, friendDTO.getRequesterId());
+            log.info("shareCancel2:{}", shareCancel2);
+        }
+
+
         if(success && deleteShare) {
             return ResponseEntity.ok().build();
         } else {

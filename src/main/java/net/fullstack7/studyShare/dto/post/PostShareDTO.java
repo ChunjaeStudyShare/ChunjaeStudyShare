@@ -1,9 +1,6 @@
 package net.fullstack7.studyShare.dto.post;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 
 import java.time.LocalDateTime;
@@ -13,6 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 @Log4j2
+@Builder
 public class PostShareDTO {
     private String id;
     private Integer postId;

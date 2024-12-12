@@ -102,5 +102,10 @@ public class FriendServiceImpl implements FriendService {
         }
     }
 
+    @Override
+    public List<Integer> postIdList(String userId) {
+        return friendMapper.postIdList(userId);
+    }
+
 
 }
