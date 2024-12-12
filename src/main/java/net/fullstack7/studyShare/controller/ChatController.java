@@ -62,7 +62,7 @@ public class ChatController {
         String userId = (String) request.getAttribute("userId");
 
         if(id.isBlank() || !id.matches("^\\d+$") || id.length() > 9) {
-            redirectAttributes.addFlashAttribute("alertMessage", "채팅방 주소를 다시 확인해주세요.");
+            redirectAttributes.addFlashAttribute("alertMessage", "존재하지 않는 채팅방입니다. 채팅방 주소를 확인하거나 새로 생성해주세요.");
             return "redirect:/chat/list";
         }
 
@@ -84,7 +84,7 @@ public class ChatController {
     @GetMapping("/room/{id}/exit")
     public String exit(HttpServletRequest request, @PathVariable String id, RedirectAttributes redirectAttributes) {
         if(id.isBlank() || !id.matches("^\\d+$") || id.length() > 9) {
-            redirectAttributes.addFlashAttribute("alertMessage", "채팅방 주소를 다시 확인해주세요.");
+            redirectAttributes.addFlashAttribute("alertMessage", "존재하지 않는 채팅방입니다. 채팅방 주소를 확인하거나 새로 생성해주세요.");
             return "redirect:/chat/list";
         }
 

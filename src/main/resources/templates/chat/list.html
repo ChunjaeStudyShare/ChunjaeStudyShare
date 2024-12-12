@@ -96,7 +96,13 @@
                 채팅방 만들기
             </button>
         </div>
+
+        <div class="alert alert-dark" style="margin-top: 20px" role="alert" th:if="${chatlist.isEmpty()}">
+            참여 중인 채팅방이 없습니다. 새로운 채팅방을 만들어보세요!
+        </div>
+
         <div class="chat-list">
+
             <div class="chat-item" th:each="item, status:${chatlist}" th:data-chat-room-id="${item.chatRoomId}">
                 <div class="chat-details">
                     <div class="chat-title text-truncate"><span th:each="member, iterStat : ${item.members}"
@@ -109,6 +115,7 @@
                 <div class="chat-time" th:text="${#temporals.format(item.lastMessageTime, 'yyyy-MM-dd HH:mm:ss')}">10:30 AM</div>
             </div>
         </div>
+
     </div>
 </div>
 <script layout:fragment="script" th:inline="javascript">
@@ -141,6 +148,9 @@
 
             for(let item of json) {
                 friendList.innerHTML += `<input type="checkbox" id="${item}" value="${item}" name="invited"> <lable for="user2">${item}</lable><br>`
+            }
+            if(json.length === 0) {
+                friendList.innerHTML = '등록된 친구가 없습니다. 친구를 추가해보세요!';
             }
 
         } catch (error) {

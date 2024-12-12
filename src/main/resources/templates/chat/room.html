@@ -265,7 +265,7 @@
         }
         if (inputContent.value === '') return;
         if (inputContent.value.length > 300) {
-            alert("300자 이내 전송 가능합니다.");
+            alert("메시지는 300자 이내로 작성해주세요.");
             return;
         }
         //메시지 전송
@@ -373,6 +373,9 @@
             for(let item of json) {
                 friendList.innerHTML += `<div class="freind-info"><span>${item}</span> <button type="button" class="btn btn-dark btn-invite" data-invited-id="${item}">초대하기</div><br>`
             }
+            if(json.length === 0) {
+                friendList.innerHTML = '등록된 친구가 없습니다. 친구를 추가해보세요!';
+            }
 
             document.querySelectorAll(".btn-invite").forEach(button => {
                 button.addEventListener("click", evt => {
@@ -389,7 +392,7 @@
     });
 
     function exit() {
-        if(confirm("대화내용이 모두 삭제되고 채팅목록에서도 삭제됩니다.")) {
+        if(confirm("채팅방에서 나가시겠습니까? 나가면 대화 내용을 더 이상 볼 수 없습니다.")) {
             window.location.href="/chat/room/"+roomId+"/exit";
         }
     }

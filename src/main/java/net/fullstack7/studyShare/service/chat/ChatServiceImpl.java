@@ -49,7 +49,7 @@ public class ChatServiceImpl implements ChatService {
             });
             return list;
         } else {
-            throw new IllegalAccessException("존재하지 않는 회원입니다.");
+            throw new IllegalAccessException("회원 정보가 확인되지 않습니다. 다시 로그인하거나 회원 가입 후 이용해주세요.");
         }
     }
 
@@ -57,7 +57,7 @@ public class ChatServiceImpl implements ChatService {
     public List<ChatMessage> getChatMessageListByRoomId(int roomId, String userId) throws IllegalAccessException {
         ChatMember chatMember = chatMemberInfo(roomId, userId);
         if (chatMember == null) {
-            throw new IllegalAccessException("채팅방 멤버가 아닙니다.");
+            throw new IllegalAccessException("이 채팅방에 참여하고 있지 않습니다. 참여 후에 메시지를 확인하거나 보낼 수 있습니다.");
         }
 
         LocalDateTime joinDate = chatMember.getJoinAt();
@@ -107,7 +107,7 @@ public class ChatServiceImpl implements ChatService {
 
         chatMessageRepository.save(ChatMessage.builder()
                 .senderId("chatmanager")
-                .message("채팅 시작")
+                .message("채팅방이 생성되었습니다.")
                 .isRead(1)
                 .chatRoom(newChatRoom)
                 .createdAt(LocalDateTime.now())
@@ -132,25 +132,25 @@ public class ChatServiceImpl implements ChatService {
     public String exitRoom(int roomId, String userId) {
         ChatMember chatMember = chatMemberInfo(roomId, userId);
         if (chatMember == null) {
-            return "채팅방 멤버가 아닙니다.";
+            return "이 채팅방에 참여하고 있지 않습니다. 참여 후에 메시지를 확인하거나 보낼 수 있습니다.";
         }
 
         Member member = memberRepository.findById(userId).orElse(null);
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
 
         if (member == null) {
-            return "회원이 아닙니다.";
+            return "회원 정보가 확인되지 않습니다. 다시 로그인하거나 회원 가입 후 이용해주세요.";
         }
         if (chatRoom == null) {
-            return "존재하지 않는 채팅방입니다.";
+            return "존재하지 않는 채팅방입니다. 채팅방 ID를 확인하거나 새로 생성해주세요.";
         }
 
         chatMemberRepository.deleteByChatRoomAndMember(chatRoom, member);
-        if (chatMemberRepository.countByChatRoom(chatRoom) == 0) {
-            chatMessageRepository.deleteAllByChatRoom(chatRoom);
-            chatRoomRepository.deleteById(roomId);
-            return "채팅방에서 퇴장하셨습니다.";
-        }
+//        if (chatMemberRepository.countByChatRoom(chatRoom) == 0) {
+//            chatMessageRepository.deleteAllByChatRoom(chatRoom);
+//            chatRoomRepository.deleteById(roomId);
+//            return "채팅방에서 퇴장하셨습니다.";
+//        }
         ChatMessage exitMessage = ChatMessage.builder()
                 .senderId("chatmanager")
                 .message(userId + " 님이 나갔습니다.")
@@ -160,7 +160,7 @@ public class ChatServiceImpl implements ChatService {
                 .build();
         chatMessageRepository.save(exitMessage);
         messagingTemplate.convertAndSend("/room/" + roomId, exitMessage);
-        return "채팅방에서 퇴장하셨습니다.";
+        return "채팅방 목록에서 삭제합니다. 더 이상 메시지를 주고받을 수 없습니다.";
     }
 
     @Override
@@ -171,17 +171,17 @@ public class ChatServiceImpl implements ChatService {
             if (chatRoomRepository.existsById(roomId)) {
                 ChatRoom chatRoom = ChatRoom.builder().id(roomId).build();
                 if (chatMemberRepository.existsByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build())) {
-                    return "이미 참여 중인 회원입니다.";
+                    return "해당 회원은 이미 채팅방에 참여 중입니다.";
                 }
                 ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).joinAt(LocalDateTime.now()).build();
                 chatMemberRepository.save(chatMember);
                 if (chatMember.getId() == 0) {
-                    return "다시 시도해주세요.";
+                    return "초대 도중 오류가 발생했습니다. 다시 시도해주세요.";
                 }
 
                 ChatMessage inviteMessage = ChatMessage.builder()
                         .senderId("chatmanager")
-                        .message(userId + " 님이 입장하셨습니다.")
+                        .message(userId + " 님이 초대되었습니다.")
                         .isRead(1)
                         .chatRoom(chatRoom)
                         .createdAt(LocalDateTime.now())
@@ -192,9 +192,9 @@ public class ChatServiceImpl implements ChatService {
                 messagingTemplate.convertAndSend("/room/" + roomId, inviteMessage);
                 return userId + "님을 초대했습니다.";
             }
-            return "존재하지 않는 채팅방입니다.";
+            return "존재하지 않는 채팅방입니다. 채팅방 ID를 확인하거나 새로 생성해주세요.";
         }
-        return "존재하지 않는 회원입니다.";
+        return "회원 정보가 확인되지 않습니다. 다시 로그인하거나 회원 가입 후 이용해주세요.";
     }
 
     @Override
@@ -206,7 +206,7 @@ public class ChatServiceImpl implements ChatService {
     public int isExistChatRoom(String user1, String user2) {
         int compare = user1.compareTo(user2);
         if(compare == 0) {
-            throw new IllegalArgumentException("채팅 상대방을 선택해주세요.");
+            throw new IllegalArgumentException("대상을 선택한 후 메시지를 보내주세요.");
         }
         return compare < 0 ? chatMemberMapper.findChatRoomIdBy2UserId(user1, user2) : chatMemberMapper.findChatRoomIdBy2UserId(user2, user1);
     }
