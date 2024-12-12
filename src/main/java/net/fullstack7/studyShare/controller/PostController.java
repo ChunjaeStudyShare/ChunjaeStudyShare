@@ -73,6 +73,7 @@ public class PostController {
                              RedirectAttributes redirectAttributes) {
             response.setCharacterEncoding("utf-8");
             log.info("current  {}" , currentPage);
+            log.info("type", type);
             String userId = (String) request.getAttribute("userId");
             try{
                 //게시글 조회
@@ -205,19 +206,20 @@ public class PostController {
                             HttpServletResponse response,
                             HttpServletRequest request,
                             @Valid PostSharePagingDTO dto) {
-        // LogUtil logUtil = new LogUtil();
-        //logUtil.info("dto: " + dto);
         response.setCharacterEncoding("utf-8");
         String userId = (String) request.getAttribute("userId");
-        int totalCnt = postService.shareTotalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
+        int totalCnt = 0;
         //log.info("totalCnt: " + totalCnt);
+        log.info("type {}", dto.getSortType());
         List<PostMyShareDTO> sharePosts;
         List<PostShareDTO> getSharePosts;
         if("share".equals(dto.getSortType()) || dto.getSortType().isEmpty()){
+            totalCnt = postService.shareTotalCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
             sharePosts = postService.selectPostsByUserId(dto, userId); // 공유 한 것
             model.addAttribute("posts", sharePosts);
             model.addAttribute("sortType", "share");
         }else{
+            totalCnt = postService.selectMyShareCnt(dto.getSearchCategory(), dto.getSearchValue(), userId, dto.getSortType(), dto.getDisplayAt(), dto.getDisplayEnd());
             getSharePosts = postService.getSharedPosts(dto, userId); // 공유 받은 것
             log.info(getSharePosts.toString());
             model.addAttribute("posts", getSharePosts);

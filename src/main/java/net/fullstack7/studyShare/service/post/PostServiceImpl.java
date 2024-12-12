@@ -407,6 +407,11 @@ public class PostServiceImpl implements PostServiceIf{
         return postMapper.selectPostsByUserIdCnt(searchCategory, searchValue, userId, sortType, displayAt, displayEnd);
     }
 
+    @Override
+    public int selectMyShareCnt(String searchCategory, String searchValue, String userId, String sortType, LocalDateTime displayAt, LocalDateTime displayEnd) {
+        return postMapper.selectMyShareCnt(searchCategory, searchValue, userId, sortType, displayAt, displayEnd);
+    }
+
 
     @Override
     public List<PostShareDTO> getSharedPosts(PostSharePagingDTO dto, String userId) {
