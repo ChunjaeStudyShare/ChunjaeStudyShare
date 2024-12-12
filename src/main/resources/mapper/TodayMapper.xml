@@ -24,7 +24,7 @@
     </select>
     <select id="likeCount" resultType="java.lang.Integer">
         SELECT count(t.id)
-        FROM Thumbsup as t
+        FROM ThumbsUp as t
         RIGHT OUTER JOIN Post as p ON p.id = t.postId AND p.id = #{postId}
     </select>
 </mapper>
