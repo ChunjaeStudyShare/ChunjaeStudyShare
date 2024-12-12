@@ -1,5 +1,7 @@
 package net.fullstack7.studyShare.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.util.Json;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,9 +35,12 @@ public class ChatApiController {
         }
     }
 
-    @PutMapping("/room/leave")
-    public ResponseEntity<?> leave(@RequestBody ChatLeaveDTO chatLeaveDTO, HttpServletRequest request) {
+    @PostMapping("/room/leave")
+    public ResponseEntity<?> leave(@RequestBody String payload, HttpServletRequest request) {
+//        log.info("payload: " + payload);
         try {
+            ObjectMapper objectMapper = Json.mapper();
+            ChatLeaveDTO chatLeaveDTO = objectMapper.readValue(payload, ChatLeaveDTO.class);
             LocalDateTime leaveAt = chatLeaveDTO.getLeaveAt().plusHours(9);
             Integer roomId = chatLeaveDTO.getRoomId();
 //            log.info("leaveAt: " + leaveAt);

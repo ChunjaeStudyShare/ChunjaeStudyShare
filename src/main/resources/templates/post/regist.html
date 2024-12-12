@@ -32,7 +32,7 @@
                         <label for="title">제목</label>
                     </th>
                     <td style="width: 80%;">
-                        <input type="text" class="form-control" id="title" name="title" minlength="2" maxlength="50" placeholder="제목을 입력하세요" required>
+                        <input type="text" class="form-control" id="title" name="title"  minlength="2" maxlength="100" placeholder="제목을 입력하세요" required>
                     </td>
                 </tr>
                 <!-- 학습 내용 -->
@@ -41,7 +41,7 @@
                         <label for="content">학습 내용</label>
                     </th>
                     <td>
-                        <textarea class="form-control" id="content" name="content" rows="5" minlength="10" maxlength="4000" placeholder="오늘의 학습 내용을 입력하세요" ></textarea>
+                        <textarea class="form-control" id="content" name="content" rows="5" minlength="10" maxlength="4000" placeholder="오늘의 학습 내용을 입력하세요"></textarea>
                         <div class="text-danger small" id="contentError"></div>
                     </td>
                 </tr>
@@ -124,7 +124,6 @@
 <!--            </div>-->
             <!-- 하단 버튼 -->
             <div class="button-end text-end">
-
                 <button th:onclick="|location.href='@{${currentPage != null ? currentPage : '/post/myList'}}';return false;|" class="btn btn-primary">목록</button>
                 <button class="btn btn-secondary" type="submit">등록</button>
                 <button type="reset" class="btn btn-warning">취소</button>
@@ -198,7 +197,6 @@
             });
 
             form.addEventListener("submit", function (event) {
-                console.log("ddddd");
                 let isValid = true;
 
                 titleError.textContent = "";
@@ -275,6 +273,9 @@
                         domainError.textContent = "분야의 각 항목은 최대 10자까지 입력 가능합니다.";
                         isValid = false;
                     }
+                    if (domain.value.endsWith(",")) {
+                        domain.value = domain.value.slice(0, -1); // 마지막 쉼표 제거
+                    }
                 }
 
                 // 해시태그
@@ -294,6 +295,9 @@
                     if (hashtags.some((h) => h.length > 10)) {
                         hashtagError.textContent = "해시태그의 각 항목은 최대 10자까지 입력 가능합니다.";
                         isValid = false;
+                    }
+                    if (hashtag.value.endsWith(",")) {
+                        hashtag.value = hashtag.value.slice(0, -1); // 마지막 쉼표 제거
                     }
                 }
 

@@ -3,6 +3,7 @@ package net.fullstack7.studyShare.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.fullstack7.studyShare.exception.CustomException;
 import net.fullstack7.studyShare.service.chat.ChatService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,9 +40,14 @@ public class ChatController {
             return "redirect:/chat/list";
         }
 
-        int roomId = chatService.createChatRoom(userId, invited);
+        try {
+            int roomId = chatService.createChatRoom(userId, invited);
+            return "redirect:/chat/room/"+roomId;
+        } catch (CustomException e) {
+            redirectAttributes.addFlashAttribute("alertMessage", e.getMessage());
+            return "redirect:/chat/list";
+        }
 
-        return "redirect:/chat/room/"+roomId;
     }
 
     @GetMapping("/friend")
@@ -72,6 +78,7 @@ public class ChatController {
             model.addAttribute("messages", chatService.getChatMessageListByRoomId(roomId, userId));
             model.addAttribute("roomId", roomId);
             model.addAttribute("userId", userId);
+            model.addAttribute("memberList", chatService.getChatMemberList(roomId));
             chatService.enterChatRoom(roomId, userId);
             return "chat/room";
         }

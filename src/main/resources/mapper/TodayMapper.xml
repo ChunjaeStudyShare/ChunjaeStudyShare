@@ -22,9 +22,9 @@
         INNER JOIN Share AS s ON s.postId = p.id AND s.userId = #{userId}
         ORDER BY s.createdAt DESC
     </select>
-    <select id="likeCount" resultType="java.lang.Integer">
-        SELECT count(t.id)
-        FROM Thumbsup as t
+    <select id="thumbsUpCnt" resultType="java.lang.Integer">
+        SELECT count(t.id)  
+        FROM ThumbsUp as t
         RIGHT OUTER JOIN Post as p ON p.id = t.postId AND p.id = #{postId}
     </select>
 </mapper>

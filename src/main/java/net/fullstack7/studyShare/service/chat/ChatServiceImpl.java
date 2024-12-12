@@ -10,6 +10,7 @@ import net.fullstack7.studyShare.domain.ChatRoom;
 import net.fullstack7.studyShare.domain.Member;
 
 import net.fullstack7.studyShare.dto.chat.ChatRoomDTO;
+import net.fullstack7.studyShare.exception.CustomException;
 import net.fullstack7.studyShare.mapper.ChatMemberMapper;
 import net.fullstack7.studyShare.repository.ChatMemberRepository;
 import net.fullstack7.studyShare.repository.ChatMessageRepository;
@@ -19,7 +20,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,14 +68,22 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     @Override
     public int createChatRoom(String userId, String[] invited) {
+        if(invited.length >= 20){
+            throw new CustomException("채팅방의 최대 참여 인원은 20명입니다. 초과된 인원은 초대할 수 없습니다.");
+        }
         String errorMessage = "";
         if(invited.length==1){
             try{
+                log.info("userId: "+userId);
+                log.info("invited[0]: "+invited[0]);
                 int existRoom = isExistChatRoom(userId,invited[0]);
+                log.info("existRoom: "+existRoom);
                 if(existRoom>0){
+                    log.info("existRoom: "+existRoom);
                     return existRoom;
                 }
             } catch (Exception e) {
+                log.info("chatServiceImpl.createChatRoom: "+e);
                 errorMessage = e.getMessage();
             }
         }
@@ -146,11 +154,15 @@ public class ChatServiceImpl implements ChatService {
         }
 
         chatMemberRepository.deleteByChatRoomAndMember(chatRoom, member);
+
+        // 채팅방,메시지도 삭제할 경우
 //        if (chatMemberRepository.countByChatRoom(chatRoom) == 0) {
 //            chatMessageRepository.deleteAllByChatRoom(chatRoom);
 //            chatRoomRepository.deleteById(roomId);
 //            return "채팅방에서 퇴장하셨습니다.";
 //        }
+
+        //채팅방에 시스템 메시지 전송
         ChatMessage exitMessage = ChatMessage.builder()
                 .senderId("chatmanager")
                 .message(userId + " 님이 나갔습니다.")
@@ -170,10 +182,14 @@ public class ChatServiceImpl implements ChatService {
             Member member = Member.builder().userId(userId).build();
             if (chatRoomRepository.existsById(roomId)) {
                 ChatRoom chatRoom = ChatRoom.builder().id(roomId).build();
+                if(chatMemberRepository.countByChatRoom(chatRoom)==20){
+                    return "채팅방의 최대 참여 인원은 20명입니다. 초과된 인원은 초대할 수 없습니다.";
+                }
                 if (chatMemberRepository.existsByMemberAndChatRoom(Member.builder().userId(userId).build(), ChatRoom.builder().id(roomId).build())) {
                     return "해당 회원은 이미 채팅방에 참여 중입니다.";
                 }
-                ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).joinAt(LocalDateTime.now()).build();
+                LocalDateTime now = LocalDateTime.now();
+                ChatMember chatMember = ChatMember.builder().member(member).chatRoom(chatRoom).joinAt(now).leaveAt(now).build();
                 chatMemberRepository.save(chatMember);
                 if (chatMember.getId() == 0) {
                     return "초대 도중 오류가 발생했습니다. 다시 시도해주세요.";
@@ -184,7 +200,7 @@ public class ChatServiceImpl implements ChatService {
                         .message(userId + " 님이 초대되었습니다.")
                         .isRead(1)
                         .chatRoom(chatRoom)
-                        .createdAt(LocalDateTime.now())
+                        .createdAt(now)
                         .build();
 
                 chatMessageRepository.save(inviteMessage);
@@ -205,8 +221,12 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public int isExistChatRoom(String user1, String user2) {
         if(user1.equals(user2)) {
+            log.info("user1: "+user1);
+            log.info("user2: "+user2);
             throw new IllegalArgumentException("대상을 선택한 후 메시지를 보내주세요.");
         }
+        log.info("user1: "+user1);
+        log.info("user2: "+user2);
         return chatMemberMapper.findChatRoomIdBy2UserId(user1, user2);
     }
 
@@ -224,6 +244,11 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public boolean enterChatRoom(int roomId, String userId) {
         return chatMemberMapper.updateLeaveAt(null, roomId, userId) > 0;
+    }
+
+    @Override
+    public List<String> getChatMemberList(int roomId) {
+        return chatMemberMapper.findMembersByChatRoomId(roomId);
     }
 
 

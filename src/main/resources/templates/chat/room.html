@@ -95,11 +95,19 @@
         /*}*/
 
         /*친구목록*/
-        .freind-info {
+        .friend-info {
             display: flex;
             justify-content: space-between; /* 좌우 끝으로 배치 */
             align-items: center; /* 세로 가운데 정렬 */
             width: 100%; /* 필요시 부모 요소의 너비를 기준으로 확장 */
+        }
+
+        .friend-box {
+            width: 100%;
+            height: 70vh;
+            margin: 0 auto;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
 
         /*채팅 헤더*/
@@ -140,7 +148,16 @@
         <div class="col chat-header-item-left">
             <button type="button" id="btn-to-chat-list" onclick="location.href='/chat/list'" class="btn btn-dark">목록으로</button>
         </div>
-        <div class="col chat-header-item-center">채팅방</div>
+        <div class="col chat-header-item-center">
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    대화상대
+                </button>
+                <ul class="dropdown-menu" id="chatMemberList">
+                    <li class="dropdown-item" th:each="member, status:${memberList}" th:text="${member}" th:id="'chatmember-'+${member}"></li>
+                </ul>
+            </div>
+        </div>
         <div class="col chat-header-item-right">
             <button type="button" id="btn-exit" class="btn btn-danger" onclick="javascript:exit();">나가기</button>
             <button type="button" id="btn-invite" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">초대하기</button>
@@ -182,7 +199,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                    <div class="modal-body" id="friend-list">
+                    <div class="modal-body friend-box" id="friend-list">
 
                     </div>
                     <div class="modal-footer">
@@ -223,8 +240,25 @@
         console.log('Connected: ' + frame);
         stompClient.subscribe('/room/' + roomId, (chatMessage) => {
             let rContent = chatMessage.body;
-            if (rContent != null)
-                showMessageContent(JSON.parse(rContent))
+            if (rContent != null) {
+                const chatmessage = JSON.parse(rContent);
+                if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 나갔습니다.")) {
+                    const exitUserId = chatmessage.message.replace(" 님이 나갔습니다.", "");
+                    if(exitUserId === userId) {
+                        location.reload();
+                    }
+                    document.getElementById("chatmember-"+exitUserId).remove();
+                }
+                if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 초대되었습니다.")) {
+                    let memberId = chatmessage.message.replace(" 님이 초대되었습니다.", "");
+                    $("#chatMemberList").append(
+                        `
+                        <li class="dropdown-item" id="chatmember-${memberId}">${memberId}</li>
+                        `
+                    )
+                }
+                showMessageContent(chatmessage);
+            }
         });
         //개인채널
         stompClient.subscribe('/user/queue/errors', function (message) {
@@ -310,7 +344,7 @@
         $("#send").click(() => sendMessageContent());
     });
 
-    window.addEventListener("beforeunload", function (event) {
+    window.addEventListener("unload", function (event) {
         leave(roomId);
         if (isConnected) disconnect();
         event.preventDefault();
@@ -337,16 +371,29 @@
         return response.text();
     }
 
-    async function leave(roomId) {
+    // async function leave(roomId) {
+    //     const url = "/api/chat/room/leave";
+    //     const response = await fetch(url, {
+    //         method: 'PUT',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({leaveAt: new Date().toISOString(), roomId: roomId})
+    //     });
+    //     return response.ok;
+    // }
+
+    function leave(roomId) {
+        console.log("leave start");
         const url = "/api/chat/room/leave";
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({leaveAt: new Date().toISOString(), roomId: roomId})
-        });
-        return response.ok;
+        console.log(new Date());
+        const payload = JSON.stringify({ leaveAt: new Date(), roomId: roomId });
+
+        const success = navigator.sendBeacon(url, payload);
+
+        console.log("leave end");
+
+        return success;
     }
 
     let friendFlag = false;
@@ -371,7 +418,7 @@
             friendFlag = true;
 
             for(let item of json) {
-                friendList.innerHTML += `<div class="freind-info"><span>${item}</span> <button type="button" class="btn btn-dark btn-invite" data-invited-id="${item}">초대하기</div><br>`
+                friendList.innerHTML += `<div class="friend-info"><span>${item}</span> <button type="button" class="btn btn-dark btn-invite" data-invited-id="${item}">초대하기</div><br>`
             }
             if(json.length === 0) {
                 friendList.innerHTML = '등록된 친구가 없습니다. 친구를 추가해보세요!';

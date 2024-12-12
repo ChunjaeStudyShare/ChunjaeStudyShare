@@ -25,5 +25,6 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember, Integer>
     @Modifying
     @Query("DELETE FROM ChatMember cm WHERE cm.member=:member")
     void deleteByMember(Member member);
+
 }
 

@@ -114,11 +114,10 @@ public class PostController {
         }
 
     @GetMapping("/regist")
-    public String registGet(@RequestParam("currentPage") String currentPage,Model model){
+    public String registGet(@RequestParam(value = "currentPage", defaultValue = "") String currentPage,Model model){
         model.addAttribute("currentPage", currentPage);
         return "post/regist";
     }
-
     @PostMapping("/regist")
     public String registPost(@ModelAttribute @Valid PostRegistDTO dto,
                              BindingResult bindingResult,
@@ -140,9 +139,11 @@ public class PostController {
             return "redirect:/post/myList";
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
+            model.addAttribute("dto", dto);
             return "post/regist";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("alertMessage",  "업로드 실패 다시 시도해주세요");
+            model.addAttribute("dto", dto);
             return "post/regist";
         }
     }
@@ -161,11 +162,13 @@ public class PostController {
         }
         PostViewDTO post = postService.findPostWithFile(id);
         if (post != null) {
+            List<Share> shareList = shareService.getShareListByPostId(Integer.parseInt(id));
+            model.addAttribute("shareList", shareList);
             model.addAttribute("post", post);
             return "post/modify";
         } else {
             redirectAttributes.addFlashAttribute("alertMessage",  "해당 학습 정보를 찾을 수 없습니다.");
-            return "redirect:post/myList";
+            return "redirect:/post/myList";
         }
     }
 

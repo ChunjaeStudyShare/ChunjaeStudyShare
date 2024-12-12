@@ -93,10 +93,14 @@ public class PostServiceImpl implements PostServiceIf{
                 log.info("파일명: {}, 파일경로: {}", fileName, filePath);
 
                 //썸네일
-                thumbnailName = fileName;
+                thumbnailName = "thumb_" + fileName;
                 try {
                     CommonFileUtil.createThumbnail(fileName); // 파일명만 전달
-                    thumbnailPath = WEB_DIR + thumbnailName + ".jpg"; // 웹 경로 구성
+                    thumbnailPath = WEB_DIR +"/" + thumbnailName;
+                    String extension = thumbnailName.substring(thumbnailName.lastIndexOf(".")).toLowerCase();
+                    if(extension.equals(".png")){
+                        thumbnailPath = thumbnailPath + ".jpg";
+                    }
                     log.info("썸네일 생성 완료: {}", thumbnailPath);
                 } catch (Exception e) {
                     log.error("썸네일 생성 실패: {}", e.getMessage());
