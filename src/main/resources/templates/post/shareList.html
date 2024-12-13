@@ -133,7 +133,9 @@
                 <tr th:each="post, status : ${posts}" class="link" th:data-post-id=" ${post.postId}"
                     style="cursor: pointer;">
                     <td th:text="${status.index + 1}"></td>
-                    <td>[[${post.title}]]</td>
+                    <td style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <span th:text="${post.title}"></span>
+                    </td>
                     <td th:if="${sortType == 'share'}">
                         <span th:each="share : ${post.shares}">
                             [[${share.sharedUserId}]] (<span th:text="${#temporals.format(share.sharedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>)<br>
