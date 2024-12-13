@@ -44,6 +44,7 @@ public class TodayController {
         model.addAttribute("date", date);
         model.addAttribute("todayList", todayList);
         model.addAttribute("sharedPosts", sharedPosts);
+        model.addAttribute("currentPage", request.getRequestURL().toString());
         return "today/main";
     }
 
