@@ -64,7 +64,7 @@
             background-color: #e0e0e0;
             border: 1px solid #d0d0d0;
             height: 100%; /* 이미지가 그리드 셀을 채우도록 */
-            overflow:hidden;
+            overflow:hidden; 
         }
 
         .title {
@@ -229,7 +229,7 @@
                          th:classappend="${status.index == 0 ? 'active' : ''}"
                          data-bs-interval="5000">
                         <div class="container1 h-100">
-                            <div class="thumbnail"><img th:if="${item.thumbnailPath != null && !item.thumbnailPath.isEmpty()}" th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;"></div>
+                            <div class="thumbnail"><img th:if="${item.thumbnailPath != null && !item.thumbnailPath.isEmpty()}" th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: contain; object-position: center;"></div>
                             <div class="thumbnail" th:if="${item.thumbnailPath == null || item.thumbnailPath.isEmpty()}" style="display: flex;justify-content: center;align-items: center;">
                                 이미지가 없습니다.
                             </div>
@@ -289,7 +289,7 @@
                             <div class="card mx-auto position-relative" style="width: 90%; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; margin-top:10px;">
                                 <!-- 썸네일 (가로 2 : 세로 3 비율 유지) -->
                                 <div style="position: relative; width: 100%; aspect-ratio: 2 / 3; background-color: #f9f9f9;">
-                                    <img th:if="${item.thumbnailPath != null}" th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                                    <img th:if="${item.thumbnailPath != null}" th:src="${item.thumbnailPath}" alt="썸네일" style="width: 100%; height: 100%; object-fit: contain; object-position: center;">
                                     <div class="thumbnail" th:if="${item.thumbnailPath == null || item.thumbnailPath.isEmpty()}" style="display: flex;justify-content: center;align-items: center;">
                                         이미지가 없습니다.
                                     </div>
