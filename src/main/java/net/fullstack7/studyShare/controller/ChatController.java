@@ -20,14 +20,16 @@ public class ChatController {
     @GetMapping("/list")
     public String chatList(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
         String userId = (String) request.getAttribute("userId");
-
+        log.info("chatList 호출");
         try {
             model.addAttribute("chatlist", chatService.getChatRoomList(userId));
             return "chat/list";
         } catch (IllegalAccessException e) {
+            log.error("chatList 예외 발생: {}", e.getMessage());
             redirectAttributes.addFlashAttribute(e.getMessage());
             return "redirect:/";
         } catch (Exception e) {
+            log.error("chatList 예외 발생: {}", e.getMessage());
             return "redirect:/";
         }
     }
@@ -78,6 +80,7 @@ public class ChatController {
             model.addAttribute("messages", chatService.getChatMessageListByRoomId(roomId, userId));
             model.addAttribute("roomId", roomId);
             model.addAttribute("userId", userId);
+            model.addAttribute("memberList", chatService.getChatMemberList(roomId));
             chatService.enterChatRoom(roomId, userId);
             return "chat/room";
         }
