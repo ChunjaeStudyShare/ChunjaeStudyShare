@@ -116,7 +116,7 @@
             <div class="chat-item" th:each="item, status:${chatlist}" th:data-chat-room-id="${item.chatRoomId}">
                 <div class="chat-details">
                     <div class="chat-title text-truncate"><span th:each="member, iterStat : ${item.members}"
-                                                   th:text="${member} + (${iterStat.last} ? '' : ',')"></span> </div>
+                                                   th:text="${member} + (${iterStat.last} ? '' : ',')" id="chat-title"></span> </div>
                     <div class="chat-last-message">
                         <span class="badge rounded-pill text-bg-danger" th:text="${item.newMessagesCount}"></span>
                         <span th:text="${item.lastMessage}" class="text-truncate"></span>
@@ -167,8 +167,6 @@
             console.error(error.message);
         }
     });
-
-
 </script>
 
 </body>

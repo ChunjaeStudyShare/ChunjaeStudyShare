@@ -238,9 +238,10 @@ public class PostController {
     //인규가 작업함
     //2024-12-10 수미 수정
     @GetMapping("/delete")
-    public String delete(@RequestParam int id, HttpServletResponse response, RedirectAttributes redirectAttributes){
+    public String delete(@RequestParam int id, HttpServletResponse response, RedirectAttributes redirectAttributes, HttpServletRequest request){
         response.setCharacterEncoding("utf-8");
-        String userId = "user1"; //세션 아이디
+        // String userId = "user1"; //세션 아이디
+        String userId = (String) request.getAttribute("userId");
         //로그인한 회원이 작성한 글인지 확인
         if (!postService.checkWriter(id, userId)) {
             redirectAttributes.addFlashAttribute("alertMessage", "삭제 권한이 없습니다.");

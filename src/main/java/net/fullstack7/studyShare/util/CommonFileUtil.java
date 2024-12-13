@@ -57,7 +57,7 @@ public class CommonFileUtil {
                 .outputFormat("jpg")  // 파일 형식
                 .toFile(outputFilePath);  // 저장 경로
 
-        return WEB_DIR + "/" + thumbnailName; // 웹 경로 반환
+        return WEB_DIR + "/" + "thumb_" + thumbnailName; // 웹 경로 반환
     }
 
     // 다중 파일 업로드 메서드
