@@ -154,7 +154,8 @@
                     대화상대
                 </button>
                 <ul class="dropdown-menu" id="chatMemberList">
-                    <li class="dropdown-item" th:each="member, status:${memberList}" th:text="${member}" th:id="'chatmember-'+${member}"></li>
+                    <li class="dropdown-item" id="chat-no-member">대화상대없음</li>
+                    <li class="dropdown-item li-chat-member-id" th:each="member, status:${memberList}" th:text="${member}" th:id="'chatmember-'+${member}"></li>
                 </ul>
             </div>
         </div>
@@ -212,8 +213,12 @@
 </div>
 
 <script th:inline="javascript" layout:fragment="script">
+
+
+
     let isConnected = false;
     window.addEventListener("pageshow", function (event) {
+        countMember();
         connect();
         scrollToBottom();
     });
@@ -245,17 +250,19 @@
                 if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 나갔습니다.")) {
                     const exitUserId = chatmessage.message.replace(" 님이 나갔습니다.", "");
                     if(exitUserId === userId) {
-                        location.reload();
+                        // location.reload();
                     }
                     document.getElementById("chatmember-"+exitUserId).remove();
+                    countMember();
                 }
                 if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 초대되었습니다.")) {
                     let memberId = chatmessage.message.replace(" 님이 초대되었습니다.", "");
                     $("#chatMemberList").append(
                         `
-                        <li class="dropdown-item" id="chatmember-${memberId}">${memberId}</li>
+                        <li class="dropdown-item li-chat-member-id" id="chatmember-${memberId}">${memberId}</li>
                         `
                     )
+                    countMember();
                 }
                 showMessageContent(chatmessage);
             }
@@ -350,13 +357,6 @@
         event.preventDefault();
     });
 
-    // unload 이벤트 사용
-    // window.addEventListener("unload", function() {
-    //     disconnect();
-    // });
-
-
-
     async function invite(invitedId, roomId) {
         const url = "/api/chat/room/invite";
         const response = await fetch(url, {
@@ -442,6 +442,15 @@
         if(confirm("채팅방에서 나가시겠습니까? 나가면 대화 내용을 더 이상 볼 수 없습니다.")) {
             window.location.href="/chat/room/"+roomId+"/exit";
         }
+    }
+
+    function countMember() {
+        let chatNoMember = document.querySelector("#chat-no-member");
+        let memberList = document.querySelectorAll(".li-chat-member-id");
+        if(memberList != null && memberList.length === 1) {
+            chatNoMember.style.display = "block";
+        }
+        else { chatNoMember.style.display = "none"; }
     }
 </script>
 </body>
