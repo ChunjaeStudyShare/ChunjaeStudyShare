@@ -250,7 +250,7 @@
                 if(chatmessage.senderId ==='chatmanager' && chatmessage.message.endsWith(" 님이 나갔습니다.")) {
                     const exitUserId = chatmessage.message.replace(" 님이 나갔습니다.", "");
                     if(exitUserId === userId) {
-                        // location.reload();
+                        location.reload();
                     }
                     document.getElementById("chatmember-"+exitUserId).remove();
                     countMember();
