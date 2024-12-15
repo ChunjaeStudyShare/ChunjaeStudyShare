@@ -90,8 +90,9 @@
 - 백엔드 페이징 모듈
 - 프론트엔드 페이징 모듈
 
-## 📊 ERD & Class Diagram & 화면 설계서
-- 나오면 추가
+## 📊 ERD & Class Diagram
+![ERD](https://github.com/ChunjaeStudyShare/ChunjaeStudyShare/blob/main/note/%EC%BD%94%EB%94%A9%EC%9E%AC%ED%8C%90%EC%86%8C_ERD.png)
+![Class Diagram](https://github.com/ChunjaeStudyShare/ChunjaeStudyShare/blob/main/note/%EC%BD%94%EB%94%A9%EC%9E%AC%ED%8C%90%EC%86%8C_classDiagram.png)
 
 ## 💻 주요 코드
 
@@ -163,7 +164,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
     - 평균 응답: 258.4ms
     - 성공률: 100%
     
-	2. 쿼리 성능비교
+2. 쿼리 성능비교
 
 | 쿼리 유형 | 처리량 (req/sec) | 평균 응답 시간 |
 |----------|-----------------|--------------|
