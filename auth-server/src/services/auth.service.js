@@ -14,15 +14,12 @@ class AuthService {
 
     // 로그인
     async login(userId, password, rememberMe) {
-        console.log('Login attempt for userId:', userId);
         const user = await UserModel.findById(userId);
-        console.log('Found user:', user);
         if (!user) {
             throw new Error(errorMessage.INVALID_CREDENTIALS);
         }
         //'0: 활동 중, 1: 휴면, 2: 탈퇴(강퇴), 3: 미인증, 4: 잠금'
         // 계정 상태 확인
-        // console.log(user.status);
         if (user.status === 1) throw new Error(errorMessage.ACCOUNT_DORMANT);
         if (user.status === 2) throw new Error(errorMessage.ACCOUNT_RESTRICTED);
         if (user.status === 3) throw new Error(errorMessage.EMAIL_NOT_VERIFIED);
