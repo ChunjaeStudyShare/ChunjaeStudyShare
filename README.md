@@ -90,8 +90,9 @@
 - 백엔드 페이징 모듈
 - 프론트엔드 페이징 모듈
 
-## 📊 ERD & Class Diagram & 화면 설계서
-- 나오면 추가
+## 📊 ERD & Class Diagram
+![ERD](https://github.com/ChunjaeStudyShare/ChunjaeStudyShare/blob/main/note/%EC%BD%94%EB%94%A9%EC%9E%AC%ED%8C%90%EC%86%8C_ERD.png)
+![Class Diagram](https://github.com/ChunjaeStudyShare/ChunjaeStudyShare/blob/main/note/%EC%BD%94%EB%94%A9%EC%9E%AC%ED%8C%90%EC%86%8C_classDiagram.png)
 
 ## 💻 주요 코드
 
