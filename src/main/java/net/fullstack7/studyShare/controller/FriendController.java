@@ -169,7 +169,7 @@ public class FriendController {
         }
 
 
-        if(success && deleteShare) {
+        if(success || deleteShare) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(400).build();
