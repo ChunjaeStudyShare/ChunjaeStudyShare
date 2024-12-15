@@ -164,7 +164,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
     - 평균 응답: 258.4ms
     - 성공률: 100%
     
-	2. 쿼리 성능비교
+2. 쿼리 성능비교
 
 | 쿼리 유형 | 처리량 (req/sec) | 평균 응답 시간 |
 |----------|-----------------|--------------|
